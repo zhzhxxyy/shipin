@@ -1,0 +1,4 @@
+<?php
+//000000000000
+ exit();?>
+a:3:{i:0;a:11:{s:2:"id";i:136;s:3:"pid";i:134;s:6:"module";s:5:"admin";s:5:"title";s:12:"排序配置";s:3:"url";s:18:"admin/index/khsort";s:5:"param";s:0:"";s:6:"target";s:5:"_self";s:4:"icon";s:0:"";s:4:"sort";i:0;s:6:"status";i:1;s:6:"childs";a:0:{}}i:1;a:11:{s:2:"id";i:137;s:3:"pid";i:134;s:6:"module";s:5:"admin";s:5:"title";s:12:"状态开关";s:3:"url";s:20:"admin/index/khstatus";s:5:"param";s:0:"";s:6:"target";s:5:"_self";s:4:"icon";s:0:"";s:4:"sort";i:0;s:6:"status";i:1;s:6:"childs";a:0:{}}i:2;a:11:{s:2:"id";i:139;s:3:"pid";i:134;s:6:"module";s:5:"admin";s:5:"title";s:12:"删除标签";s:3:"url";s:17:"admin/index/khdel";s:5:"param";s:0:"";s:6:"target";s:5:"_self";s:4:"icon";s:0:"";s:4:"sort";i:0;s:6:"status";i:1;s:6:"childs";a:0:{}}}

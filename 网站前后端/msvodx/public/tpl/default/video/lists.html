@@ -1,0 +1,154 @@
+{include file="common/header"}
+<link href="__ROOT__/tpl/default/static/css/video-sort.css" rel="stylesheet">
+
+<div class="s-body">
+    <div class="content">
+        <div class="vault-top">
+            <div class="sort-filter">
+                <div class="sort-filter-panel">
+                    <div class="item " style="display:block;"><label>分类：</label>
+                        <ul id="class_box">
+                            <li {empty name="cid"}class="current" {/empty} data="0"><a href="#">全部</a></li>
+                            {volist name="class_list" id="vo"}
+                                <li  data="{$vo['id']}"  {if condition="$cid eq $vo['id']"}class="current"{/if}>
+                                    <a href="#"  >
+                                        {$vo['name']}
+                                    </a>
+                                </li>
+                            {/volist}
+                        </ul>
+                    </div>
+
+                    {notempty name="class_sublist"}
+                    <div class="item" style="display:block;"><label>子分类：</label>
+                        <ul id="sub_box">
+                            <li {empty name="sub_cid"}class="current" {/empty} data="0"><a href="#">全部</a></li>
+                            {volist name="class_sublist" id="vo"}
+                            <li  data="{$vo['id']}"  {if condition="$sub_cid eq $vo['id']"}class="current"{/if}>
+                                <a href="#"  >
+                                    {$vo['name']}
+                                </a>
+                            </li>
+                            {/volist}
+                        </ul>
+                    </div>
+                    {/notempty}
+
+                    <div class="item"  style="display:block;"><label>标签：</label>
+                        <ul id="tag_box">
+                            <li {empty name="tag_id"}class="current" {/empty} data="0"><a href="#">全部</a></li>
+                            {volist name="tag_list" id="vo"}
+                                <li data="{$vo['id']}"  {if condition="$tag_id eq $vo['id']"}class="current"{/if}>
+                                    <a href="#" >{$vo['name']}</a>
+                                </li>
+                            {/volist}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="vault-main">
+            <div class="sort-title">
+
+                <div class="sort-label">排序：</div>
+                <div class="sort-item">
+                    <select id="orderCode" name="orderCode">
+                        <!--
+                        <option value="{:url('video/lists',array('orderCode'=>'lastTime'))}" {if condition="$orderCode eq 'lastTime'"}selected="selected"{/if}>最新视频</option>
+                        <option value="{:url('video/lists',array('orderCode'=>'hot'))}" {if condition="$orderCode eq 'hot'"}selected="selected"{/if}>最热视频</option>
+                        <option value="{:url('video/lists',array('orderCode'=>'reco'))}" {if condition="$orderCode eq 'reco'"}selected="selected"{/if}>推荐视频</option>-->
+                        <option value="lastTime" {if condition="$orderCode eq 'lastTime'"}selected="selected"{/if}>最新视频</option>
+                        <option value="hot" {if condition="$orderCode eq 'hot'"}selected="selected"{/if}>最热视频</option>
+                        <option value="reco" {if condition="$orderCode eq 'reco'"}selected="selected"{/if}>推荐视频</option>
+                    </select>
+                </div>
+                <div class="sort-stat">共<b>{$count}</b>个筛选结果</div>
+
+            </div>
+            <div class="sort-box">
+                <ul class="panel">
+                    {notempty name="video_list"}
+                    {volist name="video_list" id="vo"}
+                    <li class="sort-cel">
+                        <a href="{:url('video/play',array('id'=>$vo['id']))}" class="sort-pack">
+                            <img src="{$vo['thumbnail']}"/>
+                            <p>{$vo['play_time']}</p>
+                            {if condition="$vo['reco'] gt '0'"}
+                                <i class="straw"></i>
+                            {/if}
+                            {if condition="$vo['type'] eq 1"}<span class="btn fn-duoji"></span>{/if}
+                            <div class="play-bg"><span><i></i></span></div>
+                        </a>
+                        <ul class="info-list">
+                            <li class="title">
+                                <a href="javascript:void(0)" title="{$vo['title']}">{$vo['title']}</a>
+                            </li>
+                            <li>
+                                <var><i class="btn fn-time"></i>{:date('Y/m/d',$vo['update_time'])}</var>
+
+                                <span><i class="btn fn-jinbi1"></i>{$vo['gold']}</span>
+                                <i class="btn fn-see"></i>{$vo['click']}
+                            </li>
+                            <style>
+
+                            </style>
+                        </ul>
+                    </li>
+                    {/volist}
+                    {else/}
+                    <div class="not-comment not">暂时没有数据 ~</div>
+                    {/notempty}
+                </ul>
+            </div>
+            <div class="sort-pager">
+            {$pages}
+            </div>
+
+        </div>
+    </div>
+    <form action="" method="get" id="forms">
+        <input type="hidden" id="current_orderCodes"  name="orderCode" value="{$orderCode|default='0'}" >
+        <input type="hidden" id="current_tag_id" name="tag_id"  value="{$tag_id|default='0'}" >
+        <input type="hidden" id="current_sub_cid" name="sub_cid"  value="{$sub_cid|default='0'}" >
+        <input type="hidden" id="current_cid" name="cid"  value="{$cid|default='0'}" >
+    </form>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#orderCode').change(function(){
+            $('#current_orderCodes').val($(this).val());
+            $('#forms').submit();
+        })
+
+        $('#sub_box').find('li').click(function(){
+            var sub = $(this).attr('data');
+            $('#current_sub_cid').val(sub);
+            $('#forms').submit();
+        })
+
+        $('#class_box').find('li').click(function(){
+            var cid = $(this).attr('data');
+            $('#current_cid').val(cid);
+            $('#current_sub_cid').val(0);
+            $('#forms').submit();
+        })
+
+        $('#tag_box').find('li').click(function(){
+            var tag_id = $(this).attr('data');
+            $('#current_tag_id').val(tag_id);
+            $('#forms').submit();
+        })
+
+        $(".sort-pack").hover(function(){
+            $(this).find(".play-bg").show();
+            $(this).find("span").addClass("cur");
+        },function(){
+            $(this).find(".play-bg").hide();
+            $(this).find("span").removeClass("cur");
+        });
+    });
+
+</script>
+{include file="common/footer"}

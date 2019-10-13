@@ -1,0 +1,107 @@
+{include file="common/header"}
+<link href="__ROOT__/tpl/default/static/css/novel.css" rel="stylesheet">
+<style>
+    .sort-title {margin-bottom: 20px;border-bottom: 1px solid #eee;padding-bottom: 3px;overflow: hidden;padding-top: 10px;}
+    .sort-title .sort-label {float: left;width: 42px;margin-top: 1px;line-height: 30px;color: #909090;font-size: 14px;}
+    .sort-title .sort-item {vertical-align: middle;display: inline-block;line-height: 31px;}
+    .sort-title .sort-item select {border: 0;font-size: 13px;color: #555;}
+    .sort-title .sort-stat {float: right;line-height: 34px;font-size: 12px;color: #999;}
+</style>
+
+<div class="s-body">
+    <div class="content">
+        <div class="novel-main">
+            <div class="novel-left">
+                <div class="sort-title">
+                    <div class="sort-label">排序：</div>
+                    <div class="sort-item">
+                        <select id="orderCode" name="orderCode">
+                            <option value="lastTime" {if condition="$orderCode eq 'lastTime'"}selected="selected"{/if}>最新</option>
+                            <option value="hot" {if condition="$orderCode eq 'hot'"}selected="selected"{/if}>最热</option>
+                        </select>
+                    </div>
+                    <div class="sort-stat">共<b>{$count}</b>个筛选结果</div>
+                </div>
+                <ul>
+                    {notempty name="list"}
+                    {volist name="list" id="v"}
+                    <li>
+                        <a href="{:url('novel/show',array('id'=>$v['id']))}">
+                            <div class="novelPic"><img src="{$v['thumbnail']}"></div>
+                            <div class="novel-box">
+                                <p>
+                                    <?php
+                                    $regex  = '/('.$key_word.')/i';
+                                    preg_match_all($regex,$v['title'],$rs);
+                                    foreach($rs[1] as $val){
+                                        $keywords =$val;
+                                          $v['title'] = str_replace( $keywords,"<font>$keywords</font>",$v['title']);
+                                    }
+                                    ?>
+                                    {$v['title']}
+                                </p>
+                                <span class="text">{$v['short_info']|default="暂没短说明"}</span>
+                                <div>
+                                    <div class="box-f">
+                                        <span><i class="btn fn-time"></i>{$v['update_time']|date="y-m-d H:i:s",###}</span>
+                                        <span><i class="btn fn-see"></i>{$v['click']}</span>
+                                    </div>
+                                    <div class="box-r">
+                                        {volist name="$tag[$v['id']]" id="v"}
+                                        {if condition="isset($tags_list[$v])"}<span>{$tags_list[$v]}</span>{/if}
+                                        {/volist}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    {/volist}
+                    {else/}
+                    <div class="not-comment not">暂时没有数据 ~</div>
+                    {/notempty}
+
+                </ul>
+                <div class="sort-pager">
+                    {$pages}
+                </div>
+            </div>
+            <div class="novel-right comment-right">
+                <div class="sub-tab">
+                    <p class="title">相关推荐</p>
+                    <div class="select" style="display: block;">
+                        <ul>
+                            {volist name="recom_list" id="vo"}
+                            <li>
+                                <a href="{:url('novel/show',array('id'=>$vo['id']))}">
+                                    <div class="pic">
+                                        <img src="{$vo['thumbnail']}">
+                                    </div>
+                                    <p>{$vo['title']}</p>
+                                    <p class="content-like">
+                                        <span class="mod-like"><i class="btn fn-see"></i>{$vo['click']}</span>
+                                        <span class="mod-like" style="float: right;"><i class="btn fn-zan2"></i>{$vo['good']}</span>
+                                    </p>
+                                </a>
+                            </li>
+                            {/volist}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form action="" method="get" id="forms">
+        <input type="hidden" id="current_orderCodes"  name="orderCode" value="{$orderCode|default='0'}" >
+        <input type="hidden"  name="key_word" value="{$key_word|default=''}" >
+        <input type="hidden"  name="type" value="{$type|default='video'}" >
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#orderCode').change(function(){
+            $('#current_orderCodes').val($(this).val());
+            $('#forms').submit();
+        })
+    })
+</script>
+{include file="common/footer"}

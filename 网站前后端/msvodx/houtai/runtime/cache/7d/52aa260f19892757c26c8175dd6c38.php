@@ -1,0 +1,4 @@
+<?php
+//000000000000
+ exit();?>
+a:3:{i:0;a:11:{s:2:"id";i:313;s:3:"pid";i:243;s:6:"module";s:5:"admin";s:5:"title";s:24:"更改支付方式状态";s:3:"url";s:23:"admin/paySetting/status";s:5:"param";s:0:"";s:6:"target";s:5:"_self";s:4:"icon";s:15:"aicon ai-shezhi";s:4:"sort";i:0;s:6:"status";i:1;s:6:"childs";a:0:{}}i:1;a:11:{s:2:"id";i:245;s:3:"pid";i:243;s:6:"module";s:5:"admin";s:5:"title";s:24:"支付方式配置参数";s:3:"url";s:24:"admin/paySetting/setting";s:5:"param";s:0:"";s:6:"target";s:5:"_self";s:4:"icon";s:15:"aicon ai-shezhi";s:4:"sort";i:0;s:6:"status";i:1;s:6:"childs";a:0:{}}i:2;a:11:{s:2:"id";i:241;s:3:"pid";i:243;s:6:"module";s:5:"admin";s:5:"title";s:18:"支付方式列表";s:3:"url";s:28:"admin/paySetting/paymentList";s:5:"param";s:0:"";s:6:"target";s:5:"_self";s:4:"icon";s:15:"aicon ai-shezhi";s:4:"sort";i:1;s:6:"status";i:1;s:6:"childs";a:0:{}}}

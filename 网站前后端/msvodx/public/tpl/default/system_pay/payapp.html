@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <?php $menu = getMenu();?>
+    <?php  $register_validate = empty(get_config('register_validate')) ? 0 : get_config('register_validate');?>
+    <title>{$page_title|default=""}_{$seo['site_title']}</title>
+    <meta name="keywords" lang="zh-CN" content="{$seo['site_keywords']}"/>
+    <meta name="description" lang="zh-CN" content="{$seo['site_description']}" />
+    <meta name="renderer" content="webkit">
+
+    <link rel="stylesheet" href="__ROOT__/tpl/default/static/js/layui/css/layui.css">
+    <link href="__ROOT__/tpl/default/static/css/common.css" rel="stylesheet">
+
+    <script type="text/javascript" src="__ROOT__/tpl/default/static/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="__ROOT__/tpl/default/static/js/layer/layer.js"></script>
+    <script type="text/javascript" src="__ROOT__/tpl/default/static/js/common.js"></script>
+    <script type="text/javascript" charset="utf-8" src="__ROOT__/tpl/default/static/js/layui/layui.js"></script>
+
+    <link rel="stylesheet" href="__ROOT__/tpl/default/static/css/font_485358_gtgl3zs6gyvqjjor/iconfont.css">
+
+    <!--[if IE]>
+    <link href="__ROOT__/tpl/default/static/css/demo.css" rel="stylesheet">
+    <![endif]-->
+
+    <script>
+        layui.use(['form', 'layedit', 'laydate'], function(){
+
+        });
+        if(!!window.ActiveXObject || "ActiveXObject" in window){
+            location.href="{:url('index/remind')}"
+        }
+
+    </script>
+
+</head>
+<body>
+<link rel="stylesheet" href="__ROOT__/tpl/default/static/css/member.css">
+<style>
+    .recharge{margin-top: 120px;height: 350px;width: 1230px;margin-top: 50px;min-height: 618px;}
+    @media screen and (max-width: 1400px){
+        .recharge{width: 980px;}
+    }
+</style>
+
+<div class="s-body">
+    <div class="content">
+        <div class="recharge">
+            <p class="method"><img src="{$payImgs['logo']}" /></p>
+            <div class="pay-mode">
+               {if isset($payerInfo['realPayPrice'])}
+                    <p class="money">￥{$payerInfo['realPayPrice']}元</p>
+               {else/}
+                    <p class="money">￥{$payerInfo['price']}元</p>
+               {/if}
+                <div class="ewmBox-bg">
+                    <a>
+                        <img src="{$payerInfo['qrcode']}"/>
+                        <div>
+                            <img class="pay-btn" src="{$payImgs['icon']}" />
+                        </div>
+                    </a>
+                </div>
+                <div class="pay-money">
+                    <div class="pay-explain">
+                        <i class="btn fn-saoyisao"></i>
+                        <div class="Explain">
+                            <span>请使用<var>{$payerInfo['payName']}</var>扫一扫</span>
+                            <span>扫描二维码完成支付</span>
+                        </div>
+                    </div>
+
+                </div>
+                <p>支付状态：<span id="payStatusDesc">待支付</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function(){
+        var orderSn="{:request()->param('orderSn')}";
+        timer=setInterval("getStatus('"+orderSn+"')",2000);
+    });
+
+    function getStatus(orderSn){
+        $.post("{:url('api/getOrderStatus')}",{orderSn:orderSn},function (resp) {
+            if(resp.statusCode==0){
+                if(resp.data.orderStatus==1){
+                    clearInterval(timer);
+                    layer.msg('恭喜您，支付成功！',{time:3000,icon:1},function () {
+//                        location.href="{:url('member/member')}";
+                    });
+                    $("#payStatusDesc").html('支付完成');
+                }
+            }else{
+                layer.msg('请求支付状态时发生错误！ error:'+resp.message);
+            }
+
+        },'JSON');
+    }
+</script>
+</body>
+</html>

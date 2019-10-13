@@ -1,0 +1,76 @@
+{include file="common/header"}
+<link href="__ROOT__/tpl/default/static/css/video-sort.css" rel="stylesheet">
+
+<div class="s-body">
+    <div class="content">
+        <div class="vault-main">
+            <div class="sort-title">
+                <div class="sort-label">排序：</div>
+                <div class="sort-item">
+                    <select id="orderCode" name="orderCode">
+                        <option value="lastTime" {if condition="$orderCode eq 'lastTime'"}selected="selected"{/if}>最新视频</option>
+                        <option value="hot" {if condition="$orderCode eq 'hot'"}selected="selected"{/if}>最热视频</option>
+                        <option value="reco" {if condition="$orderCode eq 'reco'"}selected="selected"{/if}>推荐视频</option>
+                    </select>
+                </div>
+                <div class="sort-stat">共<b>{$count}</b>个筛选结果</div>
+
+            </div>
+            <div class="sort-box">
+                <ul class="panel">
+                    {notempty name="list"}
+                    {volist name="list" id="v"}
+                    <li class="sort-cel">
+                        <a href="{:url('video/play',array('id'=>$v['id']))}" class="sort-pack">
+                            <img src="{$v['thumbnail']}">
+                            <p>{$v['play_time']}</p>
+                            <div class="play-bg"><span><i></i></span></div>
+                        </a>
+                        <ul class="info-list">
+                            <li class="title">
+                                <a href="javascript:void(0)" title="{$v['title']}">
+                                    <?php
+                                    $regex  = '/('.$key_word.')/i';
+                                    preg_match_all($regex,$v['title'],$rs);
+                                    foreach($rs[1] as $val){
+                                        $keywords =$val;
+                                          $v['title'] = str_replace( $keywords,"<font>$keywords</font>",$v['title']);
+                                    }
+                                    ?>
+                                    {$v['title']}
+                                </a>
+                            </li>
+                            <li>
+                                <var><i class="btn fn-time"></i>{:date('Y/m/d',$v['update_time'])}</var>
+                                <span><i class="btn fn-jinbi1"></i>{$v['gold']}</span>
+                                <i class="btn fn-see"></i>{$v['click']}
+                            </li>
+                        </ul>
+                    </li>
+                    {/volist}
+                    {else/}
+                    <div class="not-comment not">暂时没有数据 ~</div>
+                    {/notempty}
+                </ul>
+            </div>
+            <div class="sort-pager">
+                {$pages}
+            </div>
+
+        </div>
+    </div>
+    <form action="" method="get" id="forms">
+        <input type="hidden" id="current_orderCodes"  name="orderCode" value="{$orderCode|default='0'}" >
+        <input type="hidden"  name="key_word" value="{$key_word|default=''}" >
+        <input type="hidden"  name="type" value="{$type|default='video'}" >
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#orderCode').change(function(){
+            $('#current_orderCodes').val($(this).val());
+            $('#forms').submit();
+        })
+    })
+</script>
+{include file="common/footer"}

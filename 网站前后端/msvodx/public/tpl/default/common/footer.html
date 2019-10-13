@@ -1,0 +1,53 @@
+    <!--底部-->
+    {php}
+    $baseConfig = get_config_by_group('base');
+    $baseConfig['friend_link'] =  empty($seo['friend_link']) ? $baseConfig['friend_link'] : $seo['friend_link'];
+    $baseConfig['site_icp'] = empty($seo['site_icp']) ? $baseConfig['site_icp'] : $seo['site_icp'];
+    $baseConfig['site_statis'] = empty($seo['site_statis']) ? $baseConfig['site_statis'] : $seo['site_statis'];
+    $linkList=get_friend_link($baseConfig);
+    {/php}
+    <div class="f12 footer">
+        <div class="copyright">
+            <div class="main">
+                <p class="notice"><br>
+                   本站所有视频、图片、资讯均由网友上传，如有侵犯权限请联系本站客服删除，本站不承担任何版权相关的法律责任， 请遵守本站协议勿上传不合法内容。<br>
+                    </p>
+
+                <p class="link">
+                    {volist name='linkList' id='link'}
+                    <a href="{$link.url}">{$link.name}</a>
+                    {/volist}
+                </p>
+
+                <p class="copyright">ICP备案号:{$baseConfig['site_icp']}&nbsp;&nbsp; Copyright (c) 2017-2018 All Rights Reserved.</p>
+
+                <!--统计代码-->
+                <span>
+                    {:htmlspecialchars_decode($baseConfig['site_statis'])}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+    {if condition="$login_status['resultCode'] eq 3 "}
+    <script>
+        layer.msg('该账号已在其他地方登陆',
+            {
+                icon: 5,
+                time: 0,
+                shadeClose: true,
+                shade: 0.8,
+                btn: ['确定'],
+                yes:function (index) {
+                    layer.close(index);
+                    window.location.reload();
+                },
+                success: function (layero) {
+                    var btn = layero.find('.layui-layer-btn');
+                    btn.css('text-align', 'center');
+                }
+            });
+    </script>
+    {/if}
+</body>
+</html

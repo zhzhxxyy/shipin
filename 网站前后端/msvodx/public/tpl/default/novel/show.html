@@ -1,0 +1,303 @@
+{include file="common/header"}
+<link href="__ROOT__/tpl/default/static/css/novel.css" rel="stylesheet">
+<style>
+    .novel-main .novel-left{box-shadow:none;}
+</style>
+<script>
+    {if condition="$permit eq 0"}
+    novelpermit({$info['gold']},{$info['id']});
+    {/if}
+    var page = 0;
+    var addLiIndex=1;
+    function getCommentList(){
+        var nowDate = new Date().getTime();
+        var times = "";
+        var url = "{:url('api/getCommentList')}";
+        var  resourceId = " {$info['id']}";
+        var data = {
+            "page":page,
+            "resourceId":resourceId,
+            "resourceType":3,
+        };
+        var html = '';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: data,
+            dataType: 'json',
+            success: function(data){
+                console.log(data);
+                $('#comment_num').html("("+data.data.count+")");
+                var datas = data.data.list;
+                if(datas){
+                    page++;
+                    datas.forEach(function(item) {
+                        var headimgurl = '/static/images/user_dafault_headimg.jpg';
+                        if(item.headimgurl){
+                            headimgurl = item.headimgurl;
+                        }
+                        var time = parseInt(item.last_time*1000);
+                        if(parseInt(time+60*30*1000) > nowDate){
+                            times = '刚刚';
+                        }else if(parseInt(time+60*60*1000) > nowDate){
+                            times = '半个小时前';
+                        } else if(parseInt(time+2*60*60*1000) > nowDate){
+                            times = '1小时前';
+                        }else{
+                            var oDate = new Date(time);
+                            var Hours = oDate.getHours()>10 ? oDate.getHours() :  '0'+oDate.getHours();
+                            var Minutes = oDate.getMinutes()>10 ? oDate.getMinutes() :  '0'+oDate.getMinutes();
+                            times = oDate.getFullYear()+'-'+(oDate.getMonth()+1)+'-'+oDate.getDate()+' '+Hours+':'+Minutes;
+                        }
+                        html += '<li>';
+                        html += '   <div class="user-avatar">';
+                        html += '       <a href="javascript:">';
+                        html += '           <img src="'+headimgurl+'">';
+                        html += '       </a>';
+                        html += '    </div>';
+                        html += '    <div class="comment-section">';
+                        html += '   <div class="user-info">';
+                        html += '       <a href="javascript:" class="user-name">'+item.nickname+'</a>';
+                        html += '       <span class="comment-timestamp">'+times+'</span>';
+                        html += '   </div>';
+                        html += '   <div class="comment-text">'+item.content+'</div>';
+                        html += '   </div>';
+                        html += ' </li>';
+                    })
+                    if(data.data.isMore == 1){
+                        $('#more-comment').show();
+                    }else{
+                        $('#more-comment').hide();
+                    }
+                    $('#not-comment').remove();
+                    $('#comment-list').append(html);
+                    //$('#liAdd_'+curIndex).show('SLOW');
+                }
+
+            }
+        });
+    }
+    $(function () {
+
+        getCommentList();
+
+        //收藏
+        {if condition="!$isCollected"}
+        $(".fn-shoucang1").on("click",function () {
+            var collectData={type:'3',id:'{$info["id"]}'};
+            $.post('{:url("api/colletion")}',collectData,function (data) {
+                if(data.resultCode==0){
+                    $('.fn-shoucang1').addClass("isSelected");
+                    layer.msg('收藏成功',{time:1000,icon:1});
+                    $('#collectText').html('已收藏');
+                }else{
+                    layer.msg('收藏失败，原因：'+data.error,{time:1000,icon:2});
+                }
+            },'json');
+        });
+        {/if}
+
+        //点赞
+        {if condition="!$isGooded"}
+        $("#giveGoodBtn").on('click',function(){
+            var reqData={resourceType:'novel',resourceId:{$info['id']}};
+            $.post('{:url("api/giveGood")}',reqData,function(data){
+                //console.log(data);
+                if(data.resultCode==0){
+                    $('#goodNum').html(data.data.good);
+                    $('#giveGoodBtn').addClass("isSelected");
+
+                    layer.msg('点赞成功',{time:1000,icon:1});
+                }else{
+                    layer.msg('点赞失败，原因：'+data.error,{time:1000,icon:2});
+                }
+            },'JSON');
+        });
+        {/if}
+
+
+
+        $("#comment_content").on("keyup",function () {
+            var length = $("#comment_content").val().length;
+            $("#length").html(length);
+            if(length > 300){
+                var text = $("#comment_content").val().substring(0,300);
+                $("#comment_content").val(text);
+            }
+        });
+
+
+        //评论
+        $("#submit_comment").on("click",function () {
+            var content =  $.trim($("#comment_content").val());
+            if((content == "" || content == undefined || content == null)) {
+                layer.msg('请输入评论的内容!');
+                return false;
+            }
+            var reqData={resourceType:'3',resourceId:{$info['id']},content:content};
+            $.post('{:url("api/comment")}',reqData,function(data){
+                if(data.resultCode==0){
+                    layer.msg(data.message,{time:1000,icon:1});
+                    $("#comment_content").val('');
+                    $("#length").html(0);
+                    if(data.data.comment_examine_on != 1){
+                        var headimgurl = '/static/images/user_dafault_headimg.jpg';
+                        if(data.data.userinfo.headimgurl){
+                            headimgurl = data.data.userinfo.headimgurl;
+                        }
+                        var html = '';
+                        html += '<li id="liAdd_'+addLiIndex+'">';
+                        html += '   <div class="user-avatar">';
+                        html += '       <a href="javascript:">';
+                        html += '           <img src="'+headimgurl+'">';
+                        html += '       </a>';
+                        html += '    </div>';
+                        html += '    <div class="comment-section">';
+                        html += '   <div class="user-info">';
+                        html += '       <a href="javascript:" class="user-name">'+data.data.userinfo.nickname+'</a>';
+                        html += '       <span class="comment-timestamp">刚刚</span>';
+                        html += '   </div>';
+                        html += '   <div class="comment-text">'+data.data.content+'</div>';
+                        html += '   </div>';
+                        html += ' </li>';
+                        $('#not-comment').remove();
+                        $("#comment-list ").prepend(html);
+
+                        $("#liAdd_"+addLiIndex).hide().slideDown('fast');
+                        addLiIndex++;
+                    }
+                }else{
+                    layer.msg('评论失败，原因：'+data.error,{time:2000,icon:2});
+                }
+            },'JSON');
+        });
+
+    });
+
+</script>
+
+<div class="s-body">
+    <div class="content">
+        <div class="spv-comment comment">
+            <div class="comment-left">
+                <div class="novel-main">
+                    <div class="novel-left">
+                        <h1>{$info['title']}</h1>
+                        <div class="source">
+                            •&nbsp;&nbsp;发布时间：<var>{$info['update_time']|date="y-m-d H:i:s",###}</var> &nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;作者：<var>{$info['username']}</var> &nbsp;&nbsp;•
+                            <span class="see"><i class="btn fn-shoucang1 {if condition='$collect_info=="已收藏"'}isSelected{/if}"></i>
+                                {if condition='$collect_info=="已收藏"'}<var id="collectText">已收藏</var>{else/}<var id="collectText">收藏</var>{/if}</span>
+                            <span class="see"><i class="btn fn-zan2 {if condition='$isGooded'}isSelected{/if}" id="giveGoodBtn"></i><var id="goodNum">{$info['good']}</var></span>
+                        </div>
+                        <div class="source">
+                            {volist name="tag_list" id="vo"}
+                            <span>{$vo['name']}</span>
+                            {/volist}
+                        </div>
+                        <div class="paragraph">
+                            {$info['content']|htmlspecialchars_decode}
+                        </div>
+                        <!--切换-->
+
+                        <div class="cut">
+                            {if !empty($previous_info)}
+                           <!-- <a class="prev"><i class="btn fn-prev"></i>上一篇</a>
+                            <a class="next">下一篇<i class="btn fn-next"></i></a>-->
+                            <a class="prev" title="{$previous_info['title']}" href="{:url('novel/show',array('id'=>$previous_info['id']))}">
+                                <div class="prev-btn" style="margin-left: -7px;"><i class="btn fn-prev"></i></div>
+                                <div class="prev-box">
+                                    <div class="img-bg">
+                                        <img src="{$previous_info['thumbnail']}" />
+                                    </div>
+                                    <p>{$previous_info['title']}</p>
+                                </div>
+                            </a>
+                            {/if}
+                            {if !empty($next_info)}
+                            <a class="next" title="{$next_info['title']}"  href="{:url('novel/show',array('id'=>$next_info['id']))}">
+                                <div class="prev-box">
+                                    <div class="img-bg">
+                                        <img src="{$next_info['thumbnail']}" />
+                                    </div>
+                                    <p>{$next_info['title']}</p>
+                                </div>
+                                <div class="prev-btn" style="margin-right: -7px;"><i class="btn fn-next"></i></div>
+                            </a>
+                            {/if}
+                        </div>
+                    </div>
+
+                </div>
+                <!--评论-->
+                <div class="area-form">
+                    <div class="comment-form">
+                        <div class="form-cell">
+                            {if condition="session('member_id') elt 0 "}
+                            <div class="form-user-info">
+                                <a href="javascript:;" class="form-user-login avatar">登录</a>
+                                <span>|</span>
+                                <a href="" target="_blank">注册</a>
+                            </div>
+                            {/if}
+                            <div class="form-wordlimit">
+                                <span class="form-wordlimit-input input-count" id="length">0</span>
+                                <span class="form-wordlimit-upper">/300</span>
+                            </div>
+                            <div class="form-textarea form-textarea-picdom">
+                            <textarea data-maxlength="300" name="content"
+                                      placeholder="看点槽点，不吐不快！别憋着，马上大声说出来吧！"  id="comment_content" ></textarea>
+                            </div>
+                            <div class="form-toolbar">
+                                <div class="form-tool form-action">
+                                    <a href="javascript:;" class="form-btn-submit" id="submit_comment">发表评论</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--展示-->
+                <div class="area-box">
+                    <div class="comment-tab">
+                        <span class="comment-tab-left">全部评论<em class="num" id="comment_num">(0)</em></span>
+                        <!--<span class="comment-tab-right">我的评论消息</span>-->
+                    </div>
+                    <div class="comment-list" >
+                        <ul id="comment-list">
+                            <li class='not-comment' id='not-comment'>暂没评论 ~</li>
+                        </ul>
+                        <div id="more-comment" style="display: none"><span onclick="getCommentList()">加载更多…<i class="btn fn-more"></i></span></div>
+                    </div>
+                </div>
+            </div>
+            <!--相关推荐-->
+            <div class="comment-right">
+                <div class="sub-tab">
+                    <p class="title">相关推荐</p>
+                    <div class="select" style="display: block;">
+                        <ul>
+                            {notempty name="recom_list"}
+                            {volist name="recom_list" id="vo"}
+                            <li>
+                                <a href="{:url('novel/show',array('id'=>$vo['id']))}">
+                                    <div class="pic">
+                                        <img src="{$vo['thumbnail']}">
+                                    </div>
+                                    <p>{$vo['title']}</p>
+                                    <p class="content-like">
+                                        <span class="mod-like"><i class="btn fn-see"></i>{$vo['click']}</span>
+                                        <span class="mod-like" style="float: right;"><i class="btn fn-zan2"></i>{$vo['good']}</span>
+                                    </p>
+                                </a>
+                            </li>
+                            {/volist}
+                            {else/}
+                            <div class="not-comment not">暂时没有数据 ~</div>
+                            {/notempty}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    {include file="common/footer"}

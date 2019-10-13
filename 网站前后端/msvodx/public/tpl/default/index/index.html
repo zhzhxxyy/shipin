@@ -1,0 +1,214 @@
+{include file="common/header"}
+<link href="__ROOT__/tpl/default/static/css/index.css" rel="stylesheet">
+<script type="text/javascript" src="__ROOT__/tpl/default/static/js/index.js"></script>
+<script>
+    setInterval(function(){
+        doItPerSecond();
+    },4000);
+
+    function doItPerSecond() {
+        var self = document.getElementsByClassName("fn-huangguan");
+
+    }
+    /*公告弹窗*/
+    function showNotice(content){
+        $('.tips-box').html(content);
+        layer.open({
+            type: 1,
+            title: '公告',
+            area: ['500px', 'auto'],
+            shadeClose: true,
+            skin: 'demo-class',
+            anim: 0,
+            content: $('.tips-box')
+        });
+    }
+</script>
+
+<div class="s-body">
+    <!--banner-->
+    <div class="focus-wrap">
+        <ul class="focus-list">
+            {volist name="banner" id="v"}
+                <li class="pic">
+                    <a href="{$v['url']}" {if condition="$v['target'] eq 1"} target='_bank'{/if} style="background: url({$v['images_url']})no-repeat;background-size: cover;background-position: center;">
+                        <!--<img src="{$v['images_url']}" />-->
+                    </a>
+                </li>
+            {/volist}
+
+        </ul>
+        <div class="focus-nav" id="focus-nav">
+            <var></var>
+            <div class="ranking">
+
+                <ul style="width: 600px;">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+    {notempty name="notice"}
+    <div class="copyright-tips">
+        <div class="layout-cont">
+            <span><i class="btn fn-gonggao"></i> &nbsp;公告：</span>
+            <ul>
+                {volist name="notice" id="v"}
+               <li ><a {if condition="$v['type'] eq 1"} onclick="showNotice('{$v['content']}')" {else/} href="{$v['url']}"   target='_bank' {/if} > {$i}、{$v['title']}</a></li>
+                {/volist}
+            </ul>
+        </div>
+    </div>
+    {/notempty}
+    <!--公告弹窗-->
+    <div class="tips-box">
+
+    </div>
+    <div class="content">
+        <!--左边模块-->
+        <div class="left-box">
+            <div class="mod-new">
+                <div class="title"><h2>推荐视频</h2></div>
+                <div class="mod-row">
+                    {volist name="recom_list" id="vo"}
+                    <div class="mod-col">
+                        <a href="{:url('video/play',array('id'=>$vo['id']))}">
+                        <div class="view-layer">
+                                <img src="{$vo['thumbnail']}"/>
+                                <p>{$vo['play_time']}</p>
+                                <div class="play-bg"><span><i></i></span></div>
+                            </div>
+                        </a>
+                        <p class="col-title">{$vo['title']}</p>
+                        <div class="subtitle">
+                            <i class="btn fn-see"></i>{$vo['click']}
+                            <div style="display: inline-block;"><i class="btn fn-jinbi1" style="margin-left: 5px;"></i>{$vo['gold']}</div>
+                            <span><i class="btn fn-zan2"></i>{$vo['good']}</span>
+                        </div>
+                    </div>
+                    {/volist}
+                </div>
+            </div>
+            <!--广告板块-->
+
+                <script language="javascript" src="{:url('/poster/index',array('pid'=>1))}"></script>
+
+            {volist name="video_list" id="vo"}
+            {notempty name="$vo['list']"}
+                    <div class="mod-new">
+                        <div class="title"><h2>{$vo['name']}</h2></div>
+                        <div class="mod-row">
+                            {volist name="$vo['list']" id="v"}
+                            <div class="mod-col">
+                                <a href="{:url('video/play',array('id'=>$v['id']))}">
+                                    <div class="view-layer">
+                                        <img src="{$v['thumbnail']}"/>
+                                        <p>{$v['play_time']}</p>
+                                        <div class="play-bg"><span><i></i></span></div>
+                                    </div>
+                                </a>
+                                <p class="col-title">{$v['title']}</p>
+                                <div class="subtitle">
+                                    <i class="btn fn-see"></i>{$v['click']}
+                                    <i class="btn fn-jinbi1" style="margin-left: 5px;"></i>{$v['gold']}
+                                    <span><i class="btn fn-zan2"></i>{$v['good']}</span>
+                                </div>
+                            </div>
+                            {/volist}
+                        </div>
+                    </div>
+                {/notempty}
+            {/volist}
+            {volist name="image_list" id="vo"}
+            {notempty name="$vo['list']"}
+            <div class="mod-new">
+                <div class="title"><h2>{$vo['name']}</h2></div>
+                <div class="mod-row images">
+                    {volist name="$vo['list']" id="v"}
+                    <div class="mod-col">
+                        <a href="{:url('images/show',array('id'=>$v['id']))}">
+                            <div class="pic-layer">
+                                <img src="{$v['cover']}">
+                                <div class="subtitle">
+                                    <i class="btn fn-see"></i>{$v['click']}
+                                    <i class="btn fn-jinbi1" style="margin-left: 5px;"></i>{$v['gold']}
+                                    <span><i  class="btn fn-time"></i>{:date('Y-m-d',$v['update_time'])}</span>
+                                </div>
+                            </div>
+                        </a>
+                        <p class="col-title">{$v['title']}</p>
+                    </div>
+                    {/volist}
+                </div>
+            </div>
+            {/notempty}
+            {/volist}
+
+           <!-- {volist name="novel_list" id="vo"}
+            {notempty name="$vo['list']"}
+            <div class="mod-new">
+                <div class="title"><h2>{$vo['name']}</h2></div>
+                <div class="mod-row novel-list">
+                    <ul>
+                        {volist name="$vo['list']" id="v"}
+                        <li>
+                            <a href="{:url('novel/show',array('id'=>$v['id']))}">
+                                <p>{$v['title']}</p>
+                                <span>{:date('Y-m-d',$v['update_time'])}</span>
+                            </a>
+                        </li>
+                        {/volist}
+                    </ul>
+                </div>
+            </div>
+            {/notempty}
+            {/volist}-->
+
+
+        </div>
+        <!--右边模块-->
+        <div class="right-box">
+            <!--排行榜-->
+            <div class="newest">
+                <a href="{:url('video/lists',array('orderCode'=>'hot'))}" class="s-title">最热视频 <i></i></a>
+                <ul>
+                    {volist name="hot_list" id="vo"}
+                    <li>
+                        <a href="{:url('video/play',array('id'=>$vo['id']))}">
+                            <img src="{$vo['thumbnail']}" />
+                        </a>
+                        <p>{$vo['title']}</p>
+                        <p class="content-like">
+                            <span class="mod-like"><i class="btn fn-see"></i>{$vo['click']}</span>
+                            <span class="mod-like" style="float: right;"><i class="btn fn-zan2"></i>{$vo['good']}</span>
+                        </p>
+                    </li>
+                    {/volist}
+                </ul>
+                <div class="home-r-rank-footer">
+                    <a href="{:url('video/lists',array('orderCode'=>'hot'))}" class="uhl">查看更多></a>
+                </div>
+            </div>
+            <div class="newest new">
+                <a href="{:url('video/lists',array('orderCode'=>'lastTime'))}" class="s-title on">最新视频<i></i></a>
+                <ul>
+                    {volist name="new_list" id="vo"}
+                    <li>
+                        <a href="{:url('video/play',array('id'=>$vo['id']))}">
+                            <img src="{$vo['thumbnail']}" />
+                        </a>
+                        <p>{$vo['title']}</p>
+                        <p class="content-like">
+                            <span class="mod-like"><i class="btn fn-time"></i>{:date('Y-m-d',$vo['update_time'])}</span>
+                            <span class="mod-like" style="float: right;"><i class="btn fn-zan2"></i>{$vo['good']}</span>
+                        </p>
+                    </li>
+                    {/volist}
+                </ul>
+                <div class="home-r-rank-footer">
+                    <a href="{:url('video/lists',array('orderCode'=>'lastTime'))}" class="uhl">查看更多></a>
+                </div>
+            </div>
+        </div>
+    </div>
+{include file="common/footer"}

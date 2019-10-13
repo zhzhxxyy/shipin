@@ -1,0 +1,81 @@
+<?php
+
+if(strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone')||strpos($_SERVER['HTTP_USER_AGENT'], 'iPad')){
+   $system="IOS";
+}else if(strpos($_SERVER['HTTP_USER_AGENT'], 'Android')){
+    $system="Android";
+}else{
+    $system="other";
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>下载</title>
+  <meta name="renderer" content="webkit">
+  <link href="__ROOT__/tpl/default/static/css/share/download.css" rel="stylesheet">
+  <script type="text/javascript" src="__ROOT__/tpl/peixun/static/js/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+
+
+<span class="pattern left"><img src="__ROOT__/tpl/default/static/css/share/left.png"></span>
+<span class="pattern right"><img src="__ROOT__/tpl/default/static/css/share/right.png"></span>
+<div class="out-container">
+  <div class="main">
+    <header>
+      <div class="table-container">
+        <div class="cell-container">
+          <div class="app-brief">
+            <div class="icon-container wrapper">
+              <i class="icon-icon_path bg-path"></i>
+              <span class="icon"><img src="{$info.app_icon}"></span>
+              <span class="qrcode"><img src="/index/qrcode?link={$info.web}"></span>
+            </div>
+
+            <h1 class="name wrapper"><span class="icon-warp">
+                                <?php if($system=="IOS"){ ?>
+              <i class="icon-ios"></i>
+              <?php }else{ ?>
+              <i class="icon-android"></i>
+              <?php } ?>
+              {$info.app_name}
+                        </span></h1>
+
+
+            <p class="scan-tips">扫描二维码下载<br />或用手机浏览器输入这个网址：<span class="text-black">{$info.web}</span></p>
+            <div class="release-info">
+
+
+              <?php if($system=="IOS"){ ?>
+              <p> {$info.app_bsvs_ios}-{$info.app_size_ios}</p>
+              <?php }else{ ?>
+              <p>{$info.app_bsvs_android}-{$info.app_size_android}</p>
+              <?php } ?>
+
+              <p>更新于：{$info.addtime}</p>
+            </div>
+
+
+            <?php if($system=="IOS"){ ?>
+            <div class="actions">
+              <button onclick="location.href='/index/install?from=ios&id={$info.id}&uid={$uid}'">下载安装</button>
+            </div>
+            <?php }else{ ?>
+            <div class="actions">
+              <button onclick="location.href='/index/install?from=android&id={$info.id}&uid={$uid}'">下载安装</button>
+            </div>
+            <?php } ?>
+
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="footer">请自行点击下载安装，如有问题请联系客服人员。</div>
+  </div>
+</div>
+
+</body>
+</html>
