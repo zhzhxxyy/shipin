@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.duomizhibo.phonelive.widget.CircleImageView
+        android:id="@+id/cv_userHead"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+    <LinearLayout
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="50dp"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:id="@+id/tv_item_uname"
+                android:textColor="@color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:id="@+id/tv_item_usex"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/space_25"/>
+            <ImageView
+                android:id="@+id/tv_item_ulevel"
+                android:layout_width="32dp"
+                android:layout_height="@dimen/space_25" />
+        </LinearLayout>
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:textColor="@color/gray"
+            android:id="@+id/tv_item_usign"
+            android:textSize="@dimen/text_size_10"
+            android:text=""
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <ImageView
+        android:layout_alignParentRight="true"
+        android:src="@drawable/blacklist"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+</RelativeLayout>

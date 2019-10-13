@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/white"
+
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:textColor="@color/black"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="选择游戏"
+            android:textSize="@dimen/space_20"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/space_1"
+            android:layout_marginLeft="@dimen/space_10"
+            android:layout_marginRight="@dimen/space_10"
+            android:background="@color/gray"/>
+
+        <com.duomizhibo.phonelive.widget.GridViewWithHeaderAndFooter
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/gv_game"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:horizontalSpacing="20dp"
+            android:numColumns="3"
+            android:padding="@dimen/space_20"
+            android:verticalSpacing="15dp">
+        </com.duomizhibo.phonelive.widget.GridViewWithHeaderAndFooter>
+
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <RelativeLayout
+        android:background="@color/white"
+        android:id="@+id/ll_user_container"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:orientation="vertical"
+        android:visibility="visible" >
+
+        <include layout="@layout/view_info_detail_data"></include>
+
+
+        <LinearLayout
+            android:layout_marginBottom="10dp"
+            android:background="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal" >
+
+            <LinearLayout
+                android:id="@+id/ll_live"
+                style="@style/uset_information_ll"
+               >
+
+                <TextView
+                    android:textColor="@color/black"
+                    style="@style/user_formation_info"
+                    android:text="@string/user_live" />
+                <TextView
+                    android:textColor="@color/orange"
+                    android:id="@+id/tv_info_u_live_num"
+                    android:text="0"
+                    style="@style/user_formation_info" />
+            </LinearLayout>
+
+            <View
+                android:layout_gravity="center"
+                android:layout_height="20dp"
+               style="@style/v_line"/>
+
+
+            <LinearLayout
+                android:id="@+id/ll_following"
+                style="@style/uset_information_ll" >
+
+                <TextView
+                    android:textColor="@color/black"
+                    style="@style/user_formation_info"
+                    android:text="@string/following" />
+                <TextView
+                    android:textColor="@color/orange"
+                    android:id="@+id/tv_info_u_follow_num"
+                    style="@style/user_formation_info"
+                    android:text="0" />
+            </LinearLayout>
+            <View
+                android:layout_gravity="center"
+                android:layout_height="20dp"
+                style="@style/v_line"/>
+            <LinearLayout
+                android:id="@+id/ll_fans"
+                style="@style/uset_information_ll" >
+
+
+                <TextView
+                    android:textColor="@color/black"
+                    style="@style/user_formation_info"
+                    android:text="@string/follower" />
+                <TextView
+
+                    android:textColor="@color/orange"
+                    android:id="@+id/tv_info_u_fans_num"
+                    style="@style/user_formation_info"
+                    android:text="0" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+
+
+
+</merge>

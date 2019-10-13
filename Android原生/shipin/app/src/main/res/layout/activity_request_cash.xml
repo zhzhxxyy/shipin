@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_request_cash"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:background="@color/graywhite"
+        app:titleColor="@color/black"
+        app:titleText="提现"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:layout_marginLeft="10dp"
+            android:text="@string/money"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+             />
+
+        <com.duomizhibo.phonelive.widget.BlackEditText
+            android:inputType="number"
+            android:maxLength="9"
+            android:layout_height="50dp"
+            android:id="@+id/et_cash_num"
+            android:textColorHint="#E2E2E5"
+            android:background="@null"
+            android:hint="请填写提现金额"
+            android:layout_width="wrap_content"
+            android:layout_weight="4"/>
+
+    </LinearLayout>
+
+    <com.duomizhibo.phonelive.widget.BlackButton
+        android:textColor="@color/white"
+        android:layout_gravity="center"
+        android:text="提现"
+        android:layout_width="260dp"
+        android:layout_height="40dp"
+        android:id="@+id/btn_request_cash"
+        android:background="@drawable/btn_common"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

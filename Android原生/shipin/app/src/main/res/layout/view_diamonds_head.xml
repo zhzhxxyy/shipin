@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+              >
+
+
+
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:id="@+id/rl_message"
+        android:layout_width="match_parent"
+        android:layout_height="150dp">
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            style="@style/option_item_text"
+            android:text="@string/balance" />
+
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:layout_marginTop="20dp"
+            android:textColor="@color/global"
+            android:id="@+id/tv_coin"
+            android:textSize="40dp"
+            android:text="0"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/space_10"
+            android:gravity="right" />
+    </LinearLayout>
+
+    <View
+        android:background="@color/main_background"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+
+
+</LinearLayout>

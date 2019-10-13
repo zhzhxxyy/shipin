@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_background"
+              xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:background="@color/white"
+        app:titleColor="@color/black"
+        app:titleText="注册"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:text="账号"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"/>
+            <com.duomizhibo.phonelive.widget.BlackEditText
+                android:inputType="number"
+                android:id="@+id/et_loginphone"
+                android:textColorHint="#E2E2E5"
+                android:background="@null"
+                android:hint="@string/plase_input_phone_num"
+                android:layout_weight="5"
+                android:layout_width="0dp"
+                android:layout_height="50dp" />
+
+        </LinearLayout>
+        <View
+            style="@style/h_line"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:text="验证码"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"/>
+            <com.duomizhibo.phonelive.widget.BlackEditText
+                android:id="@+id/et_logincode"
+                android:textColorHint="#E2E2E5"
+                android:background="@null"
+                android:hint="请填写短信验证码"
+                android:layout_weight="3.2"
+                android:layout_width="0dp"
+                android:layout_height="50dp" />
+            <TextView
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:id="@+id/btn_phone_login_send_code"
+                android:textColor="@color/white"
+                android:text="发验证码"
+                android:background="@drawable/btn_common"
+                android:layout_width="100dp"
+                android:layout_height="35dp" />
+        </LinearLayout>
+        <View
+            style="@style/h_line"/>
+        <!-- HHH 2016-09-09 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:text="密码"
+
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"/>
+
+            <com.duomizhibo.phonelive.widget.BlackEditText
+                android:id="@+id/et_password"
+                android:textColorHint="#E2E2E5"
+                android:background="@null"
+                android:hint="请填写密码"
+                android:inputType="textPassword"
+                android:layout_weight="5"
+                android:layout_width="0dp"
+                android:layout_height="50dp" />
+
+        </LinearLayout>
+        <View
+            style="@style/h_line"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:text="确认密码"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"/>
+            <com.duomizhibo.phonelive.widget.BlackEditText
+                android:id="@+id/et_secondPassword"
+                android:textColorHint="#E2E2E5"
+                android:background="@null"
+                android:hint="请再次输入密码"
+                android:inputType="textPassword"
+                android:layout_weight="5"
+                android:layout_width="0dp"
+                android:layout_height="50dp" />
+
+        </LinearLayout>
+        <View
+            style="@style/h_line"/>
+    </LinearLayout>
+
+    <com.duomizhibo.phonelive.widget.BlackButton
+        android:id="@+id/btn_doReg"
+        android:textColor="@color/white"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:background="@drawable/btn_common"
+        android:text="立即注册"
+        android:layout_width="270dp"
+        android:layout_height="45dp"
+        />
+
+</LinearLayout>

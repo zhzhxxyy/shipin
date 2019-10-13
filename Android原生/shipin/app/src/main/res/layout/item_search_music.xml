@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+    <LinearLayout
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:textColor="@color/black"
+            android:id="@+id/item_tv_search_music_name"
+            android:textSize="@dimen/text_size_15"
+            android:text="明天你好"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:id="@+id/item_tv_search_music_author"
+            android:textColor="@color/swiperefresh_color1"
+            android:text="牛奶@咖啡"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:visibility="gone"
+            android:id="@+id/item_tv_search_music_time"
+            android:textSize="@dimen/text_size_15"
+            android:text="3.39"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <com.dd.CircularProgressButton
+            android:focusable="false"
+            android:textSize="@dimen/text_size_8"
+            app:cpb_cornerRadius="48dp"
+            android:id="@+id/item_btn_search_music_download"
+            android:textColor="@color/white"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:cpb_textIdle="@string/download"
+            app:cpb_textError="@string/downloadError"
+            app:cpb_textComplete="@string/select"/>
+    </LinearLayout>
+</RelativeLayout>

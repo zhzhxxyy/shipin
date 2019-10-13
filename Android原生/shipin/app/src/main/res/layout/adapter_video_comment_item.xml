@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@android:color/white"
+    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <com.duomizhibo.phonelive.widget.RoundImageView
+        android:id="@+id/iv_head"
+        android:src="@drawable/user_dafault_headimg"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_toRightOf="@+id/iv_head"
+        android:layout_marginLeft="10dp"
+        android:textColor="#2fb3ff"
+        android:text="nichen"
+        android:minWidth="80dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_toRightOf="@+id/tv_name"
+        android:layout_marginLeft="5dp"
+        android:textColor="#bbb"
+        android:text="2019-01-01 12:09:09"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_alignLeft="@+id/tv_name"
+        android:layout_below="@+id/tv_name"
+        android:layout_marginTop="8dp"
+        android:textSize="12sp"
+        android:textColor="#333333"
+        android:text="你啊吼啊打飞机啊就德拉吉拉决定减肥listVie带来的；jdaldjlajdljfajdjf
+dfjajdljjljlljllllllllllllllllllllwfdkdfajjfdajlfjdaljfldjlajldjlfadjflajdlajljljjjfdjajdfjjfdjjjfjfjdfjdkkddkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</RelativeLayout>
+
+
+

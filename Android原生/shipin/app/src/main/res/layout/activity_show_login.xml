@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/root">
+    <ImageView
+        android:scaleType="centerCrop"
+        android:id="@+id/iv_select_login_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.duomizhibo.phonelive.widget.BlackTextView
+        android:layout_marginBottom="20dp"
+        android:layout_above="@+id/ll_login_select"
+        android:textSize="25dp"
+        android:textColor="#FFFFFF"
+        android:text="@string/select_login_mode"
+        android:gravity="center"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/ll_login_select"
+        android:layout_marginBottom="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/iv_qqlogin"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:src="@drawable/icon_def_qq"/>
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/iv_sllogin"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:src="@drawable/icon_def_xl"/>
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/iv_wxlogin"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:src="@drawable/icon_def_wx"/>
+        <ImageView
+            android:id="@+id/iv_mblogin"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:src="@drawable/icon_def_mobil"/>
+
+    </LinearLayout>
+    <TextView
+        android:id="@+id/tv_login_clause"
+        android:textColor="@color/white"
+        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:text="@string/clause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:text="收费金额"
+        android:textColor="@color/black" />
+
+    <View
+        style="@style/h_line"
+        android:layout_marginTop="15dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <LinearLayout
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:gravity="center"
+                android:drawableRight="@drawable/right_san"
+                android:layout_marginTop="@dimen/space_20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="选择收费" />
+            <TextView
+                android:layout_width="@dimen/space_1"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="70dp"
+                android:layout_height="26dp"
+                android:background="@drawable/btn_circular_not_fill"
+                android:text="@string/cancel" />
+            <TextView
+                android:layout_width="@dimen/space_1"
+                android:layout_height="0dp"
+                android:layout_weight="0.8"/>
+            <Button
+                android:id="@+id/btn_confirm"
+                android:layout_width="70dp"
+                android:layout_height="26dp"
+                android:background="@drawable/btn_common"
+                android:text="@string/determine" />
+            <TextView
+                android:layout_width="@dimen/space_1"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+        </LinearLayout>
+        <View
+            style="@style/v_line"
+            android:layout_width="1dp"
+            />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2">
+
+            <ListView
+                android:cacheColorHint="#00000000"
+                android:listSelector="#00000000"
+                android:background="@null"
+                android:id="@+id/lv_ready_charge"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"></ListView>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

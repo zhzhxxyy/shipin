@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.duomizhibo.phonelive.widget.WPSwipeRefreshLayout
+            android:id="@+id/mSwipeRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="50dp">
+
+            <ListView
+                android:id="@+id/lv_attentions"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </com.duomizhibo.phonelive.widget.WPSwipeRefreshLayout>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/fensi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="150dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/bg_follow_empty" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/load"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/shibai" />
+
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:singleLine="true"
+                android:text="加载失败"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_size_20" />
+
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:singleLine="true"
+                android:text="快快开启你的直播吧"
+                android:textColor="@color/gray"
+                android:visibility="gone" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

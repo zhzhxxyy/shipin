@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <com.duomizhibo.phonelive.widget.AvatarView
+        android:id="@+id/av_head"
+        android:layout_width="@dimen/space_100"
+        android:layout_height="@dimen/space_100"
+        android:layout_marginTop="@dimen/space_20"
+        android:src="@drawable/fennen"
+        app:border_color="@color/green"
+        app:border_width="@dimen/space_1" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_10"
+        android:text="1233333"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_18" />
+
+    <TextView
+        android:id="@+id/tv_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_10"
+        android:text="视频连接中..."
+        android:textColor="@color/gray2"
+        android:textSize="@dimen/text_size_18" />
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_60"
+        android:text="本平台禁止一切包含低俗，暴露跟涉黄内容\n\n                一经发现将给予账号封停触发"
+        android:textColor="@color/gray2"
+        android:textSize="@dimen/text_size_12" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_marginTop="@dimen/space_30"
+        android:gravity="center"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:gravity="center"
+            android:id="@+id/tv_time"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/tv_hangup"
+            android:gravity="center"
+            android:src="@drawable/hangup"
+            android:textColor="@color/gray2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tv_close"
+            android:layout_marginTop="@dimen/space_5"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="挂断"
+            />
+    </LinearLayout>
+
+
+</LinearLayout>

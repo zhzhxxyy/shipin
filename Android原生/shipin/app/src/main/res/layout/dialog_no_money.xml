@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<LinearLayout
+
+    android:layout_gravity="center"
+    android:layout_width="300dp"
+    android:layout_height="100dp"
+    android:background="@drawable/bg_white_111"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:text="你当前余额不足无法观看"
+        android:textSize="20dp"
+        android:textColor="@color/black"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"/>
+    <View
+        android:layout_marginTop="10dp"
+       style="@style/h_line"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:text="确定"
+        android:id="@+id/tv_confirm"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/global"/>
+</LinearLayout>
+</LinearLayout>

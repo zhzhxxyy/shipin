@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right">
+
+            <Button
+                android:id="@+id/btn_game_start"
+                android:layout_width="50dp"
+                android:layout_height="20dp"
+                android:layout_marginRight="@dimen/space_10"
+                android:background="@color/global"
+                android:text="开始"
+                android:textColor="@color/white"/>
+
+            <Button
+                android:id="@+id/btn_game_close"
+                android:layout_width="50dp"
+                android:layout_height="20dp"
+                android:background="@color/global"
+                android:text="结束"
+                android:textColor="@color/white"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_game_root"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/img_game_kxnz"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/rl_game_top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/icon_game_bgpoker"
+                    android:gravity="center"/>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/icon_game_bgpoker"
+                    android:gravity="center"/>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/icon_game_bgpoker"
+                    android:gravity="center"/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_game_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:weightSum="3">
+
+                <RelativeLayout
+                    android:gravity="center_horizontal"
+                    android:id="@+id/ll_game_dq"
+                    android:layout_width="0dp"
+                    android:layout_height="150dp"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:id="@+id/iv_game_dq"
+                        android:layout_width="80dp"
+                        android:layout_height="120dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/img_popbull_role0"/>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="50dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="80dp"
+                        android:src="@drawable/img_popbull_rolename0"/>
+
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginRight="@dimen/space_5"
+                    android:id="@+id/rl_game_betting_1"
+                    android:layout_width="50dp"
+                    android:layout_height="70dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/img_popbull_betbg"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:text="星星x2"
+                        android:textColor="@color/game_text_brown"
+                        android:textSize="@dimen/text_size_10"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_pokers_dq_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="27dp"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_10"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_pokers_dq_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="10dp"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_10"/>
+
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:gravity="center_horizontal"
+                    android:id="@+id/ll_game_center"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+
+                    <ImageView
+                        android:id="@+id/iv_game_dc"
+                        android:layout_width="80dp"
+                        android:layout_height="120dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/img_popbull_role1"/>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="50dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="80dp"
+                        android:src="@drawable/img_popbull_rolename1"/>
+
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginRight="@dimen/space_5"
+                    android:id="@+id/rl_game_betting_2"
+                    android:layout_width="50dp"
+                    android:layout_height="70dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/img_popbull_betbg"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:text="球球x2"
+                        android:textColor="@color/game_text_brown"
+                        android:textSize="@dimen/text_size_10"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_pokers_dc_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="27dp"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_10"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_pokers_dc_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="10dp"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_10"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:gravity="center_horizontal"
+                    android:id="@+id/ll_game_xq"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:id="@+id/iv_game_xq"
+                        android:layout_width="80dp"
+                        android:layout_height="120dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/img_popbull_role2"/>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="50dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="80dp"
+                        android:src="@drawable/img_popbull_rolename2"/>
+
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginRight="@dimen/space_10"
+                    android:id="@+id/rl_game_betting_3"
+                    android:layout_width="50dp"
+                    android:layout_height="70dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/img_popbull_betbg"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:text="仔仔x2"
+                        android:textColor="@color/game_text_brown"
+                        android:textSize="@dimen/text_size_10"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_pokers_xq_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="27dp"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_10"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_pokers_xq_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="10dp"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_10"/>
+                </RelativeLayout>
+
+            </LinearLayout>
+
+
+            <!--倒计时-->
+
+            <TextView
+                android:id="@+id/tv_game_count_down"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/ico_bgtimepopbull"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:visibility="gone"/>
+
+
+            <ImageView
+                android:id="@+id/iv_game_winning"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tv_game_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="@dimen/space_25"
+                android:layout_marginRight="@dimen/space_25"
+                android:background="@drawable/dt"
+                android:gravity="center"
+                android:paddingBottom="@dimen/space_5"
+                android:paddingTop="@dimen/space_5"
+                android:text="即将开始，请稍后"
+                android:textColor="@color/global"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_game_betting"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_alignBottom="@+id/rl_game_root"
+            android:background="#50000000"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true">
+
+                <TextView
+                    android:id="@+id/tv_game_coin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_10"/>
+
+                <TextView
+                    android:id="@+id/tv_game_recharge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="@string/recharge"
+                    android:textColor="#F0A643"
+                    android:textSize="@dimen/text_size_15"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true">
+
+                <ImageView
+                    android:id="@+id/iv_game_betting_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/icon_game_betting_10_foucs"/>
+
+                <ImageView
+                    android:id="@+id/iv_game_betting_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/icon_game_betting_100"/>
+
+                <ImageView
+                    android:id="@+id/iv_game_betting_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/icon_game_betting_1000"/>
+
+                <ImageView
+                    android:id="@+id/iv_game_betting_4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/icon_game_betting_10000"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+    </LinearLayout>
+
+
+</RelativeLayout>

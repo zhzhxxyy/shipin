@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:background="@color/graywhite"
+        app:titleColor="@color/black"
+        app:titleText="@string/sex"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+    <ImageView
+        android:layout_marginTop="100dp"
+        android:layout_gravity="center"
+        android:id="@+id/iv_change_sex_male"
+        android:src="@drawable/choice_sex_male"
+        android:layout_width="80dp"
+        android:layout_height="80dp" />
+    <com.duomizhibo.phonelive.widget.BlackTextView
+        android:layout_gravity="center"
+        android:text="@string/man"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <ImageView
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:id="@+id/iv_change_sex_female"
+        android:src="@drawable/choice_sex_femal"
+        android:layout_width="80dp"
+        android:layout_height="80dp" />
+    <com.duomizhibo.phonelive.widget.BlackTextView
+        android:layout_gravity="center"
+        android:text="@string/weman"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>

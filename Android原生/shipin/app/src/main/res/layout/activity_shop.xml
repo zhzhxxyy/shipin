@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_marginLeft="@dimen/space_5"
+            android:id="@+id/iv_fininsh"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_arrow_left"/>
+
+        <LinearLayout
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/btn_head_a"
+                android:layout_width="80dp"
+                android:layout_height="30dp"
+                android:background="@drawable/house_rent_selected"
+                android:gravity="center"
+                android:padding="3dp"
+                android:text="会员"
+                android:textColor="@color/cpb_white"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/btn_head_b"
+                android:layout_width="80dp"
+                android:layout_height="30dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:padding="3dp"
+                android:text="靓号"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/btn_head_c"
+                android:layout_width="80dp"
+                android:layout_height="30dp"
+                android:background="@drawable/house_rent_1"
+                android:gravity="center"
+                android:padding="3dp"
+                android:text="@string/car"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <WebView
+        android:id="@+id/wb_shop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></WebView>
+</LinearLayout>

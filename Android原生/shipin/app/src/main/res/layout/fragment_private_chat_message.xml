@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent">
+    <!-- 导航标题栏 -->
+    <RelativeLayout
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:id="@+id/ll_title"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+        <ImageView
+            android:id="@+id/iv_private_chat_back"
+            android:layout_centerVertical="true"
+            android:src="@drawable/icon_arrow_left"
+            android:padding="5dp"
+            android:layout_width="27dp"
+            android:layout_height="27dp" />
+       <com.duomizhibo.phonelive.widget.BlackTextView
+           android:id="@+id/tv_private_chat_title"
+           android:layout_centerInParent="true"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content" />
+        <ImageView
+            android:layout_centerInParent="true"
+            android:id="@+id/iv_private_chat_user"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/chat_room_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <ListView
+        android:layout_marginBottom="50dp"
+        android:layout_marginTop="50dp"
+        android:divider="@null"
+        android:id="@+id/lv_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </ListView>
+
+    <include layout="@layout/view_private_chat_input"/>
+</RelativeLayout>

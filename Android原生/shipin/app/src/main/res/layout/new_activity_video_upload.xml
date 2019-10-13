@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        app:canBack="true"
+        app:titleColor="@color/black"
+        app:titleText="添加视频" />
+
+
+    <ScrollView
+        android:scrollbars="none"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:paddingBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="视频名称："
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/et_title"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:gravity="left|center_vertical"
+                    android:text=""
+                    android:background="@drawable/btn_corner_normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="观看金币："
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/et_money"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:gravity="left|center_vertical"
+                    android:text=""
+                    android:background="@drawable/btn_corner_normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="视频标签："
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:gravity="right|center_vertical"
+                    android:layout_width="70dp"
+                    android:layout_height="30dp" />
+
+                <com.duomizhibo.phonelive.widget.MaxGridView
+                    android:id="@+id/gv_tag"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/white"
+                    android:horizontalSpacing="5dip"
+                    android:listSelector="@android:color/transparent"
+                    android:numColumns="3"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dip"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="5dip"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="视频分类："
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content" />
+
+                <com.duomizhibo.phonelive.widget.nicespinner.NiceSpinner
+                    android:id="@+id/nice_spinner"
+                    app:textTint="#333333"
+                    android:textColor="#333333"
+                    app:arrowTint="#333333"
+                    android:textSize="12sp"
+                    app:dropDownListPaddingBottom="60dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp" />
+
+                <!--app:arrowTint="@color/light_gray_spinner"-->
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="上传视频："
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/et_video_path"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:gravity="left|center_vertical"
+                    android:text=""
+                    android:background="@drawable/btn_corner_normal"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="35dp" />
+
+                <TextView
+                    android:id="@+id/tv_video_upload"
+                    android:background="@drawable/btn_corner_normal"
+                    android:text="上传"
+                    android:textColor="#888888"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:layout_marginLeft="3dp"
+                    android:layout_width="40dp"
+                    android:layout_height="35dp" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="缩略图："
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/et_pic_path"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:gravity="left|center_vertical"
+                    android:text=""
+                    android:background="@drawable/btn_corner_normal"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="35dp" />
+
+                <TextView
+                    android:id="@+id/tv_pic_upload"
+                    android:background="@drawable/btn_corner_normal"
+                    android:text="上传"
+                    android:textColor="#888888"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:layout_marginLeft="3dp"
+                    android:layout_width="40dp"
+                    android:layout_height="35dp" />
+            </LinearLayout>
+
+
+            <ImageView
+                android:id="@+id/iv_pic"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/images_default"
+                android:scaleType="fitCenter"
+                android:layout_width="140dp"
+                android:layout_height="140dp" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="视频时长："
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/et_time"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:hint="00:00"
+                    android:gravity="left|center_vertical"
+                    android:text=""
+                    android:background="@drawable/btn_corner_normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="演员："
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/et_actor"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:textColor="#333"
+                    android:textSize="14sp"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:gravity="left|center_vertical"
+                    android:text=""
+                    android:background="@drawable/btn_corner_normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_submit"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="80dp"
+                android:text="提交"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:background="#009688"
+                android:layout_width="60dp"
+                android:layout_height="40dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

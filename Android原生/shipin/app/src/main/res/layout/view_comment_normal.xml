@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+    >
+
+    <ImageView
+        android:id="@+id/head_img"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="15dp"
+        />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/head_img"
+        android:layout_toRightOf="@id/head_img"
+        android:textColor="#808080"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/name"
+        android:layout_toRightOf="@id/head_img"
+        android:textColor="#ccc"
+        android:textSize="12sp"
+        />
+
+    <TextView
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/time"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_toRightOf="@id/head_img"
+        android:textColor="#333"
+        android:textSize="14sp"
+        />
+
+    <ImageView
+        android:id="@+id/heart"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:src="@drawable/icon_video_heart"
+        />
+
+    <TextView
+        android:id="@+id/like_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/heart"
+        android:layout_marginRight="5dp"
+        android:layout_toLeftOf="@id/heart"
+        android:text="赞"
+        android:textColor="#808080"
+        android:textSize="14sp"
+        />
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/question"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/content"
+        android:layout_alignRight="@id/content"
+        android:layout_below="@id/content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_comment_question"
+        android:textColor="#333"
+        android:paddingLeft="7dp"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignLeft="@id/content"
+        android:layout_below="@id/question"
+        android:layout_marginTop="10dp"
+        android:background="#d0d0d0"
+        />
+
+
+</RelativeLayout>

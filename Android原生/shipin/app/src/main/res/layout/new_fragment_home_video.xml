@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/ll_class"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/ll_fenlei"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/white">
+            <TextView
+                android:text="分类："
+                android:layout_marginLeft="5dp"
+                android:padding="5dp"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none" >
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:id="@+id/ll_fenlei_add"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+            </HorizontalScrollView>
+        </LinearLayout>
+        <View
+            android:id="@+id/view_fenlei"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ccc"
+            />
+        <LinearLayout
+            android:id="@+id/ll_biaoqian"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/white">
+            <TextView
+                android:text="标签："
+                android:layout_marginLeft="5dp"
+                android:padding="5dp"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none" >
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:id="@+id/ll_biaoqian_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+
+
+            </HorizontalScrollView>
+
+
+
+
+        </LinearLayout>
+        <View
+            android:id="@+id/view_biaoqian"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ccc"
+            />
+        <LinearLayout
+
+            android:id="@+id/ll_paixu"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/white">
+
+            <TextView
+                android:text="排序："
+                android:layout_marginLeft="5dp"
+                android:padding="5dp"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none" >
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:id="@+id/ll_paixu_add"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+            </HorizontalScrollView>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_more"
+            android:text="更多"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:background="@drawable/drop_down"
+            android:layout_width="match_parent"
+            android:layout_height="35dp" />
+    </LinearLayout>
+
+    <com.duomizhibo.phonelive.ui.customviews.RefreshLayout
+        android:layout_below="@+id/ll_class"
+        android:id="@+id/mRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/mRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:horizontalSpacing="4dp"
+            android:numColumns="2"
+            android:verticalSpacing="4dp">
+        </android.support.v7.widget.RecyclerView>
+
+    </com.duomizhibo.phonelive.ui.customviews.RefreshLayout>
+
+    <include
+        layout="@layout/view_fail"/>
+
+</RelativeLayout>

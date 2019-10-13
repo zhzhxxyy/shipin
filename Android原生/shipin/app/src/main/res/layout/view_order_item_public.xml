@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--等级名称性别-->
+    <LinearLayout
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:id="@+id/tv_order_item_u_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:layout_marginLeft="5dp"
+            android:src="@drawable/global_male"
+            android:id="@+id/iv_order_item_u_sex"
+            android:layout_width="wrap_content"
+            android:layout_height="15dp" />
+        <ImageView
+            android:layout_marginLeft="5dp"
+            android:id="@+id/tv_order_item_u_level"
+            android:layout_width="30dp"
+            android:layout_height="15dp" />
+    </LinearLayout>
+    <!--贡献值-->
+    <com.duomizhibo.phonelive.widget.BlackTextView
+        android:id="@+id/tv_order_item_u_gx"
+        android:layout_gravity="center"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</merge>

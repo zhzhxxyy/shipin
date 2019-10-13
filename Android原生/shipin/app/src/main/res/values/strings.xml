@@ -1,0 +1,498 @@
+<resources>
+    <string name="app_name">视频播放</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="loading">正在加载中...</string>
+    <string name="copy_success">复制成功</string>
+    <string name="tip_no_internet">当前没有可用的网络连接</string>
+    <string name="login_success">登陆成功</string>
+    <string name="message">我的收益</string>
+    <string name="blog">我的等级</string>
+    <string name="my_video">我的视频</string>
+    <string name="details">我的明细</string>
+    <string name="shopthings">装备中心</string>
+    <string name="distribution">三级分销</string>
+    <string name="auctionmanagement">竞拍管理</string>
+    <string name="auction">我的竞拍</string>
+    <string name="family">家族中心</string>
+    <string name="ll_familymanage">家族驻地</string>
+    <string name="car">坐骑</string>
+    <string name="shop">在线商城</string>
+    <string name="team">个性设置</string>
+    <string name="user_score">积分</string>
+    <string name="favorite">收藏</string>
+    <string name="following">关注</string>
+    <string name="follower">粉丝</string>
+    <string name="my_information_unlogin_tips">未登录</string>
+    <!-- Error View -->
+    <string name="error_view_click_to_refresh">点击屏幕,重新加载</string>
+    <string name="error_view_no_data">暂无内容</string>
+    <string name="error_view_loading">加载中…</string>
+    <string name="error_view_load_error_click_to_refresh">内容加载失败\r\n点击重新加载</string>
+    <string name="error_view_network_error_click_to_refresh">没有可用的网络</string>
+    <string name="tip_network_error">没有可用的网络</string>
+    <string name="user_live">直播</string>
+    <string name="loginout">退出登录</string>
+    <string name="editInfo">编辑资料</string>
+    <string name="editnickpromp">昵称最多8个字</string>
+    <string name="editsignpromp">最多输入20个字</string>
+    <string name="selectphotoonalbu">从相册选择</string>
+    <string name="selectphotooncamera">拍照</string>
+    <string name="balance">账户余额</string>
+    <string name="select_pay">请选择支付方式</string>
+    <string name="myleve">等级</string>
+    <string name="editsuccess">修改成功</string>
+    <string name="editfail">修改失败</string>
+    <string name="wxpay">微信支付</string>
+    <string name="alipay">支付宝支付</string>
+    <string name="myprofit">我的收益</string>
+    <string name="commonproblem">常见问题</string>
+    <string name="setting">设置</string>
+    <string name="pushmanage">推送管理</string>
+    <string name="about">关于我们</string>
+    <string name="feedback">用户反馈</string>
+    <string name="blanklist">黑名单</string>
+    <string name="attention">关注</string>
+    <string name="hot">热门</string>
+    <string name="daren">最新</string>
+    <string name="pagevideo">视频</string>
+    <string name="game">游戏</string>
+    <string name="position">定位</string>
+    <string name="attentionlive">关注的好友直播</string>
+    <string name="attention_title1">你的好友静静悄悄</string>
+    <string name="attention_title2">此时还没有直播</string>
+    <string name="attention_title3">去看看新精彩直播</string>
+    <string name="lookin">在看</string>
+    <string name="gobackindex">返回首页</string>
+    <string name="liveend">直播已结束</string>
+    <string name="sendchat">发送</string>
+    <string name="create_edit_text_hint">给直播写个标题吧</string>
+    <string name="startLive">开始直播</string>
+    <string name="plasesettitle">请设置一个标题吧</string>
+    <string name="iscloselive">是否关闭直播</string>
+    <string name="livestart">直播开始</string>
+    <string name="sendgift">发送</string>
+    <string name="senderror">赠送失败请重试</string>
+    <string name="liansendgift">连送</string>
+    <string name="report">举报</string>
+    <string name="follow2">关注</string>
+    <string name="reply">回复</string>
+    <string name="home">主页</string>
+    <string name="default_address">难道在火星?</string>
+    <string name="follow">关注主播</string>
+    <string name="alreadyfollow">已关注</string>
+    <string name="age">年龄</string>
+    <string name="number">ID</string>
+    <string name="sign">个性签名</string>
+    <string name="live">直播</string>
+    <string name="video">视频</string>
+    <string name="fans">粉丝</string>
+    <string name="privatechat">私信</string>
+    <string name="lahei">拉黑</string>
+    <string name="manage">管理</string>
+    <string name="no1">No.1</string>
+    <string name="no2">No.2</string>
+    <string name="no3">No.3</string>
+    <string name="paymode">支付方式:</string>
+    <string name="defaultsign">没写签名</string>
+    <string name="send">送出</string>
+    <string name="testin">测试中,尽情期待...</string>
+    <string name="liverecord">直播记录</string>
+    <string name="friends">已关注</string>
+    <string name="nofollow">未关注</string>
+    <string name="payresult">支付结果</string>
+    <string name="complete">完成</string>
+    <string name="area">地区</string>
+    <string name="search">搜索</string>
+    <string name="default_prompt">全时间都在等待你直播</string>
+    <string name="reportsuccess">举报成功</string>
+    <string name="pullblack">拉黑</string>
+    <string name="relieveblack">解除拉黑</string>
+    <string name="blacklist">黑名单</string>
+    <string name="plase_input_phone_num">请填写手机号码</string>
+    <string name="plase_check_you_num_is_correct">请检查手机号码是否输入正确</string>
+    <string name="codehasbeensend">验证码已发送</string>
+    <string name="livestartpush">直播消息提醒</string>
+    <string name="push">推送管理</string>
+    <string name="determine">确定</string>
+    <string name="startliveerror">开播失败</string>
+    <string name="searchmusic">搜索歌曲</string>
+    <string name="diange">点歌</string>
+    <string name="select">选择</string>
+    <string name="download">下载</string>
+    <string name="downloadError">下载失败</string>
+    <string name="initDataError">初始化数据失败~</string>
+    <string name="musicEnd">结束</string>
+    <string name="authenticate">我的认证</string>
+    <string name="private_chat">私信</string>
+    <string name="main_page">主页</string>
+    <string name="change_pass">重置密码</string>
+    <string name="sex">性别</string>
+    <string name="man">男</string>
+    <string name="weman">女</string>
+    <string name="change_info">修改资料</string>
+    <string name="loading_error">加载失败</string>
+    <string name="open_your_live">快快开启你的直播吧</string>
+    <string name="send_code">发验证码</string>
+    <string name="vaildate_code">验证码</string>
+    <string name="plase_fill_in_vaildate_code">请填写短信验证码</string>
+    <string name="pass">密码</string>
+    <string name="plase_fill_in_pass">请填写密码</string>
+    <string name="confirm_pass">确认密码</string>
+    <string name="again_fill_in_pass">请再次输入密码</string>
+    <string name="reset_pass">重置密码</string>
+    <string name="level">等级</string>
+    <string name="live_record">直播记录</string>
+    <string name="not_hava_live_record">现在还没有直播记录</string>
+    <string name="register">注册</string>
+    <string name="login">登录</string>
+    <string name="edit_info">编辑资料</string>
+    <string name="head">头像</string>
+    <string name="nick_name">昵称</string>
+    <string name="fill_in_birthday">请输入生日</string>
+    <string name="not_have_live">现在还没有主播</string>
+
+    <string name="immediate_register">立即注册</string>
+    <string name="find_pass">找回密码</string>
+    <string name="immediate_login">立即登陆</string>
+    <string name="week_order">周榜</string>
+    <string name="all_order">总榜</string>
+    <string name="my_profit">我的收益</string>
+    <string name="can_cash_money">可提现金额</string>
+    <string name="day_can_cash_money">今日可提现金额</string>
+    <string name="cash">提现</string>
+    <string name="pass_room">密码房间</string>
+    <string name="open_charge_mode">开启收费模式</string>
+    <string name="money">金额</string>
+    <string name="clear_cache">清理缓存</string>
+    <string name="check_new">检查更新</string>
+    <string name="select_login_mode">请选择登录方式</string>
+    <string name="clause">登录即代表你同意服务条款和隐私</string>
+    <string name="ignore_read">忽略未读</string>
+    <string name="cancel">取消</string>
+    <string name="is_back">是否退出</string>
+    <string name="live_num">观看人数</string>
+    <string name="search_hint">请输入要搜索的昵称或ID</string>
+    <string name="input_money">请输入金额</string>
+    <string name="immediately_pay">立刻支付</string>
+    <string name="close_live">关闭直播</string>
+    <string name="disable_user">禁用账号</string>
+    <string name="kick">踢人</string>
+    <string name="shutup">禁言</string>
+    <string name="set_manage">设为管理</string>
+    <string name="manage_list">管理员列表</string>
+    <string name="me">我</string>
+    <string name="older_pass">旧密码</string>
+    <string name="input_older_pass">请输入旧密码</string>
+    <string name="new_pass">新密码</string>
+    <string name="input_new_pass">请输入新密码</string>
+    <string name="commit_pass">确认密码</string>
+    <string name="again_pass">请再次输入密码</string>
+    <string name="confirm_change">确认修改</string>
+    <string name="save">保存</string>
+    <string name="birthday">生日</string>
+    <string name="already_follow">已关注</string>
+    <string name="game_start_suporrt">开始支持</string>
+    <string name="game_stop">揭晓结果</string>
+    <string name="login_awrad">欢迎回来！</string>
+    <string name="login_receive">领取</string>
+    <string name="float_window_not_allow">悬浮窗权限未开启 请在应用-权限中打开悬浮窗权限</string>
+    <string name="roomtype_common">普通房间</string>
+    <string name="roomtype">密码房间</string>
+    <string name="roomtype1">计时房间</string>
+    <string name="roomtype2">门票房间</string>
+    <string name="startlive">开始直播</string>
+    <string name="open_charge_mode_h">开启计时收费模式</string>
+    <string name="select_roomtype">选择私密类型</string>
+    <string name="harvest_yp">收获映票</string>
+    <string name="video_report">举报该视频</string>
+    <string-array name="live_start_share_open">
+        <item>微博分享已开</item>
+        <item>微信分享已开</item>
+        <item>朋友圈分享已开</item>
+
+        <item>QQ分享已开</item>
+        <item>QQ空间分享已开</item>
+    </string-array>
+    <string-array name="live_start_share_close">
+        <item>微博分享已关</item>
+        <item>微信分享已关</item>
+        <item>朋友圈分享已关</item>
+
+        <item>QQ分享已关</item>
+        <item>QQ空间分享已关</item>
+    </string-array>
+
+    <!--高德地图-->
+    <string name="amp_val">7b6583b0c5d8b35c0dea4e2c47aebdf7</string>
+    <!--bugly-->
+    <string name="bugly_val">564d266f7e</string>
+    <!--极光推送-->
+    <string name="jpush_val">61a021ecb35ae0e0a506375d</string>
+
+    <!--环信-->
+    <string name="huanxin">1101171020178343#duomi</string>
+    <string name="recharge">充值</string>
+
+
+    <!--   Iconfont  开始   -->
+    <!--错误-->
+    <string name="icon_cuowu">&#xe640;</string>
+    <!--播放-->
+    <string name="icon_bofang">&#xe600;</string>
+    <!--图片-->
+    <string name="icon_tupian">&#xe616;</string>
+    <!--分类-->
+    <string name="icon_fenlei">&#xe61b;</string>
+    <!--金币_Solid-->
+    <string name="icon_jinbi1">&#xe721;</string>
+    <!--图标1_书、小说-->
+    <string name="icon_tubiao">&#xe63d;</string>
+    <!--错误-->
+    <string name="icon_error">&amp;#xe64e;</string>
+    <!--修改-->
+    <string name="icon_xiugai">&#xe615;</string>
+    <!--银行卡认证-->
+    <string name="icon_code">&#xe62f;</string>
+    <!--金币-->
+    <string name="icon_tubiao207"></string>
+    <!--消费记录-->
+    <string name="icon_icon12">&#xe612;</string>
+    <!--下载-->
+    <string name="icon_xiazai">&#xe624;</string>
+    <!--vip-->
+    <string name="icon_vip1">&#xe647;</string>
+    <!--下一页-->
+    <string name="icon_next">&#xe60b;</string>
+    <!--上一页-->
+    <string name="icon_prev">&#xe619;</string>
+    <!--密码-->
+    <string name="icon_201">&#xe60c;</string>
+    <!--修改密码-->
+    <string name="icon_xiugaimima01">&#xe62c;</string>
+    <!--金币-->
+    <string name="icon_jinbi">&#xe627;</string>
+    <!--编辑-->
+    <string name="icon_bianji">&#xe682;</string>
+    <!--对-->
+    <string name="icon_correct">&#xe621;</string>
+    <!--二维码-->
+    <string name="icon_erweima">&#xe634;</string>
+    <!--删除-->
+    <string name="icon_shanchu1">&#xe633;</string>
+
+    <!--时间-->
+    <string name="icon_shijian_copy">&#xe613;</string>
+
+    <!--充值-->
+    <string name="icon_3">&#xe62b;</string>
+
+    <!--上传-->
+    <string name="icon_shangchuan">&#xe631;</string>
+
+    <!--角标-->
+    <string name="icon_jiaobiao">&#xe6c7;</string>
+
+    <!--分享-->
+    <string name="icon_fenxiang">&#xe623;</string>
+    <!--QQ-->
+    <string name="icon_qq">&#xe632;</string>
+    <!--温馨提示-->
+    <string name="icon_wenxintishi">&#xe6e5;</string>
+    <!--微信-->
+    <string name="icon_weixin">&#xe658;</string>
+    <!--首页-->
+    <string name="icon_shouye">&#xe625;</string>
+    <!--设置3-->
+    <string name="icon_shezhi3">&#xe62d;</string>
+    <!--返回-->
+    <string name="icon_fanhui_copy_copy">&#xe602;</string>
+    <!--视频-->
+    <string name="icon_video1">&#xe636;</string>
+    <!--钻石-->
+    <string name="icon_zuanshi">&#xe675;</string>
+    <!--账号-->
+    <string name="icon_mima01">&#xe605;</string>
+
+    <!--下滑-加粗-->
+    <string name="icon_down_bold">&#xe6ec;</string>
+
+    <!--完成-->
+    <string name="icon_wancheng">&#xe644;</string>
+    <!--绑定邮箱-->
+    <string name="icon_bangdingyouxiang">&#xe689;</string>
+    <!--扫描二维码-->
+    <string name="icon_icon2">&#xe67e;</string>
+    <!--我要充值-->
+    <string name="icon_recharge">&#xe650;</string>
+    <!--时间 (5)-->
+    <string name="icon_shijian5">&#xe7d3;</string>
+    <!--验证码-->
+    <string name="icon_verification_code">&#xe617;</string>
+    <!--眼睛-->
+    <string name="icon_see">&#xe64b;</string>
+    <!--加载更多-->
+    <string name="icon_more">&#xe635;</string>
+    <!--我的视频-->
+    <string name="icon_video">&#xe614;</string>
+
+    <!--密码-->
+    <string name="icon_mima_copy">&#xe608;</string>
+
+
+    <!--时间-->
+    <string name="icon_time">&#xe6a3;</string>
+
+    <!--指标检测器-->
+    <string name="icon_yuechi">&#xe7fc;</string>
+
+    <!--VIP-->
+    <string name="icon_vip2">&#xe643;</string>
+
+    <!--退出-->
+    <string name="icon_tuichu">&#xe684;</string>
+
+    <!--卡券-->
+    <string name="icon_qiaquan">&#xe641;</string>
+
+    <!--密码-->
+    <string name="icon_mima">&#xe66d;</string>
+
+    <!--icon_QQ-->
+    <string name="icon_QQ">&#xe65e;</string>
+
+    <!--签到-->
+    <string name="icon_qiandao">&#xe609;</string>
+
+    <!--11_置顶-->
+    <string name="icon_top">&#xe638;</string>
+
+    <!--保存-->
+    <string name="icon_baocun">&#xe63c;</string>
+
+    <!--业务人员信息管理-->
+    <string name="icon_info_mage">&#xe62e;</string>
+
+    <!--我的-->
+    <string name="icon_wode">&#xe63b;</string>
+
+    <!--会员权益-->
+    <string name="icon_huiyuanquanyi">&#xe739;</string>
+
+    <!--微信-->
+    <string name="icon_weixin1">&#xe73b;</string>
+
+    <!--首页-->
+    <string name="icon_home">&#xe61d;</string>
+
+    <!--验证码-->
+    <string name="icon_yanzhenma">&#xe683;</string>
+
+    <!--三角形-空-->
+    <string name="icon_sanjiao">&#xe61e;</string>
+
+    <!--三角形-->
+    <string name="icon_triangle">&#xe607;</string>
+
+    <!--我的图片-->
+    <string name="icon_images">&#xe61f;</string>
+
+    <!--编辑-->
+    <string name="icon_bianji1">&#xe694;</string>
+
+    <!--昵称-->
+    <string name="icon_nicheng">&#xe639;</string>
+
+    <!--扫一扫-->
+    <string name="icon_saoyisao">&#xe6a2;</string>
+
+    <!--保存成功-->
+    <string name="icon_baocunchenggong">&#xe611;</string>
+
+    <!--icon_置顶-->
+    <string name="icon_zhiding">&#xe64f;</string>
+
+    <!--邮箱-->
+    <string name="icon_youxiang">&#xe64a;</string>
+
+    <!--退出登录-->
+    <string name="icon_tuichudenglu">&#xe65f;</string>
+
+    <!--搜索-->
+    <string name="icon_suosuo">&#xe622;</string>
+    <!--数据库管理-->
+    <string name="icon_shujukushili">&#xe7c6;</string>
+    <!--皇冠-->
+    <string name="icon_huangguan">&#xe61a;</string>
+    <!--播放-->
+    <string name="icon_bofang1">&#xe626;</string>
+    <!--女-->
+    <string name="icon_nv">&#xe618;</string>
+    <!--账号-->
+    <string name="icon_zhanghao">&#xe630;</string>
+    <!--我的收藏-->
+    <string name="icon_collection">&#xe642;</string>
+    <!--提现-->
+    <string name="icon_tixian">&#xe6b8;</string>
+    <!--vip-->
+    <string name="icon_vip">&#xe60e;</string>
+    <!--宣传资料-->
+    <string name="icon_xuanchuan">&#xe674;</string>
+    <!--删除-->
+    <string name="icon_shanchu">&#xe637;</string>
+    <!--手机-->
+    <string name="icon_shouji">&#xe60a;</string>
+    <!--管理-->
+    <string name="icon_management">&#xe980;</string>
+    <!--上传-->
+    <string name="icon_shangchuan1">&#xe62a;</string>
+    <!--记录-->
+    <string name="icon_icon_test">&#xe610;</string>
+    <!--返回-->
+    <string name="icon_fanhui">&#xe61c;</string>
+    <!--成功 接入 通过-->
+    <string name="icon_tongguo">&#xe629;</string>
+    <!--提示-->
+    <string name="icon_tishi">&#xe628;</string>
+    <!--排行-->
+    <string name="icon_paihang">&#xe606;</string>
+    <!--收 藏-->
+    <string name="icon_shoucang1">&#xe601;</string>
+    <!--支付宝-->
+    <string name="icon_zhifubao">&#xe8e4;</string>
+    <!--图片-->
+    <string name="icon_img">&#xe620;</string>
+    <!--代理商-->
+    <string name="icon_dailishang">&#xe70e;</string>
+    <!--管理员-->
+    <string name="icon_guanliyuan">&#xe6fb;</string>
+
+    <!--金币-->
+    <string name="icon_jinbi2">&#xe60f;</string>
+
+    <!--点赞-->
+    <string name="icon_zan2">&#xe603;</string>
+
+    <!--个人信息-->
+    <string name="icon_info">&#xe64c;</string>
+
+    <!--公告-->
+    <string name="icon_gonggao">&#xe63a;</string>
+
+    <!--代理商管理-->
+    <string name="icon_agent">&#xe604;</string>
+
+    <!--不喜欢-->
+    <string name="icon_buxihuan">&#xe776;</string>
+
+    <!--注意-->
+    <string name="icon_zhuyi">&#xe655;</string>
+
+    <!--多展会信息采集-->
+    <string name="icon_duoji">&#xe60d;</string>
+    <!--Iconfont  结束-->
+
+
+    <item name="tag_first" type="id"></item>
+    <item name="tag_second" type="id"></item>
+</resources>

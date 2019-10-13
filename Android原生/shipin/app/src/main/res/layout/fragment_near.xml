@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <include
+        android:id="@+id/no_zhubo"
+        layout="@layout/view_home_no_zhubo"
+        android:visibility="gone"
+        />
+
+    <include
+        android:id="@+id/load_failure"
+        layout="@layout/view_home_load_failure"
+        android:visibility="gone"
+        />
+
+    <com.duomizhibo.phonelive.ui.customviews.RefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <com.duomizhibo.phonelive.ui.customviews.MyRecyclerView
+            android:padding="@dimen/space_8"
+            android:id="@+id/recylcerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+    </com.duomizhibo.phonelive.ui.customviews.RefreshLayout>
+
+</RelativeLayout>
+

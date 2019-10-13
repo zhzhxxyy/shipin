@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/main_background">
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:background="@color/graywhite"
+        app:titleColor="@color/black"
+        app:titleText="@string/my_profit"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+
+    <LinearLayout
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_profit_tick_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="20dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:id="@+id/tv_votes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:textColor="@color/global"
+            android:textSize="30dp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        style="@style/h_line"/>
+
+    <LinearLayout
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/can_cash_money"
+                android:textColor="@color/black"
+                android:textSize="20dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:textStyle="bold"
+            android:id="@+id/tv_profit_canwithdraw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/global"
+            android:textSize="30dp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        style="@style/h_line"/>
+
+    <LinearLayout
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/day_can_cash_money"
+                android:textColor="@color/black"
+                android:textSize="20dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:id="@+id/tv_profit_withdraw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:textColor="@color/global"
+            android:textSize="30dp" />
+
+    </LinearLayout>
+
+
+    <Button
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:id="@+id/btn_profit_cash"
+        android:background="@drawable/btn_common"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:text="@string/cash"
+        android:textColor="@color/white"
+        android:textSize="@dimen/abc_text_size_subhead_material" />
+
+    <com.duomizhibo.phonelive.widget.BlackTextView
+        android:layout_gravity="center"
+        android:id="@+id/tv_common_problem"
+        android:layout_width="84dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_weight="0.70"
+        android:gravity="center"
+        android:text="@string/commonproblem" />
+</LinearLayout>

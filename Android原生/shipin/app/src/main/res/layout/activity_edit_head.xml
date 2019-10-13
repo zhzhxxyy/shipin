@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="10dp">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+        <ImageView
+            android:id="@+id/iv_select_avatar_back"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/icon_arrow_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.duomizhibo.phonelive.widget.LoadUrlImageView
+            android:layout_marginTop="@dimen/space_10"
+            android:layout_below="@id/iv_select_avatar_back"
+            android:id="@+id/av_edit_head"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_marginTop="40dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <com.duomizhibo.phonelive.widget.BlackButton
+            android:id="@+id/btn_avator_from_album"
+            android:textColor="@color/white"
+            android:text="@string/selectphotoonalbu"
+            android:background="@drawable/btn_edit_head_radius"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content" />
+        <com.duomizhibo.phonelive.widget.BlackButton
+            android:id="@+id/btn_avator_photograph"
+            android:textColor="@color/white"
+            android:text="@string/selectphotooncamera"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/btn_edit_head_radius"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+    </LinearLayout>
+</LinearLayout>

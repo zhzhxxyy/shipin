@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/rl_live_root"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <com.duomizhibo.phonelive.widget.LoadUrlImageView
+        android:visibility="gone"
+        android:id="@+id/iv_live_look_loading_bg0"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"/>
+    <com.tencent.rtmp.ui.TXCloudVideoView
+        android:visibility="visible"
+        android:id="@+id/video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        />
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/tv_no_money_black"
+        android:background="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <!--连麦：第一个播放小窗口-->
+    <FrameLayout
+        android:id="@+id/frameLayout1"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="56dp"
+        android:layout_marginRight="8dp">
+
+        <com.tencent.rtmp.ui.TXCloudVideoView
+            android:id="@+id/play_video_view1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+        </com.tencent.rtmp.ui.TXCloudVideoView>
+
+        <FrameLayout
+            android:id="@+id/loading_background1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            android:alpha="0.5"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/loading_imageview1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btn_kick_out1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"/>
+
+    <!--连麦：第二个播放小窗口-->
+    <FrameLayout
+        android:id="@+id/frameLayout2"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:layout_above="@+id/frameLayout1"
+        android:layout_alignRight="@+id/frameLayout1">
+
+        <com.tencent.rtmp.ui.TXCloudVideoView
+            android:id="@+id/play_video_view2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+        </com.tencent.rtmp.ui.TXCloudVideoView>
+
+        <FrameLayout
+            android:id="@+id/loading_background2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            android:alpha="0.5"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/loading_imageview2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btn_kick_out2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"/>
+
+    <!--连麦：第三个播放小窗口-->
+    <FrameLayout
+        android:id="@+id/frameLayout3"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:layout_above="@+id/frameLayout2"
+        android:layout_alignRight="@+id/frameLayout2">
+
+        <com.tencent.rtmp.ui.TXCloudVideoView
+            android:id="@+id/play_video_view3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+        </com.tencent.rtmp.ui.TXCloudVideoView>
+
+        <FrameLayout
+            android:id="@+id/loading_background3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            android:alpha="0.5"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/loading_imageview3"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btn_kick_out3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"/>
+    <RelativeLayout
+        android:id="@+id/rl_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:id="@+id/view_live_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!--加载背景图-->
+            <com.duomizhibo.phonelive.widget.LoadUrlImageView
+                android:id="@+id/iv_live_look_loading_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"/>
+
+            <!--cotnent-->
+            <include
+                layout="@layout/view_live_content"/>
+
+            <!--底部菜单-->
+            <include
+                layout="@layout/view_show_button_menu"/>
+
+        </RelativeLayout>
+        <ImageView
+            android:id="@+id/iv_live_toBig"
+            android:visibility="gone"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/btn_live_big"
+            />
+        <ImageView
+            android:id="@+id/iv_live_toSmall"
+            android:visibility="gone"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/btn_live_big"
+            />
+
+        <RelativeLayout
+            android:id="@+id/rl_live_gift"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+
+        </RelativeLayout>
+    </RelativeLayout>
+    <include
+        android:visibility="gone"
+        android:id="@+id/in_person_dialog"
+        layout="@layout/include_person_requst"
+        />
+</RelativeLayout>

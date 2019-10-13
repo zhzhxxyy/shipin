@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_background">
+
+
+    <LinearLayout
+        android:id="@+id/rootview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/graywhite"
+            app:canBack="false"
+            app:titleColor="@color/black"
+            app:titleText="@string/me" />
+
+        <!--头部-->
+        <include layout="@layout/fragment_user_information_head" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorTextWhite"
+            android:orientation="vertical">
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_profit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/lcv_ui_set"
+                android:layout_marginTop="10dp"
+                app:canNav="true"
+                app:iconRes="@drawable/me_under_harvest"
+                app:isBottom="true"
+                app:name="@string/message" />
+
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_diamonds"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_profit"
+                app:canNav="true"
+                app:iconRes="@drawable/me_under_myaccount"
+                app:isBottom="true" />
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_video"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_profit"
+                app:canNav="true"
+                app:iconRes="@drawable/my_video"
+                app:isBottom="true"
+                app:name="@string/my_video"/>
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_level"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_diamonds"
+                app:canNav="true"
+                app:iconRes="@drawable/me_under_grade"
+                app:isBottom="true"
+                app:name="@string/blog" />
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_details"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_diamonds"
+                app:canNav="true"
+                app:iconRes="@drawable/my_details"
+                app:isBottom="true"
+                app:name="@string/details" />
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_shop"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_diamonds"
+                app:canNav="true"
+                app:iconRes="@drawable/shop"
+                app:isBottom="true"
+                app:name="@string/shop" />
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_shopthings"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_diamonds"
+                app:canNav="true"
+                app:iconRes="@drawable/shop_things"
+                app:isBottom="true"
+                app:name="@string/shopthings" />
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_family"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_diamonds"
+                android:visibility="gone"
+                app:canNav="true"
+                app:iconRes="@drawable/family"
+                app:isBottom="true"
+                app:name="@string/family" />
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_familymanage"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_diamonds"
+                android:visibility="gone"
+                app:canNav="true"
+                app:iconRes="@drawable/familymanage"
+                app:isBottom="true"
+                app:name="@string/ll_familymanage" />
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_distribution"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_diamonds"
+                android:visibility="gone"
+                app:canNav="true"
+                app:iconRes="@drawable/distribution"
+                app:isBottom="true"
+                app:name="@string/distribution" />
+
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_authenticate"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/lcv_ui_set"
+                app:canNav="true"
+                app:iconRes="@drawable/me_under_myaccount2"
+                app:isBottom="true"
+                app:name="@string/authenticate" />
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_about"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/ll_authenticate"
+                app:canNav="true"
+                app:iconRes="@drawable/icon_about"
+                app:isBottom="true"
+                app:name="关于我们" />
+
+            <com.duomizhibo.phonelive.ui.customviews.LineControllerView
+                android:id="@+id/ll_setting"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/lcv_ui_set"
+                app:canNav="true"
+                app:iconRes="@drawable/me_under_nodisturbing"
+                app:isBottom="true"
+                app:name="@string/team" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ll_loginout"
+            style="@style/option_item_rl"
+            android:layout_marginTop="15dp"
+            android:background="@color/white"
+            android:visibility="gone">
+
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                style="@style/option_item_text"
+                android:layout_width="fill_parent"
+                android:gravity="center"
+                android:text="@string/loginout" />
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

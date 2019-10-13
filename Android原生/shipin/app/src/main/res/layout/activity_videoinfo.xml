@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.duomizhibo.phonelive.widget.SquareImageview
+        android:id="@+id/iv_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         />
+
+    <LinearLayout
+        android:id="@+id/ll_1"
+        android:gravity="center_vertical"
+        android:layout_margin="@dimen/space_10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_bg">
+
+        <TextView
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_18"
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/iv_level"
+            android:layout_width="20dp"
+            android:layout_height="18dp"
+            android:layout_marginLeft="@dimen/space_15" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_below="@id/ll_1"
+        android:id="@+id/ll_info"
+        android:gravity="center_vertical"
+        android:layout_marginRight="@dimen/space_10"
+        android:layout_marginLeft="@dimen/space_10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+
+            android:src="@drawable/boy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/iv_sex"/>
+        <TextView
+            android:textColor="#F48FAF"
+            android:layout_marginLeft="@dimen/space_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_num"/>
+        <TextView
+            android:layout_marginLeft="@dimen/space_25"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_address"/>
+
+    </LinearLayout>
+    <View
+        android:id="@+id/view"
+        android:background="@color/gray2"
+        android:layout_below="@id/ll_info"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_1"
+        android:layout_margin="@dimen/space_10"/>
+    <LinearLayout
+        android:layout_below="@id/view"
+        android:layout_marginLeft="@dimen/space_10"
+        android:layout_marginRight="@dimen/space_10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/title"/>
+        <TextView
+            android:layout_marginLeft="@dimen/space_10"
+            android:id="@+id/tv_des"
+            android:text="111111111111111111111111111111111111111111111111111111111111111111111111111"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
+        <LinearLayout
+            android:id="@+id/tv_sendvideo"
+            android:gravity="center"
+            android:background="@color/global2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent">
+            <TextView
+                android:drawablePadding="@dimen/space_3"
+                android:drawableLeft="@drawable/video"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:text="发视频"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    <LinearLayout
+        android:id="@+id/tv_sendinfo"
+        android:gravity="center"
+        android:background="@color/global3"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+        <TextView
+            android:drawablePadding="@dimen/space_3"
+            android:drawableLeft="@drawable/chat"
+            android:textColor="@color/white"
+            android:text="发消息"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_margin="@dimen/space_8"
+        android:id="@+id/iv_ret"
+        android:src="@drawable/jiantou"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+</RelativeLayout>

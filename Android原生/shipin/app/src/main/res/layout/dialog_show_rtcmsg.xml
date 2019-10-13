@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="280dp"
+              android:layout_height="150dp"
+    >
+    <TextView
+        android:textColor="@color/black"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center"
+       android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <View
+        android:layout_marginTop="15dp"
+        style="@style/h_line"/>
+
+    <TextView
+        android:textColor="@color/black"
+        android:id="@+id/et_input"
+        android:background="@null"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"/>
+    <View
+        android:layout_gravity="center"
+        android:layout_width="150dp"
+        style="@style/h_line"/>
+
+
+    <LinearLayout
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_cancel"
+            android:text="拒绝"
+            android:background="@drawable/btn_circular_not_fill"
+            android:layout_width="70dp"
+            android:layout_height="26dp"/>
+        <Button
+            android:id="@+id/btn_confirm"
+            android:layout_marginLeft="10dp"
+            android:text="同意"
+            android:background="@drawable/btn_common"
+            android:layout_width="70dp"
+            android:layout_height="26dp"/>
+    </LinearLayout>
+</LinearLayout>

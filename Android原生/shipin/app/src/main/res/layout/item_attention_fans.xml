@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.duomizhibo.phonelive.widget.CircleImageView
+        android:id="@+id/cv_userHead"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+    <LinearLayout
+        android:layout_marginLeft="50dp"
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:maxEms="10"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:id="@+id/tv_item_uname"
+                android:textColor="@color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:layout_marginLeft="5dp"
+                android:id="@+id/tv_item_usex"
+                android:layout_width="15dp"
+                android:layout_height="15dp"/>
+            <ImageView
+                android:layout_marginLeft="@dimen/space_3"
+                android:id="@+id/tv_item_anchorlevel"
+                style="@style/live_level_style"/>
+            <ImageView
+                android:layout_marginLeft="@dimen/space_3"
+                android:id="@+id/tv_item_ulevel"
+                style="@style/live_level_style"/>
+        </LinearLayout>
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:textColor="@color/gray"
+            android:id="@+id/tv_item_usign"
+            android:textSize="@dimen/text_size_10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <ImageView
+        android:layout_centerVertical="true"
+        android:id="@+id/iv_item_attention"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/me_follow"
+        android:layout_width="55dp"
+        android:layout_height="25dp" />
+</RelativeLayout>

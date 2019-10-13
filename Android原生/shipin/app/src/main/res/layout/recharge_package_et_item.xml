@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="90dp"
+    android:layout_marginLeft="5dp"
+    android:layout_height="120dp">
+
+    <TextView
+        android:id="@+id/tv_package_title"
+        android:text="自定义\n  "
+        android:textSize="12sp"
+        android:gravity="center"
+        android:lineSpacingMultiplier="1.5"
+        android:textColor="@android:color/white"
+        android:background="@drawable/bg_corner_top_a38a51"
+        android:layout_width="match_parent"
+        android:layout_height="60dp" />
+
+
+    <RelativeLayout
+        android:id="@+id/rl_package"
+        android:gravity="center"
+        android:background="@drawable/bg_corner_bottom_d8d8d8"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <EditText
+            android:id="@+id/et_package_price"
+            android:text=""
+            android:inputType="number"
+            android:textSize="12sp"
+            android:textColor="#333"
+            android:gravity="center"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:background="@drawable/bg_corner_color_afafaf"/>
+    </RelativeLayout>
+
+
+    <!--<RelativeLayout-->
+        <!--android:visibility="visible"-->
+        <!--android:gravity="center"-->
+        <!--android:background="@drawable/bg_corner_bottom_d8d8d8"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="60dp">-->
+
+        <!--<TextView-->
+            <!--android:text="VIP 30天"-->
+            <!--android:gravity="center"-->
+            <!--android:minWidth="60dp"-->
+            <!--android:textSize="12sp"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:paddingLeft="3dp"-->
+            <!--android:paddingRight="3dp"-->
+            <!--android:background="@drawable/bg_corner_color_a38a51"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="30dp" />-->
+    <!--</RelativeLayout>-->
+
+</LinearLayout>
+</LinearLayout>

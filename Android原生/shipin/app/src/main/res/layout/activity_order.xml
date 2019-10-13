@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/timeline_clickable_text_highlighted_background">
+
+    <!--头部-->
+    <LinearLayout
+        android:gravity="center"
+        android:background="@color/home_page_text_color"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+        <ImageView
+            android:src="@drawable/me_ranking_yingpiao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:id="@+id/tv_order_total"
+            android:textColor="@color/black"
+            android:text="0魅力值"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+
+
+    <ListView
+        android:id="@+id/lv_order"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ListView>
+</LinearLayout>

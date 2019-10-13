@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/top"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#fff"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="查看回复"
+            android:textColor="#333"
+            android:textSize="18sp"
+            />
+
+        <ImageView
+            android:id="@+id/btn_close"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@drawable/guanbi"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="#d0d0d0"
+            />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#f8f8f8"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        >
+
+        <EditText
+            android:id="@+id/comment_edit"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_comment_input"
+            android:gravity="center_vertical"
+            android:imeOptions="actionSend"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:singleLine="true"
+            android:textColor="@color/gray"
+            android:textColorHint="@color/gray"
+            android:textSize="15sp"
+
+            />
+
+
+        <TextView
+            android:id="@+id/btn_send"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/bg_comment_btn_send"
+            android:gravity="center"
+            android:text="发送"
+            android:textColor="@color/gray"
+            android:textSize="16sp"
+            />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/line2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/bottom"
+        android:background="#d0d0d0"
+        />
+
+    <com.duomizhibo.phonelive.ui.customviews.RefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/line2"
+        android:layout_below="@id/top"
+        android:id="@+id/refreshLayout"
+        >
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+    </com.duomizhibo.phonelive.ui.customviews.RefreshLayout>
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateDrawable="@drawable/anim_loading"
+        android:indeterminateOnly="true"
+        android:layout_centerInParent="true"
+        />
+
+</RelativeLayout>

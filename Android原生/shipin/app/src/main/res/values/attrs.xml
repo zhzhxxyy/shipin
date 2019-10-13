@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CircleImageView">
+        <attr name="border_width" format="dimension" />
+        <attr name="border_color" format="color" />
+    </declare-styleable>
+    <declare-styleable name="HorizontalListView">
+        <attr name="dividerWidth" format="dimension" />
+        <attr name="android:divider" />
+        <attr name="android:requiresFadingEdge" />
+        <attr name="android:fadingEdgeLength" />
+    </declare-styleable>
+    <declare-styleable name="PagerSlidingTabStrip">
+        <attr name="pstsIndicatorColor" format="color" />
+        <attr name="pstsUnderlineColor" format="color" />
+        <attr name="pstsDividerColor" format="color" />
+        <attr name="pstsIndicatorHeight" format="dimension" />
+        <attr name="pstsUnderlineHeight" format="dimension" />
+        <attr name="pstsDividerPaddingTopBottom" format="dimension" />
+        <attr name="pstsTabPaddingLeftRight" format="dimension" />
+        <attr name="pstsScrollOffset" format="dimension" />
+        <attr name="pstsTabBackground" format="reference" />
+        <!--该属性表示里面的TAB是否均分整个PagerSlidingTabStrip控件的宽,true是,false不均分,从左到右排列,默认false-->
+        <attr name="pstsShouldExpand" format="boolean" />
+        <attr name="pstsTextAllCaps" format="boolean" />
+        <attr name="pstsTextSelectedColor" format="color"/>
+        <!--缩放的最大值,0.3表示放大后最大是原来的0.3倍,默认未0.3-->
+        <attr name="pstsScaleZoomMax" format="float"/>
+        <attr name="pstsSmoothScrollWhenClickTab" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="MyRadioButton">
+        <attr name="radio_drawableSize" format="dimension"/>
+        <attr name="radio_top_drawableSize" format="dimension"/>
+        <attr name="radio_left_drawableSize" format="dimension"/>
+        <attr name="radio_right_drawableSize" format="dimension"/>
+        <attr name="radio_bottom_drawableSize" format="dimension"/>
+        <attr name="radio_top_drawableWidth" format="dimension"/>
+        <attr name="radio_top_drawableHeight" format="dimension"/>
+        <attr name="radio_left_drawableWidth" format="dimension"/>
+        <attr name="radio_left_drawableHeight" format="dimension"/>
+        <attr name="radio_right_drawableWidth" format="dimension"/>
+        <attr name="radio_right_drawableHeight" format="dimension"/>
+        <attr name="radio_bottom_drawableWidth" format="dimension"/>
+        <attr name="radio_bottom_drawableHeight" format="dimension"/>
+        <attr name="radio_top_drawable" format="reference"/>
+        <attr name="radio_left_drawable" format="reference"/>
+        <attr name="radio_right_drawable" format="reference"/>z
+        <attr name="radio_bottom_drawable" format="reference"/>z
+    </declare-styleable>
+
+    <declare-styleable name="ViewPagerIndicator">
+        <attr name="title_textSize" format="dimension"/>
+        <attr name="indicatorWidth" format="dimension"/>
+        <attr name="indicatorHeight" format="dimension"/>
+        <attr name="normalColor" format="color"/>
+        <attr name="lightColor" format="color"/>
+        <attr name="currentItem" format="integer"/>
+
+        <attr name="vpiCirclePageIndicatorStyle" format="reference"/>
+        <attr name="vpiIconPageIndicatorStyle" format="reference"/>
+        <attr name="vpiLinePageIndicatorStyle" format="reference"/>
+        <attr name="vpiTitlePageIndicatorStyle" format="reference"/>
+        <attr name="vpiTabPageIndicatorStyle" format="reference"/>
+        <attr name="vpiUnderlinePageIndicatorStyle" format="reference"/>
+    </declare-styleable>
+
+
+
+
+    <!-- 圆角弧度 -->
+    <attr name="border_radius" format="dimension"/>
+    <attr name="borderRadius" format="dimension" />
+    <!-- 圆角类型 -->
+    <attr name="type" >
+        <enum name="circle" value="0"/>
+        <enum name="round" value="1"/>
+    </attr>
+
+    <declare-styleable name="RoundImageView">
+        <attr name="borderRadius" />
+        <attr name="type" />
+    </declare-styleable>
+
+
+    <!-- 标题模板自定义属性 -->
+    <declare-styleable name="ActivityTitle">
+        <!-- 标题文案 -->
+        <attr name="titleText" format="string"/>
+        <!-- 是否有back按钮 -->
+        <attr name="canBack" format="boolean"/>
+        <!-- back按钮文案 -->
+        <attr name="backText" format="string"/>
+        <!-- 右侧更多功能按钮文字 -->
+        <attr name="moreText" format="string"/>
+        <!--标题文案颜色-->
+        <attr name="titleColor" format="color"/>
+        <!--返回键图片-->
+        <attr name="titleBackImg" format="reference"/>
+    </declare-styleable>
+
+    <!-- 条形控制控件自定义属性 -->
+    <declare-styleable name="LineView">
+        <!-- 名称 -->
+        <attr name="name" format="string"/>
+        <!-- 内容或当前状态 -->
+        <attr name="content" format="string"/>
+        <!-- 是否是列表中最后一个 -->
+        <attr name="isBottom" format="boolean"/>
+        <!-- 是否可以跳转 -->
+        <attr name="canNav" format="boolean"/>
+        <!-- 是否是开关 -->
+        <attr name="isSwitch" format="boolean"/>
+        <!-- 最大行数 -->
+        <attr name="maxLength" format="integer"/>
+        <!-- 图标 -->
+        <attr name="iconRes" format="reference"/>
+    </declare-styleable>
+    <declare-styleable name="TCActivityTitle">
+        <!-- 标题文案 -->
+        <attr name="titleText2" format="string"/>
+        <!-- 是否有back按钮 -->
+        <attr name="canBack2" format="boolean"/>
+        <!-- back按钮文案 -->
+        <attr name="backText2" format="string"/>
+        <!-- 右侧更多功能按钮文字 -->
+        <attr name="moreText2" format="string"/>
+        <!--标题文案颜色-->
+        <attr name="titleColor2" format="color"/>
+        <!--返回键图片-->
+        <attr name="titleBackImg2" format="reference"/>
+    </declare-styleable>
+    <declare-styleable name="RoundProgressBar">
+        <attr name="bgColor" format="color"/>
+        <attr name="roundColor" format="color"/>
+        <attr name="roundProgressColor" format="color"/>
+        <attr name="roundWidth" format="dimension"></attr>
+        <attr name="textColorP" format="color" />
+        <attr name="textSize" format="dimension" />
+        <attr name="max" format="integer"></attr>
+        <attr name="textIsDisplayable" format="boolean"></attr>
+        <attr name="style">
+            <enum name="STROKE" value="0"></enum>
+            <enum name="FILL" value="1"></enum>
+        </attr>
+    </declare-styleable>
+    <!-- Defines the custom XML attributes supported for a HorizontalListView -->
+
+    <declare-styleable name="RangeSlider">
+        <attr name="lineHeight" format="dimension" />
+        <attr name="thumbWidth" format="dimension" />
+        <attr name="lineColor2" format="color" />
+        <attr name="maskColor" format="color" />
+        <attr name="tickCount" format="integer" />
+        <attr name="leftThumbIndex" format="integer" />
+        <attr name="rightThumbIndex" format="integer" />
+        <attr name="leftThumbDrawable" format="reference" />
+        <attr name="rightThumbDrawable" format="reference" />
+    </declare-styleable>
+
+    <attr name="centered" format="boolean" />
+    <attr name="selectedColor" format="color" />
+    <attr name="strokeWidth" format="dimension" />
+    <attr name="unselectedColor" format="color" />
+    <declare-styleable name="CirclePageIndicator">
+        <attr name="centered" />
+        <attr name="fillColor" format="color" />
+        <attr name="pageColor" format="color" />
+        <attr name="android:orientation"/>
+        <attr name="radius" format="dimension" />
+        <attr name="snap" format="boolean" />
+        <attr name="strokeColor" format="color" />
+        <attr name="strokeWidth" />
+        <attr name="android:background"/>
+    </declare-styleable>
+
+    <attr name="popupTextAlignment" format="enum">
+        <enum name="start" value="0" />
+        <enum name="end" value="1" />
+        <enum name="center" value="2" />
+    </attr>
+
+    <declare-styleable name="NiceSpinner">
+        <attr name="arrowTint" format="color" />
+        <attr name="hideArrow" format="boolean" />
+        <attr name="arrowDrawable" format="reference|color" />
+        <attr name="dropDownListPaddingBottom" format="dimension" />
+        <attr name="backgroundSelector" format="integer" />
+        <attr name="textTint" format="color" />
+        <attr name="popupTextAlignment" />
+        <attr name="entries" format="reference" />
+    </declare-styleable>
+
+</resources>

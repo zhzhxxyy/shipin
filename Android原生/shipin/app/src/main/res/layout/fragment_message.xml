@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/ll_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#f4f4f4"
+        android:orientation="horizontal">
+
+        <com.duomizhibo.phonelive.ui.customviews.ViewPagerIndicator
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/indicator2"
+            android:layout_width="180dp"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            app:indicatorHeight="2dp"
+            app:indicatorWidth="50dp"
+            app:lightColor="#333"
+            app:normalColor="#737373"
+            app:title_textSize="14sp"
+            />
+
+        <TextView
+            android:id="@+id/tv_ignore_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:text="@string/ignore_read"
+            android:textColor="#737373"
+            android:textSize="12sp"
+            />
+    </RelativeLayout>
+    <TextView
+        android:id="@+id/follow_unread_count"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginLeft="150dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/red_point"
+        android:gravity="center"
+        android:textColor="#fff"
+        android:textSize="10sp"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:id="@+id/notfollow_unread_count"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginLeft="240dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/red_point"
+        android:gravity="center"
+        android:textColor="#fff"
+        android:textSize="10sp"
+        android:visibility="gone"
+        />
+
+    <android.support.v4.view.ViewPager
+        android:layout_below="@id/ll_title"
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fafafa"
+        />
+
+</RelativeLayout>

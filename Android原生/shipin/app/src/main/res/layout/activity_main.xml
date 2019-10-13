@@ -1,0 +1,113 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/rootLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <RelativeLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#fafafa"
+        >
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            >
+
+            <com.duomizhibo.phonelive.ui.customviews.MyRadioButton
+                android:id="@+id/btn_home"
+                android:layout_width="34dp"
+                android:layout_height="30dp"
+                android:button="@null"
+                android:checked="true"
+                android:textSize="12sp"
+                android:textColor="@color/global"
+                app:radio_top_drawable="@drawable/icon_main_home_bg"
+                app:radio_top_drawableWidth="34dp"
+                app:radio_top_drawableHeight="30dp"
+                android:onClick="mainClick"
+                />
+
+            <com.duomizhibo.phonelive.ui.customviews.MyRadioButton
+                android:id="@+id/btn_attention"
+                android:layout_width="34dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="30dp"
+                android:button="@null"
+                android:textSize="12sp"
+                app:radio_top_drawable="@drawable/icon_main_attention_bg"
+                app:radio_top_drawableWidth="34dp"
+                app:radio_top_drawableHeight="30dp"
+                android:onClick="mainClick"
+                />
+
+            <com.duomizhibo.phonelive.ui.customviews.MyRadioButton
+                android:id="@+id/btn_msg"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="120dp"
+                android:button="@null"
+                app:radio_top_drawable="@drawable/icon_main_msg_bg"
+                app:radio_top_drawableWidth="30dp"
+                app:radio_top_drawableHeight="30dp"
+                android:onClick="mainClick"
+                />
+
+            <com.duomizhibo.phonelive.ui.customviews.MyRadioButton
+                android:id="@+id/btn_user"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="30dp"
+                android:button="@null"
+                app:radio_top_drawable="@drawable/icon_main_user_bg"
+                app:radio_top_drawableWidth="30dp"
+                app:radio_top_drawableHeight="28dp"
+                android:paddingTop="1dp"
+                android:onClick="mainClick"
+                />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/red_point"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="85dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/red_point"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:visibility="gone"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ccc"
+            />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/replaced"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottom"
+        />
+
+    <ImageView
+        android:id="@+id/btn_live"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/selector_oval_main"
+        android:onClick="mainClick"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>

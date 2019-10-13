@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        >
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:layout_marginLeft="15dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <ImageView
+                    android:src="@drawable/me_under_myaccount"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp" />
+
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:textSize="@dimen/text_size_20"
+                    android:textColor="@color/colorGray5"
+                    android:layout_marginLeft="4dp"
+                    android:id="@+id/tv_diamondsnum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:textColor="@color/black"
+                android:id="@+id/tv_price_explain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15dp"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:id="@+id/bt_preice_text"
+            android:textColor="@color/global"
+            android:text="1.00"
+            android:background="@drawable/btn_diamonds_select_num"
+            android:layout_gravity="center"
+            android:layout_width="100dp"
+            android:layout_height="35dp"
+            />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        style="@style/h_line"/>
+</LinearLayout>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+   >
+    <ScrollView
+        android:layout_marginBottom="60dp"
+        android:fillViewport="true"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!--头部-->
+            <include layout="@layout/view_home_page_head"/>
+            <!--选项卡按钮-->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:weightSum="3">
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:id="@+id/tv_home_page_index_btn"
+                    android:textColor="@color/global"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/home"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+                <View
+                    android:layout_gravity="center"
+                    android:layout_height="20dp"
+                    style="@style/v_line"/>
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:textColor="@color/black"
+                    android:id="@+id/tv_home_page_video_btn"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/live"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+                <View
+                    android:layout_gravity="center"
+                    android:layout_height="20dp"
+                    style="@style/v_line"/>
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:textColor="@color/black"
+                    android:id="@+id/tv_home_page_shiping_btn"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/pagevideo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="3">
+
+                <View
+                    android:id="@+id/view_1"
+                    android:background="@color/global"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="2dp"
+                    style="@style/v_line"/>
+                <View
+                    android:id="@+id/view_2"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="1px"
+                    style="@style/v_line"/>
+                <View
+                    android:id="@+id/view_3"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="1px"
+                    style="@style/v_line"/>
+            </LinearLayout>
+
+            <!--直播录像-->
+            <include layout="@layout/view_home_page_video"/>
+            <!--主页-->
+            <include layout="@layout/view_home_page_index"/>
+          <!--视频-->
+            <include layout="@layout/view_home_page_shiping"/>
+        </LinearLayout>
+
+    </ScrollView>
+
+    <include layout="@layout/view_home_page_bottom_menu"/>
+
+
+
+</RelativeLayout>

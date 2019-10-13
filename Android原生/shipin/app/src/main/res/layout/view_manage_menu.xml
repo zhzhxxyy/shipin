@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/grayline"
+    android:gravity="center">
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/tv_manage_set_close_live"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.duomizhibo.phonelive.widget.BlackTextView
+
+            android:background="@color/black"
+            style="@style/live_show_manage_menu_item"
+            android:text="@string/close_live"/>
+        <View
+            android:layout_marginTop="49dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#75111111"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/tv_manage_set_disable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.duomizhibo.phonelive.widget.BlackTextView
+
+            android:background="@color/black"
+            style="@style/live_show_manage_menu_item"
+            android:text="@string/disable_user"/>
+        <View
+            android:layout_marginTop="49dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#75111111"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/tv_manage_kick"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:background="@color/black"
+            style="@style/live_show_manage_menu_item"
+            android:text="@string/kick" />
+        <View
+            android:layout_marginTop="49dp"
+            android:layout_width="match_parent"
+            android:background="#75111111"
+            android:layout_height="1dp"/>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/tv_manage_shutup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:background="@color/black"
+            style="@style/live_show_manage_menu_item"
+            android:text="@string/shutup" />
+        <View
+            android:layout_marginTop="49dp"
+            android:layout_width="match_parent"
+            android:background="#75111111"
+            android:layout_height="1dp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/tv_manage_set_manage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:id="@+id/tv_set_manage"
+            android:background="@color/black"
+            style="@style/live_show_manage_menu_item"
+            android:text="@string/set_manage"/>
+        <View
+            android:layout_marginTop="49dp"
+            android:layout_width="match_parent"
+            android:background="#75111111"
+            android:layout_height="1dp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/tv_manage_manage_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:background="@color/black"
+            style="@style/live_show_manage_menu_item"
+            android:text="@string/manage_list" />
+        <View
+            android:layout_marginTop="49dp"
+            android:layout_width="match_parent"
+            android:background="#75111111"
+            android:layout_height="1dp"/>
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/tv_manage_set_report"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.duomizhibo.phonelive.widget.BlackTextView
+
+            android:background="@color/black"
+            style="@style/live_show_manage_menu_item"
+            android:text="@string/report"/>
+        <View
+            android:layout_marginTop="49dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#75111111"/>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/tv_manage_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:background="@color/black"
+            style="@style/live_show_manage_menu_item"
+            android:text="@string/cancel" />
+    </RelativeLayout>
+</LinearLayout>

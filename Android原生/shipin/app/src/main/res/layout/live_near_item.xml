@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ll_live"
+        android:layout_marginLeft="@dimen/space_5"
+        android:layout_width="80dp"
+        android:layout_height="110dp"
+        android:orientation="vertical">
+
+        <com.duomizhibo.phonelive.widget.AvatarView
+            android:id="@+id/li_head_view"
+            android:layout_width="80dp"
+            android:layout_height="80dp" />
+
+        <TextView
+            android:id="@+id/live_name"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:text="11111"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="@color/black"
+            android:textSize="@dimen/space_15" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+    <!-- 导航标题栏 -->
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:id="@+id/ll_title"
+        android:background="@color/graywhite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/iv_private_chat_back"
+            android:layout_centerVertical="true"
+            android:src="@drawable/icon_arrow_left"
+            android:layout_marginLeft="10dp"
+            android:padding="5dp"
+            android:layout_width="29dp"
+            android:layout_height="29dp" />
+
+        <com.duomizhibo.phonelive.widget.PagerSlidingTabStrip
+            android:layout_centerInParent="true"
+            android:id="@+id/tabs"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp" />
+
+        <TextView
+            android:id="@+id/tv_ignore_message"
+            android:layout_marginRight="10dp"
+            android:layout_centerVertical="true"
+            android:text="@string/ignore_read"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        style="@style/fill_fill"
+        android:layout_height="match_parent"
+        android:layout_below="@id/ll_title"
+        >
+    </android.support.v4.view.ViewPager>
+
+
+</RelativeLayout>

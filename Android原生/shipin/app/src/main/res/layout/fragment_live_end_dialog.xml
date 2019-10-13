@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/rl_livestop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:scaleType="fitXY"
+            android:id="@+id/iv_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <TextView
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_28"
+            android:layout_marginTop="100dp"
+            android:layout_centerHorizontal="true"
+            android:text="@string/liveend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="50dp">
+            <com.duomizhibo.phonelive.widget.BlackButton
+                android:visibility="gone"
+                android:id="@+id/btn_follow"
+                style="@style/live_show_end_btn"/>
+            <com.duomizhibo.phonelive.widget.BlackButton
+                android:id="@+id/btn_back_index"
+                style="@style/live_show_end_btn"
+                android:text="@string/gobackindex"
+                android:layout_marginTop="20dp"/>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

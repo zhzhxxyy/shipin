@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <!-- 导航标题栏 -->
+    <LinearLayout
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:id="@+id/ll_title"
+        android:background="@color/global"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+        <ImageView
+            android:visibility="gone"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:id="@+id/iv_search_music_back"
+            android:src="@drawable/global_back"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+        <com.duomizhibo.phonelive.widget.BlackEditText
+            android:layout_marginLeft="10dp"
+            android:padding="2dp"
+            android:layout_weight="9"
+            android:drawableLeft="@drawable/icon_search_gray"
+            android:hint="@string/searchmusic"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/edit_background"
+            android:id="@+id/et_search_input"
+            android:textSize="17dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:layout_weight="1"
+            android:id="@+id/tv_search_btn"
+            android:textSize="@dimen/text_size_15"
+            android:textColor="@color/white"
+            android:text="@string/search"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+        <ImageView
+            android:id="@+id/iv_close"
+            android:layout_gravity="center"
+            android:src="@drawable/guanbi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <ListView
+        android:id="@+id/lv_search_music"
+        android:layout_width="match_parent"
+        android:layout_height="300dp">
+    </ListView>
+</LinearLayout>

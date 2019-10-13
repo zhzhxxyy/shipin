@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="280dp"
+              android:background="#fff"
+              android:orientation="vertical"
+    >
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1"
+        android:scrollbars="none"
+        >
+
+        <LinearLayout
+            android:id="@+id/share_group"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            >
+
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#808080"
+        />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none"
+        >
+
+        <LinearLayout
+            android:id="@+id/other_group"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            >
+            <ImageView
+                android:id="@+id/btn_black"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/icon_share_black"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                />
+            <ImageView
+                android:id="@+id/btn_report"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/icon_share_report"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                />
+
+            <ImageView
+                android:id="@+id/btn_delete"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/icon_share_delete"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                />
+
+            <ImageView
+                android:id="@+id/btn_link"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/icon_share_link"
+                android:scaleType="centerCrop"
+                />
+
+            <ImageView
+                android:id="@+id/btn_save"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/icon_share_save"
+                android:scaleType="centerCrop"
+                />
+
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#808080"
+        />
+
+    <TextView
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:text="取消"
+        android:textColor="#737373"
+        android:textSize="16sp"
+        />
+
+</LinearLayout>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_30"
+        android:layout_marginTop="@dimen/space_30"
+        android:background="@drawable/background_loginaward1"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/background_loginaward"
+            android:gravity="center"
+            android:text="@string/login_awrad"
+            android:textColor="@color/white"
+            android:textSize="@dimen/space_20"/>
+
+        <com.duomizhibo.phonelive.widget.GridViewWithHeaderAndFooter
+            android:id="@+id/login_award_cycle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:horizontalSpacing="10dp"
+            android:numColumns="3"
+            android:padding="@dimen/space_10"
+            android:verticalSpacing="15dp">
+        </com.duomizhibo.phonelive.widget.GridViewWithHeaderAndFooter>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/space_10"
+            android:paddingLeft="@dimen/space_15"
+            android:paddingRight="@dimen/space_15">
+
+            <TextView
+                android:id="@+id/login_award_seven"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/sunday"
+                android:padding="@dimen/space_10"
+                android:text="第7天"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/login_receive"
+                android:layout_width="90dp"
+                android:layout_height="40dp"
+                android:layout_below="@id/login_award_seven"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/space_10"
+                android:background="@drawable/background_loginaward2"
+                android:gravity="center"
+                android:text="@string/login_receive"
+                android:textColor="@color/white"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+</RelativeLayout>

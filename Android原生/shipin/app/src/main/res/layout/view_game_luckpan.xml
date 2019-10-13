@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/rl_luck_pan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        >
+
+        <com.duomizhibo.phonelive.game.LuckPan
+            android:id="@+id/luck_pan"
+            android:layout_width="500dp"
+            android:layout_height="500dp"
+            android:layout_centerInParent="true"/>
+
+        <ImageView
+            android:id="@+id/luckpan_light"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/deng1"
+            android:scaleType="fitXY"
+            />
+        />
+
+        <ImageView
+            android:id="@+id/btn_game_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/zp_dpwq"/>
+        <ImageView
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/kaijiang3"
+            android:layout_width="100dp"
+            android:layout_height="50dp"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:translationY="@dimen/space_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/ban"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/jbk"
+                android:translationY="@dimen/space_10"
+                />
+
+            <LinearLayout
+                android:id="@+id/ll_beting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="true"
+                android:gravity="center">
+
+                <RelativeLayout
+                    android:id="@+id/rl_game_betting_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/iv_game_betting1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/card_0"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_10"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_betting_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/iv_game_betting1"
+                        android:background="@drawable/background_bettingred"
+                        android:textColor="@color/white"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_game_totalbetting_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tv_game_betting_1"
+                        android:layout_toRightOf="@id/iv_game_betting1"
+                        android:background="@drawable/background_bettingblue"
+                        android:textColor="@color/white"
+                        />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/rl_game_betting_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/iv_game_betting2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/card_1"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_10"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_betting_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/iv_game_betting2"
+                        android:background="@drawable/background_bettingred"
+                        android:textColor="@color/white"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_game_totalbetting_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tv_game_betting_2"
+                        android:layout_toRightOf="@id/iv_game_betting2"
+                        android:background="@drawable/background_bettingblue"
+                        android:textColor="@color/white"
+                        />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/rl_game_betting_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/iv_game_betting3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/card_2"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_10"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_betting_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/iv_game_betting3"
+                        android:background="@drawable/background_bettingred"
+                        android:textColor="@color/white"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_game_totalbetting_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tv_game_betting_3"
+                        android:layout_toRightOf="@id/iv_game_betting3"
+                        android:background="@drawable/background_bettingblue"
+                        android:textColor="@color/white"
+                        />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/rl_game_betting_4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/iv_game_betting4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/card_3"
+                        android:textSize="@dimen/text_size_10"/>
+
+                    <TextView
+                        android:id="@+id/tv_game_betting_4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/iv_game_betting4"
+                        android:background="@drawable/background_bettingred"
+                        android:textColor="@color/white"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_game_totalbetting_4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tv_game_betting_4"
+                        android:layout_toRightOf="@id/iv_game_betting4"
+                        android:background="@drawable/background_bettingblue"
+                        android:textColor="@color/white"
+                        />
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_game_betting"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="#50000000"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true">
+
+                <TextView
+                    android:id="@+id/tv_game_coin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_10"/>
+
+                <TextView
+                    android:id="@+id/tv_game_recharge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="@string/recharge"
+                    android:textColor="#F0A643"
+                    android:textSize="@dimen/text_size_12"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true">
+
+                <ImageView
+                    android:id="@+id/iv_game_betting_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/icon_game_betting_10_foucs"/>
+
+                <ImageView
+                    android:id="@+id/iv_game_betting_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/icon_game_betting_100"/>
+
+                <ImageView
+                    android:id="@+id/iv_game_betting_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/icon_game_betting_1000"/>
+
+                <ImageView
+                    android:id="@+id/iv_game_betting_4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/icon_game_betting_10000"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_game_count_down"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/ico_bgtime"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        />
+
+    <Button
+        android:layout_marginTop="@dimen/space_10"
+        android:layout_alignParentRight="true"
+        android:id="@+id/btn_game_close"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:background="@color/global"
+        android:text="结束"
+        android:textColor="@color/white"/>
+
+</RelativeLayout>

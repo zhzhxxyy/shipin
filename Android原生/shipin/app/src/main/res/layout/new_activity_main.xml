@@ -1,0 +1,158 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#fafafa"
+        >
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/ll_shouye"
+                android:layout_width="80dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_height="match_parent">
+                <com.duomizhibo.phonelive.widget.FontIconView
+                    android:id="@+id/fi_shouye"
+                    android:layout_width="25dp"
+                    android:clickable="false"
+                    android:layout_height="25dp"
+                    android:gravity="center"
+                    android:scaleX="1.2"
+                    android:scaleY="1.2"
+                    android:text="@string/icon_shouye"
+                    android:textColor="@color/new_bottom_btn_selector"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_shouye"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="首页"
+                    android:clickable="false"
+                    android:textIsSelectable="true"
+                    android:textColor="@color/new_bottom_btn_selector"
+                    android:textSize="12sp"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_fenlei"
+                android:layout_width="80dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_height="match_parent">
+                <com.duomizhibo.phonelive.widget.FontIconView
+                    android:id="@+id/fi_fenlei"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:gravity="center"
+                    android:clickable="false"
+                    android:scaleX="1.2"
+                    android:scaleY="1.2"
+                    android:text="@string/icon_fenlei"
+                    android:textColor="@color/new_bottom_btn_selector"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_fenlei"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:text="分类"
+                    android:textIsSelectable="true"
+                    android:textColor="@color/new_bottom_btn_selector"
+                    android:textSize="12sp"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_xuanchuan"
+                android:layout_width="80dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_height="match_parent">
+                <com.duomizhibo.phonelive.widget.FontIconView
+                    android:id="@+id/fi_xuanchuan"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:clickable="false"
+                    android:gravity="center"
+                    android:scaleX="1.2"
+                    android:scaleY="1.2"
+                    android:text="@string/icon_xuanchuan"
+                    android:textColor="@color/new_bottom_btn_selector"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_xuanchuan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="宣传"
+                    android:clickable="false"
+                    android:textIsSelectable="true"
+                    android:textColor="@color/new_bottom_btn_selector"
+                    android:textSize="12sp"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_wode"
+                android:layout_width="80dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_height="match_parent">
+                <com.duomizhibo.phonelive.widget.FontIconView
+                    android:id="@+id/fi_wode"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:gravity="center"
+                    android:scaleX="1.2"
+                    android:clickable="false"
+                    android:scaleY="1.2"
+                    android:text="@string/icon_wode"
+                    android:textColor="@color/new_bottom_btn_selector"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_wode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="我的"
+                    android:clickable="false"
+                    android:textIsSelectable="true"
+                    android:textColor="@color/new_bottom_btn_selector"
+                    android:textSize="12sp"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ccc"
+            />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/replaced"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottom"/>
+
+
+</RelativeLayout>

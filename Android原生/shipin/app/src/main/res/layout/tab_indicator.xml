@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    >
+
+    <ImageView
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/tab_img"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+    <com.duomizhibo.phonelive.widget.BlackTextView
+        android:visibility="gone"
+        android:id="@+id/tv_wenzi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="首页"
+        android:textSize="12dp"
+        android:textColor="@color/black"/>
+
+
+
+</LinearLayout>

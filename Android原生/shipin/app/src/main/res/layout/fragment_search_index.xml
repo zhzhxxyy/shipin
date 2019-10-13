@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!-- 导航标题栏 -->
+    <RelativeLayout
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:id="@+id/ll_title"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <RelativeLayout
+            android:layout_width="300dp"
+            android:layout_height="60dp">
+
+            <ImageView
+                android:src="@drawable/bg_search_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <com.duomizhibo.phonelive.widget.BlackEditText
+                android:layout_marginLeft="30dp"
+                android:hint="@string/search_hint"
+                android:layout_alignParentRight="true"
+                android:background="@null"
+                android:id="@+id/et_search_input"
+                android:textSize="14dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </RelativeLayout>
+
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:id="@+id/tv_search_btn"
+            android:layout_marginLeft="10dp"
+            android:layout_centerVertical="true"
+            android:textSize="@dimen/text_size_15"
+            android:gravity="center"
+            android:layout_alignParentRight="true"
+            android:textColor="@color/black"
+            android:text="@string/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+    </RelativeLayout>
+
+
+    <ListView
+        android:id="@+id/lv_search"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <LinearLayout
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="400dp">
+        <ImageView
+            android:layout_gravity="center"
+            android:id="@+id/iv_empty"
+            android:src="@drawable/bg_search_empty"
+            android:layout_width="180dp"
+            android:layout_height="180dp"/>
+    </LinearLayout>
+
+</LinearLayout>

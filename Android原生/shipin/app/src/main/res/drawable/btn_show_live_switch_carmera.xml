@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/btn_up_arrow" android:state_focused="true" android:state_enabled="true"></item>
+    <item android:drawable="@drawable/btn_up_arrow" android:state_enabled="true"></item>
+    <!--
+    <item android:drawable="@drawable/room_btn_shanguang_n" android:state_focused="true" android:state_enabled="true"></item>
+    <item android:drawable="@drawable/room_btn_shanguang_h" android:state_enabled="true"></item>
+    -->
+</selector>

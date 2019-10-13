@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/graywhite"
+        android:visibility="gone"
+        app:titleColor="@color/black"
+        app:titleText="@string/following"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.duomizhibo.phonelive.ui.customviews.RefreshLayout
+            android:id="@+id/sl_newest"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/gv_newest"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                   />
+
+                <ImageView
+                    android:id="@+id/no"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/no_live"
+                    android:visibility="gone"/>
+            </RelativeLayout>
+        </com.duomizhibo.phonelive.ui.customviews.RefreshLayout>
+
+
+
+        <LinearLayout
+            android:id="@+id/newest_load"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/shibai"/>
+
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:singleLine="true"
+                android:text="@string/loading_error"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_size_20"/>
+
+            <!--<com.duomizhibo.phonelive.widget.BlackTextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_gravity="center_horizontal"-->
+                <!--android:layout_marginTop="10dp"-->
+                <!--android:singleLine="true"-->
+                <!--android:text="@string/open_your_live"-->
+                <!--android:textColor="@color/gray"-->
+                <!--android:visibility="gone"/>-->
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

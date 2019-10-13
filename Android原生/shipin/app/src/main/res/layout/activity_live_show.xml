@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/rl_live_root"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+    >
+
+    <com.tencent.rtmp.ui.TXCloudVideoView
+        android:id="@+id/video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+    <!--连麦：播放小窗口定义 开始-->
+
+    <!--连麦：第一个播放小窗口-->
+    <FrameLayout
+        android:id="@+id/frameLayout1"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="56dp"
+        android:layout_marginRight="8dp">
+
+        <com.tencent.rtmp.ui.TXCloudVideoView
+            android:id="@+id/play_video_view1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+        </com.tencent.rtmp.ui.TXCloudVideoView>
+        <ImageView
+            android:alpha="0.85"
+            android:scaleType="fitXY"
+            android:src="@color/black"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/iv_mohu"/>
+        <FrameLayout
+            android:id="@+id/loading_background1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            android:alpha="0.5"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/loading_imageview1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center" />
+        </FrameLayout>
+
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btn_kick_out1"
+        android:layout_alignTop="@id/frameLayout1"
+        android:layout_alignRight="@id/frameLayout1"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/btn_kick_out"
+        android:layout_gravity="top|right"
+        android:visibility="invisible"
+        android:onClick="onClick"/>
+
+    <!--连麦：第二个播放小窗口-->
+    <FrameLayout
+        android:id="@+id/frameLayout2"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:layout_above="@+id/frameLayout1"
+        android:layout_alignRight="@+id/frameLayout1">
+
+        <com.tencent.rtmp.ui.TXCloudVideoView
+            android:id="@+id/play_video_view2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+        </com.tencent.rtmp.ui.TXCloudVideoView>
+
+        <FrameLayout
+            android:id="@+id/loading_background2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            android:alpha="0.5"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/loading_imageview2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btn_kick_out2"
+        android:layout_alignTop="@id/frameLayout2"
+        android:layout_alignRight="@id/frameLayout2"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/btn_kick_out"
+        android:layout_gravity="top|right"
+        android:visibility="invisible"
+        android:onClick="onClick"/>
+
+    <!--连麦：第三个播放小窗口-->
+    <FrameLayout
+        android:id="@+id/frameLayout3"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:layout_above="@+id/frameLayout2"
+        android:layout_alignRight="@+id/frameLayout2">
+
+        <com.tencent.rtmp.ui.TXCloudVideoView
+            android:id="@+id/play_video_view3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+        </com.tencent.rtmp.ui.TXCloudVideoView>
+
+        <FrameLayout
+            android:id="@+id/loading_background3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            android:alpha="0.5"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/loading_imageview3"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btn_kick_out3"
+        android:layout_alignTop="@id/frameLayout3"
+        android:layout_alignRight="@id/frameLayout3"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/btn_kick_out"
+        android:layout_gravity="top|right"
+        android:visibility="invisible"
+        android:onClick="onClick"/>
+
+    <!--连麦：播放小窗口定义 结束-->
+
+    <RelativeLayout
+        android:id="@+id/view_live_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include layout="@layout/view_live_content"/>
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:weightSum="10"
+            android:id="@+id/audio_plugin"
+            android:visibility="gone">
+            <Button
+                android:visibility="gone"
+                android:layout_width="0dp"
+                android:layout_weight="5"
+                android:layout_height="match_parent"
+                android:text="音效"
+                android:textSize="20dp"
+                android:textColor="#FFFFFF"
+                android:id="@+id/btn_audio_effect"
+                android:onClick="onClick"
+                android:background="@drawable/btn_live_transparent"/>
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="5"
+                android:layout_height="match_parent"
+                android:text="结束"
+                android:textColor="#FFFFFF"
+                android:textSize="20dp"
+                android:id="@+id/btn_audio_close"
+                android:onClick="onClick"
+                android:background="@drawable/btn_live_transparent"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_live_end_music"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="85dp"
+            android:background="@drawable/btn_live_transparent"
+            android:text="@string/musicEnd"
+            android:textColor="@color/white"
+            android:visibility="gone"/>
+        <!--歌词提示start-->
+        <include layout="@layout/view_live_music_lrc"/>
+        <!--歌词提示end-->
+
+        <!--底部菜单-->
+        <include layout="@layout/view_show_start_live_button_menu"/>
+
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_live_gift"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="375dp">
+        <RelativeLayout
+            android:padding="10dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:text="音效调节"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp" />
+
+            <ImageView
+                android:id="@+id/iv_close"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/close_"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+        <View
+            style="@style/h_line"/>
+        <LinearLayout
+            android:padding="10dp"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_marginLeft="30dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <com.duomizhibo.phonelive.widget.LiveSeekBar
+                    android:id="@+id/dialog_music_sb_banzou"
+                    android:thumb="@drawable/me_ic_followed"
+                    android:layout_gravity="center"
+                    android:max="100"
+                    android:progress="50"
+                    android:layout_width="wrap_content"
+                    android:layout_height="200dp" />
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:text="伴奏"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginLeft="100dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <com.duomizhibo.phonelive.widget.LiveSeekBar
+                    android:id="@+id/dialog_music_sb_voice"
+                    android:thumb="@drawable/me_ic_followed"
+                    android:layout_gravity="center"
+                    android:max="100"
+                    android:progress="50"
+                    android:layout_width="wrap_content"
+                    android:layout_height="200dp" />
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:text="人声"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            style="@style/h_line"/>
+        <!--音效调节-->
+        <LinearLayout
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.duomizhibo.phonelive.widget.BlackButton
+                android:id="@+id/dialog_music_btn_melodious"
+                android:background="@drawable/btn_circular_fill"
+                android:text="悠扬"
+                android:layout_width="60dp"
+                android:layout_height="60dp" />
+            <com.duomizhibo.phonelive.widget.BlackButton
+                android:id="@+id/dialog_music_btn_ethereal"
+                android:background="@drawable/btn_circular_not_fill"
+                android:layout_marginLeft="10dp"
+                android:text="空灵"
+                android:layout_width="60dp"
+                android:layout_height="60dp" />
+            <com.duomizhibo.phonelive.widget.BlackButton
+                android:id="@+id/dialog_music_btn_ktv"
+                android:background="@drawable/btn_circular_not_fill"
+                android:layout_marginLeft="10dp"
+                android:text="KTV"
+                android:layout_width="60dp"
+                android:layout_height="60dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

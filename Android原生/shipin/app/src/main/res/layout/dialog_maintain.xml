@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="300dp"
+              android:layout_height="160dp"
+    >
+    <TextView
+        android:text="维护提示信息"
+        android:textColor="@color/black"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <View
+        android:layout_marginTop="15dp"
+        style="@style/h_line"/>
+
+    <TextView
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:id="@+id/tv_content"
+        android:background="@null"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+        <Button
+            android:textColor="@color/white"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp"
+            android:id="@+id/btn_confirm"
+            android:text="确定"
+            android:background="@drawable/btn_common"
+            android:layout_width="70dp"
+            android:layout_height="26dp"/>
+</LinearLayout>

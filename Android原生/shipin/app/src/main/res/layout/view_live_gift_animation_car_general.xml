@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <com.duomizhibo.phonelive.widget.AvatarView
+        android:layout_centerHorizontal="true"
+        android:id="@+id/iv_animation_red_head"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+    <TextView
+        android:id="@+id/tv_liwu_name"
+        android:layout_marginTop="40dp"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <ImageView
+        android:id="@+id/iv_animation_red_car"
+        android:src="@drawable/car_red1"
+        android:layout_width="240dp"
+        android:layout_height="190dp" />
+</RelativeLayout>

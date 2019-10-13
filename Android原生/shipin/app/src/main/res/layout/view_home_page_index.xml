@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:id="@+id/ll_home_page_index"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:id="@+id/rl_home_pager_yi_order"
+            android:padding="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="70dp">
+            <TextView
+                android:id="@+id/tv_home_tick_order"
+                android:textColor="@color/gray"
+                android:layout_centerVertical="true"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+            <LinearLayout
+                android:gravity="center"
+                android:layout_alignParentRight="true"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <com.duomizhibo.phonelive.widget.AvatarView
+                    android:id="@+id/av_home_page_order1"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp" />
+                <com.duomizhibo.phonelive.widget.AvatarView
+                    android:id="@+id/av_home_page_order2"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp" />
+                <com.duomizhibo.phonelive.widget.AvatarView
+                    android:id="@+id/av_home_page_order3"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp" />
+                <ImageView
+                    android:src="@drawable/me_go"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <View
+            android:layout_height="2px"
+            style="@style/h_line"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="70dp">
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:id="@+id/tv_home_page_numn"
+                    android:text="@string/number"
+                    style="@style/home_user_info_item_labe"/>
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:id="@+id/tv_home_page_numid"
+                    style="@style/home_user_info_item_content"
+                    />
+
+            </LinearLayout>
+            <View
+                android:layout_height="2px"
+                style="@style/h_line"/>
+            <LinearLayout
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="70dp">
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    style="@style/home_user_info_item_labe"
+                    android:text="@string/sign"
+                    />
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:id="@+id/tv_home_page_sign2"
+                    style="@style/home_user_info_item_content"
+                   />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_height="2px"
+            style="@style/h_line"/>
+    </LinearLayout>
+
+</merge>

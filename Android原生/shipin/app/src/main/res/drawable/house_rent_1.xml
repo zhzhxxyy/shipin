@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item><shape>
+            <!-- 填充色 -->
+            <solid android:color="@color/white" />
+
+            <corners android:bottomLeftRadius="0dp" android:bottomRightRadius="7dp" android:topLeftRadius="0dp" android:topRightRadius="7dp" />
+        </shape></item>
+
+</selector>

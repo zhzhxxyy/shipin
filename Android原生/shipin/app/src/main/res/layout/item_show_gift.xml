@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/iv_show_gift_selected"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        >
+        <!--礼物图片-->
+        <com.duomizhibo.phonelive.widget.LoadUrlImageView
+            android:id="@+id/iv_show_gift_img"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+        <!--礼物价格-->
+        <LinearLayout
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:textColor="@color/global"
+                android:id="@+id/tv_show_gift_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:layout_gravity="center"
+                android:src="@drawable/me_myaccount_reddiamond"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!--礼物经验值-->
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:visibility="gone"
+            android:textSize="@dimen/text_size_9"
+            android:id="@+id/tv_show_gift_experience"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+</RelativeLayout>

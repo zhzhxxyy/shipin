@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:paddingRight="5dp"
+        android:paddingLeft="10dp"
+        android:background="#F4F4F4"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:focusableInTouchMode="true">
+        <com.duomizhibo.phonelive.widget.BlackEditText
+            android:paddingLeft="10dp"
+            android:padding="4dp"
+            android:layout_marginRight="5dp"
+            android:layout_gravity="center"
+            android:background="@drawable/edit_background"
+            android:id="@+id/et_private_chat_message"
+            android:layout_width="280dp"
+            android:layout_height="35dp" />
+        <ImageView
+            android:visibility="gone"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center"
+            android:src="@drawable/chat_inputbar_emoji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.duomizhibo.phonelive.widget.BlackButton
+                android:layout_centerInParent="true"
+                android:text="@string/sendchat"
+                android:background="@drawable/btn_live_chat_send"
+                android:layout_gravity="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_15"
+                android:id="@+id/iv_private_chat_send"
+                android:layout_width="80dp"
+                android:layout_height="35dp" />
+        </RelativeLayout>
+    </LinearLayout>
+</merge>

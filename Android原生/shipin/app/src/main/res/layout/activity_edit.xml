@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/globalback"
+              xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:background="@color/graywhite"
+        app:titleColor="@color/black"
+        app:titleText="@string/change_info"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+    <RelativeLayout
+
+        android:layout_marginTop="30dp"
+        android:background="@drawable/edit_background"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center">
+
+        <com.duomizhibo.phonelive.widget.BlackEditText
+            android:background="@null"
+            android:paddingLeft="5dp"
+            android:minEms="1"
+            android:id="@+id/edit_input"
+            android:layout_width="265dp"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/iv_editInfo_clean"
+            android:layout_marginRight="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_cancel"/>
+    </RelativeLayout>
+    <com.duomizhibo.phonelive.widget.BlackTextView
+        android:textSize="15dp"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:id="@+id/tv_prompt"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content" />
+
+    <com.duomizhibo.phonelive.widget.BlackButton
+        android:layout_marginTop="20dp"
+        android:id="@+id/btn_edit_save"
+        android:textSize="@dimen/text_size_17"
+        android:text="@string/save"
+        android:layout_gravity="center"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_common"
+        android:layout_width="280dp"
+        android:layout_height="40dp" />
+</LinearLayout>

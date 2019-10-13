@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="2dp">
+    <ImageView
+        android:id="@+id/iv_home"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:contentDescription="@null"
+        android:background="#F5F5F5"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/iv_home"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text=""
+        android:layout_marginTop="2dp"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:background="#F5F5F5"
+        android:textColor="#141414"
+        android:textSize="13sp" />
+    <LinearLayout
+        android:id="@+id/ll_info"
+        android:background="#f5f5f5"
+        android:layout_below="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="20dp">
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/icon_bofang"
+                android:textColor="#888"
+                android:gravity="center"
+                android:textSize="12sp"
+
+                />
+            <TextView
+                android:id="@+id/tv_bofang"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:maxLines="1"
+                android:textSize="10sp"
+                android:textColor="#888"
+                />
+
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/icon_zan2"
+                android:layout_marginLeft="1dp"
+                android:visibility="invisible"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:textColor="#888"
+                />
+            <TextView
+                android:visibility="invisible"
+                android:id="@+id/tv_zan"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:maxLines="1"
+                android:textSize="10sp"
+                android:textColor="#888"
+                />
+
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:gravity="center"
+                android:text="@string/icon_jinbi1"
+                android:textSize="12sp"
+
+                android:textColor="#E6BE41"
+                />
+            <TextView
+                android:id="@+id/tv_jinbi"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:maxLines="1"
+                android:textSize="10sp"
+                android:textColor="#888"
+                />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="20dp">
+
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/icon_time"
+                android:textColor="#FF0000"
+                android:textSize="12sp"
+                android:gravity="center"
+                />
+            <TextView
+                android:id="@+id/tv_add_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:maxLines="1"
+                android:textSize="10sp"
+                android:textColor="#888"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_alignBottom="@+id/iv_home"
+        android:layout_alignRight="@+id/iv_home"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:text="00:00"
+        />
+
+
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:text="审核中"
+        android:textColor="@android:color/white"
+        android:textSize="10sp"
+        android:rotation="-45"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="-30dp"
+        android:background="#ff0000"
+        android:layout_width="100dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

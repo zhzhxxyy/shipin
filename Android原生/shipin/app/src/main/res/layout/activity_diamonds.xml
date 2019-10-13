@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto">
+        <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+            android:id="@+id/view_title"
+            android:background="@color/graywhite"
+            app:titleColor="@color/black"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"/>
+        <ListView
+           style="@null"
+           android:background="@color/white"
+           android:id="@+id/lv_select_num_list"
+           android:layout_width="match_parent"
+           android:layout_height="match_parent">
+        </ListView>
+</LinearLayout>

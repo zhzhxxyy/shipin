@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:background="@color/graywhite"
+        app:titleColor="@color/black"
+        app:titleText="@string/following"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:visibility="gone"/>
+   <RelativeLayout
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content">
+       <android.support.v4.widget.SwipeRefreshLayout
+           android:id="@+id/sl_newest"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           >
+
+           <com.duomizhibo.phonelive.widget.HeaderGridView
+               android:id="@+id/gv_newest"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:horizontalSpacing="4dp"
+               android:numColumns="2"
+               android:verticalSpacing="4dp">
+           </com.duomizhibo.phonelive.widget.HeaderGridView>
+
+       </android.support.v4.widget.SwipeRefreshLayout>
+
+       <ImageView
+           android:visibility="gone"
+           android:id="@+id/newest_fensi"
+           android:layout_centerInParent="true"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:adjustViewBounds="true"
+           android:layout_gravity="center_vertical"
+           android:src="@drawable/bg_attention_live_empty" />
+
+       <LinearLayout
+           android:visibility="gone"
+           android:id="@+id/newest_load"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_centerInParent="true"
+           android:orientation="vertical">
+
+           <ImageView
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_gravity="center_vertical"
+               android:src="@drawable/shibai" />
+
+           <com.duomizhibo.phonelive.widget.BlackTextView
+               android:layout_width="wrap_content"
+               android:layout_height="match_parent"
+               android:layout_gravity="center_horizontal"
+               android:layout_marginTop="20dp"
+               android:singleLine="true"
+               android:text="@string/loading_error"
+               android:textColor="@color/black"
+               android:textSize="@dimen/text_size_20" />
+       </LinearLayout>
+   </RelativeLayout>
+</LinearLayout>

@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:scrollbars="none"
+    android:background="#f5f5f5"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:background="@drawable/user_bg"
+            android:layout_height="160dp">
+            <View
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/user_bg_2"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"/>
+
+            <com.duomizhibo.phonelive.widget.CircleImageView
+                android:id="@+id/iv_head"
+                android:src="@drawable/user_dafault_headimg"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp" />
+
+            <TextView
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/iv_head"
+                android:id="@+id/tv_name"
+                android:text="jason"
+                android:layout_marginTop="10dp"
+                android:layout_width="wrap_content"
+                android:maxLines="1"
+                android:textSize="14sp"
+                android:textColor="@android:color/white"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/ll_other"
+                android:layout_below="@+id/tv_name"
+                android:layout_centerHorizontal="true"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <com.duomizhibo.phonelive.widget.FontIconView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icon_jinbi2"
+                    android:textColor="#E6BE41"
+                    />
+                <TextView
+                    android:id="@+id/tv_jinbi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:layout_marginLeft="2dp"
+                    android:text="12"
+                    />
+                <com.duomizhibo.phonelive.widget.FontIconView
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icon_vip2"
+                    android:textColor="#E6BE41"
+                    />
+                <TextView
+                    android:id="@+id/tv_vip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:layout_marginLeft="2dp"
+                    android:text="您还不是VIP"
+                    />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:background="#eee"
+            android:layout_height="1dp"/>
+
+
+        <LinearLayout
+            android:background="@android:color/white"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="70dp">
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"/>
+            <TextView
+                android:id="@+id/tv_kamichongzhi"
+                android:text="卡密充值"
+                android:background="@drawable/btn_common_border_ef98a7"
+                android:textColor="#ef98a7"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:layout_width="70dp"
+                android:layout_height="30dp" />
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"/>
+            <View
+                android:layout_width="1dp"
+                android:background="#eee"
+                android:layout_height="30dp"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"/>
+            <TextView
+                android:id="@+id/tv_chongzhi"
+                android:text="充值金币/VIP"
+                android:layout_margin="5dp"
+                android:background="@drawable/btn_common_border_ef98a7"
+                android:textColor="#ef98a7"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:layout_width="80dp"
+                android:layout_height="30dp"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"/>
+            <View
+                android:layout_width="1dp"
+                android:background="#eee"
+                android:layout_height="30dp"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"/>
+            <TextView
+                android:id="@+id/tv_qiandao"
+                android:text="签到"
+                android:background="@drawable/btn_common_ef98a7"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="66dp"
+                android:layout_height="30dp" />
+
+
+            <View
+                android:layout_width="0dp"
+              android:layout_weight="1"
+                android:layout_height="1dp"/>
+        </LinearLayout>
+
+
+
+
+        <LinearLayout
+            android:id="@+id/ll_myshipin"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_height="50dp">
+
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:text="@string/icon_video"
+                android:layout_width="30dp"
+                android:gravity="center"
+                android:textColor="#333333"
+                android:textSize="25sp"
+                android:layout_height="30dp" />
+            <TextView
+                android:text="我的视频"
+                android:textSize="12sp"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/colorTextG4"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:src="@drawable/me_go"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:background="#eee"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_height="1dp"/>
+        <LinearLayout
+            android:id="@+id/ll_myshoucang"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_height="50dp">
+
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:text="@string/icon_info"
+                android:layout_width="30dp"
+                android:gravity="center"
+                android:textColor="#333333"
+                android:textSize="25sp"
+                android:layout_height="30dp" />
+            <TextView
+                android:text="我的收藏"
+                android:textSize="12sp"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/colorTextG4"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:src="@drawable/me_go"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:background="#eee"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_height="1dp"/>
+        <LinearLayout
+            android:id="@+id/ll_chongzhijilu"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_height="50dp">
+
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:text="@string/icon_3"
+                android:layout_width="30dp"
+                android:gravity="center"
+                android:textColor="#333333"
+                android:textSize="25sp"
+                android:layout_height="30dp" />
+            <TextView
+                android:text="充值记录"
+                android:textSize="12sp"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/colorTextG4"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:src="@drawable/me_go"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:background="#eee"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_height="1dp"/>
+        <LinearLayout
+            android:id="@+id/ll_xiaofeijilu"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_height="50dp">
+
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:text="@string/icon_icon12"
+                android:layout_width="30dp"
+                android:gravity="center"
+                android:textColor="#333333"
+                android:textSize="25sp"
+                android:layout_height="30dp" />
+            <TextView
+                android:text="消费记录"
+                android:textSize="12sp"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/colorTextG4"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:src="@drawable/me_go"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:background="#eee"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_height="1dp"/>
+        <LinearLayout
+            android:id="@+id/ll_kefu"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_height="50dp">
+
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:text="@string/icon_mima01"
+                android:layout_width="30dp"
+                android:gravity="center"
+                android:textColor="#333333"
+                android:textSize="25sp"
+                android:layout_height="30dp" />
+            <TextView
+                android:text="我的客服"
+                android:textSize="12sp"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/colorTextG4"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:src="@drawable/me_go"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:background="#eee"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_height="1dp"/>
+        <LinearLayout
+            android:id="@+id/ll_version"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_height="50dp">
+
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:text="@string/icon_shezhi3"
+                android:layout_width="30dp"
+                android:gravity="center"
+                android:textColor="#333333"
+                android:textSize="25sp"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_version_old"
+                android:text="版本（2.0.0）"
+                android:textSize="12sp"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/colorTextG4"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tv_version_new"
+                android:text="有新版本"
+                android:textSize="12sp"
+                android:textColor="#ff0000"
+                android:layout_marginRight="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageView
+                android:src="@drawable/me_go"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!---->
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:background="@android:color/white"-->
+            <!--android:layout_marginLeft="5dp"-->
+            <!--android:layout_marginRight="5dp"-->
+            <!--android:layout_marginTop="5dp"-->
+            <!--android:gravity="center_vertical"-->
+            <!--android:layout_height="wrap_content">-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/ll_myshipin"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="80dp">-->
+
+                <!--<com.duomizhibo.phonelive.widget.FontIconView-->
+                   <!--android:text="@string/icon_video"-->
+                    <!--android:background="@drawable/circle_common_8dc8d4"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textColor="@android:color/white"-->
+                    <!--android:textSize="16sp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:text="我的视频"-->
+                    <!--android:textSize="12sp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:textColor="@color/colorTextG4"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</LinearLayout>-->
+
+            <!--<View-->
+                <!--android:layout_width="1dp"-->
+                <!--android:background="#eee"-->
+                <!--android:layout_height="match_parent"/>-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/ll_myzixun"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="80dp">-->
+
+                <!--<com.duomizhibo.phonelive.widget.FontIconView-->
+                    <!--android:text="@string/icon_tubiao"-->
+                    <!--android:background="@drawable/circle_common_e48794"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textColor="@android:color/white"-->
+                    <!--android:textSize="16sp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:text="我的资讯"-->
+                    <!--android:textSize="12sp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:textColor="@color/colorTextG4"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</LinearLayout>-->
+
+            <!--<View-->
+                <!--android:layout_width="1dp"-->
+                <!--android:background="#eee"-->
+                <!--android:layout_height="match_parent"/>-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/ll_mytupian"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="80dp">-->
+
+                <!--<com.duomizhibo.phonelive.widget.FontIconView-->
+                    <!--android:text="@string/icon_img"-->
+                    <!--android:background="@drawable/circle_common_c8d08d"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textColor="@android:color/white"-->
+                    <!--android:textSize="16sp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:text="我的图片"-->
+                    <!--android:textSize="12sp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:textColor="@color/colorTextG4"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</LinearLayout>-->
+
+        <!--</LinearLayout>-->
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:background="#eee"-->
+            <!--android:layout_marginLeft="5dp"-->
+            <!--android:layout_marginRight="5dp"-->
+            <!--android:layout_height="1dp"/>-->
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:background="@android:color/white"-->
+            <!--android:layout_marginLeft="5dp"-->
+            <!--android:layout_marginRight="5dp"-->
+            <!--android:gravity="center_vertical"-->
+            <!--android:layout_height="wrap_content">-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/ll_myshoucang"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="80dp">-->
+
+                <!--<com.duomizhibo.phonelive.widget.FontIconView-->
+                    <!--android:text="@string/icon_info"-->
+                    <!--android:background="@drawable/circle_common_c8d08d"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textColor="@android:color/white"-->
+                    <!--android:textSize="16sp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:text="我的收藏"-->
+                    <!--android:textSize="12sp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:textColor="@color/colorTextG4"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</LinearLayout>-->
+
+            <!--<View-->
+                <!--android:layout_width="1dp"-->
+                <!--android:background="#eee"-->
+                <!--android:layout_height="match_parent"/>-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/ll_tixian"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="80dp">-->
+
+                <!--<com.duomizhibo.phonelive.widget.FontIconView-->
+                    <!--android:text="@string/icon_tixian"-->
+                    <!--android:background="@drawable/circle_common_e48794"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textColor="@android:color/white"-->
+                    <!--android:textSize="16sp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:text="提现管理"-->
+                    <!--android:textSize="12sp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:textColor="@color/colorTextG4"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</LinearLayout>-->
+
+            <!--<View-->
+                <!--android:layout_width="1dp"-->
+                <!--android:background="#eee"-->
+                <!--android:layout_height="match_parent"/>-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/ll_chongzhijilu"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="80dp">-->
+
+                <!--<com.duomizhibo.phonelive.widget.FontIconView-->
+                    <!--android:text="@string/icon_3"-->
+                    <!--android:background="@drawable/circle_common_8dc8d4"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textColor="@android:color/white"-->
+                    <!--android:textSize="16sp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:text="充值记录"-->
+                    <!--android:textSize="12sp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:textColor="@color/colorTextG4"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</LinearLayout>-->
+
+        <!--</LinearLayout>-->
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:background="#eee"-->
+            <!--android:layout_marginLeft="5dp"-->
+            <!--android:layout_marginRight="5dp"-->
+            <!--android:layout_height="1dp"/>-->
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:background="@android:color/white"-->
+            <!--android:layout_marginLeft="5dp"-->
+            <!--android:layout_marginRight="5dp"-->
+            <!--android:gravity="center_vertical"-->
+            <!--android:layout_height="wrap_content">-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/ll_xiaofeijilu"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="80dp">-->
+
+                <!--<com.duomizhibo.phonelive.widget.FontIconView-->
+                    <!--android:text="@string/icon_icon12"-->
+                    <!--android:background="@drawable/circle_common_8dc8d4"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textColor="@android:color/white"-->
+                    <!--android:textSize="16sp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:text="消费记录"-->
+                    <!--android:textSize="12sp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:textColor="@color/colorTextG4"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</LinearLayout>-->
+
+            <!--<View-->
+                <!--android:layout_width="1dp"-->
+                <!--android:background="#eee"-->
+                <!--android:layout_height="match_parent"/>-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/ll_dailishang"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="80dp">-->
+
+                <!--<com.duomizhibo.phonelive.widget.FontIconView-->
+                    <!--android:text="@string/icon_management"-->
+                    <!--android:background="@drawable/circle_common_e48794"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textColor="@android:color/white"-->
+                    <!--android:textSize="16sp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:text="代理商"-->
+                    <!--android:textSize="12sp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:textColor="@color/colorTextG4"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</LinearLayout>-->
+
+            <!--<View-->
+                <!--android:layout_width="1dp"-->
+                <!--android:background="#eee"-->
+                <!--android:layout_height="match_parent"/>-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/ll_xinxiguanli"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="80dp">-->
+
+                <!--<com.duomizhibo.phonelive.widget.FontIconView-->
+                    <!--android:text="@string/icon_info_mage"-->
+                    <!--android:background="@drawable/circle_common_c8d08d"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textColor="@android:color/white"-->
+                    <!--android:textSize="16sp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:text="信息管理"-->
+                    <!--android:textSize="12sp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:textColor="@color/colorTextG4"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</LinearLayout>-->
+
+        <!--</LinearLayout>-->
+
+
+
+
+        <LinearLayout
+            android:id="@+id/ll_tuichu"
+            android:background="@drawable/btn_common_ef98a7"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="270dp"
+            android:layout_height="45dp">
+            <com.duomizhibo.phonelive.widget.FontIconView
+                android:textColor="@android:color/white"
+                android:text="@string/icon_tuichu"
+                android:layout_width="wrap_content"
+                android:textSize="12sp"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/tv_tuichu"
+                android:text="退出登陆"
+                android:textColor="@android:color/white"
+                android:layout_marginLeft="2dp"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+
+
+
+
+    </LinearLayout>
+</ScrollView>

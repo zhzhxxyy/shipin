@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_background"
+    android:orientation="vertical">
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        app:canBack="true"
+        app:titleColor="@color/black"
+        app:titleText="我的收藏" />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.duomizhibo.phonelive.ui.customviews.RefreshLayout
+            android:id="@+id/mRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/mRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:horizontalSpacing="4dp"
+                android:numColumns="2"
+                android:verticalSpacing="4dp">
+            </android.support.v7.widget.RecyclerView>
+
+        </com.duomizhibo.phonelive.ui.customviews.RefreshLayout>
+
+        <include
+            android:visibility="gone"
+            layout="@layout/view_fail"/>
+
+
+        <ImageView
+            android:id="@+id/iv_no_data"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:adjustViewBounds="true"
+            android:src="@drawable/no_live"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

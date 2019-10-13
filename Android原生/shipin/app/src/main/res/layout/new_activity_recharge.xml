@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        app:canBack="true"
+        app:titleColor="@color/black"
+        app:titleText="充值中心" />
+    <View
+        android:background="#d2d2d2"
+        android:layout_width="match_parent"
+        android:layout_height="1px"/>
+    <include
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/view_fail"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <TextView
+            android:id="@+id/tv_vip"
+            android:text="VIP会员"
+            android:gravity="center"
+            android:textColor="@color/color_fe5d02"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp" />
+
+        <View
+            android:layout_width="1px"
+            android:background="#d2d2d2"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/tv_gold"
+            android:text="金币"
+            android:textColor="@color/main_black"
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp" />
+
+    </LinearLayout>
+
+    <View
+        android:background="#d2d2d2"
+        android:layout_width="match_parent"
+        android:layout_height="1px"/>
+
+
+    <ScrollView
+        android:layout_weight="1"
+        android:scrollbars="none"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <HorizontalScrollView
+                android:scrollbars="none"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:id="@+id/ll_package_content"
+                    android:visibility="gone"
+                    android:layout_marginTop="30dp"
+                    android:orientation="horizontal"
+                    android:paddingRight="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="120dp">
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+
+            <LinearLayout
+
+                android:id="@+id/ll_tip"
+                android:visibility="gone"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.duomizhibo.phonelive.widget.FontIconView
+                    android:text="@string/icon_wenxintishi"
+                    android:textColor="#c0a16b"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:textSize="12sp"
+                    android:text="温馨提示："
+                    android:textColor="#c0a16b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/tv_tip"
+                android:visibility="gone"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="2dp"
+                android:textSize="12sp"
+                android:text="1、 当前金币兑换比例：1元人民币可兑换10个金币.\n2、 您输入的金币将会自动调整为整数."
+                android:textColor="#c0a16b"
+                android:lineSpacingMultiplier="1.2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:text="支付方式"
+                android:layout_marginLeft="15dp"
+                android:textSize="18sp"
+                android:layout_marginTop="30dp"
+                android:textColor="#696969"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="#d2d2d2"
+                android:layout_width="match_parent"
+                android:layout_height="1px"/>
+
+
+            <LinearLayout
+                android:id="@+id/ll_payment_content"
+                android:paddingBottom="10dp"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <!--<ImageView-->
+                    <!--android:src="@drawable/qq_pay_test"-->
+                    <!--android:layout_marginLeft="15dp"-->
+                    <!--android:layout_marginRight="15dp"-->
+                    <!--android:layout_marginTop="10dp"-->
+                    <!--android:padding="5dp"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:background="@drawable/btn_corner_normal"-->
+                    <!--android:layout_height="55dp" />-->
+
+            </LinearLayout>
+
+
+
+
+
+        </LinearLayout>
+    </ScrollView>
+
+
+    <View
+        android:background="#d2d2d2"
+        android:layout_width="match_parent"
+        android:layout_height="1px"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <TextView
+            android:textColor="#333333"
+            android:textSize="14sp"
+            android:layout_marginLeft="15dp"
+            android:text="支付"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:text="￥"
+            android:textColor="#333333"
+            android:textSize="12sp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_money"
+            android:text="0.00"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textSize="14sp"
+            android:textColor="#FE5D02"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_btn_recharge"
+            android:text="充值"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:background="#FE5D02"
+            android:layout_width="80dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+</LinearLayout>

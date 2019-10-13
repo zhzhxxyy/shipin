@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        >
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:layout_marginLeft="15dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:src="@drawable/me_myaccount_reddiamond"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <com.duomizhibo.phonelive.widget.BlackTextView
+                    android:textColor="@color/black"
+                    android:id="@+id/tv_custom_diamondsnum"
+                    android:text="0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+        <LinearLayout
+
+            android:layout_marginRight="15dp"
+            android:layout_alignParentRight="true"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent">
+            <com.duomizhibo.phonelive.widget.BlackEditText
+                android:id="@+id/et_custom_preice_text"
+                android:hint="@string/input_money"
+                android:textColorHint="#E2E2E5"
+                android:background="@null"
+                android:layout_gravity="center"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:inputType="number"
+                android:digits="1234567890"
+                android:maxLength="8"
+               />
+            <com.duomizhibo.phonelive.widget.BlackButton
+                android:padding="5dp"
+                android:id="@+id/btn_buy_diamond"
+                android:textSize="@dimen/text_size_17"
+                android:text="@string/immediately_pay"
+                android:layout_gravity="center"
+                android:background="@drawable/btn_common"
+                android:layout_width="match_parent"
+                android:layout_height="40dp" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+    <View
+        style="@style/h_line"
+        android:layout_width="fill_parent"
+        />
+</LinearLayout>

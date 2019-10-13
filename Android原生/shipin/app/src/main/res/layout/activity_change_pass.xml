@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_background"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.duomizhibo.phonelive.ui.customviews.ActivityTitle
+        android:id="@+id/view_title"
+        android:background="@color/white"
+        app:titleColor="@color/black"
+        app:titleText="@string/change_pass"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:text="@string/older_pass"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <com.duomizhibo.phonelive.widget.BlackEditText
+                android:id="@+id/et_old_pass"
+                android:textColorHint="#E2E2E5"
+                android:background="@null"
+                android:hint="@string/input_older_pass"
+                android:inputType="textPassword"
+                android:layout_weight="3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        <View
+            style="@style/h_line"/>
+        <!-- HHH 2016-09-09 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:text="@string/new_pass"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <com.duomizhibo.phonelive.widget.BlackEditText
+                android:id="@+id/et_new_pass"
+                android:textColorHint="#E2E2E5"
+                android:background="@null"
+                android:hint="@string/input_new_pass"
+                android:inputType="textPassword"
+                android:layout_weight="3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        <View
+            style="@style/h_line"/>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+            <com.duomizhibo.phonelive.widget.BlackTextView
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:text="@string/commit_pass"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+            <com.duomizhibo.phonelive.widget.BlackEditText
+                android:id="@+id/et_second_pass"
+                android:textColorHint="#E2E2E5"
+                android:background="@null"
+                android:hint="@string/again_pass"
+                android:inputType="textPassword"
+                android:layout_weight="3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <View
+            style="@style/h_line"/>
+
+    </LinearLayout>
+
+    <com.duomizhibo.phonelive.widget.BlackButton
+        style="?android:attr/borderlessButtonStyle"
+        android:id="@+id/btn_change_pass"
+        android:textColor="@color/white"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center"
+        android:background="@drawable/btn_common"
+        android:text="@string/confirm_change"
+        android:layout_width="270dp"
+        android:layout_height="50dp" />
+
+</LinearLayout>

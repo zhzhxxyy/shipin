@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+    >
+    <LinearLayout
+        android:id="@+id/ll_fenlei"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@android:color/white">
+        <TextView
+            android:text="分类："
+            android:layout_marginLeft="5dp"
+            android:padding="5dp"
+            android:textSize="12sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+        <com.duomizhibo.phonelive.widget.TCHorizontalScrollView
+            android:id="@+id/hs_fenlei"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none">
+        </com.duomizhibo.phonelive.widget.TCHorizontalScrollView>
+    </LinearLayout>
+    <View
+        android:id="@+id/view_fenlei"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ccc"
+        />
+
+
+    <LinearLayout
+        android:id="@+id/ll_biaoqian"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@android:color/white">
+        <TextView
+            android:text="分类："
+            android:layout_marginLeft="5dp"
+            android:padding="5dp"
+            android:textSize="12sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+        <com.duomizhibo.phonelive.widget.TCHorizontalScrollView
+            android:id="@+id/hs_biaoqian"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@android:id/content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+            </LinearLayout>
+        </com.duomizhibo.phonelive.widget.TCHorizontalScrollView>
+    </LinearLayout>
+    <View
+        android:id="@+id/view_biaoqian"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ccc"
+        />
+
+    <LinearLayout
+
+        android:id="@+id/ll_paixu"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@android:color/white">
+        <TextView
+            android:text="分类："
+            android:layout_marginLeft="5dp"
+            android:padding="5dp"
+            android:textSize="12sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+        <com.duomizhibo.phonelive.widget.TCHorizontalScrollView
+            android:id="@+id/hs_paixu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@android:id/content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+            </LinearLayout>
+        </com.duomizhibo.phonelive.widget.TCHorizontalScrollView>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_more"
+        android:text="更多"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:background="@drawable/drop_down"
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
+
+</LinearLayout>

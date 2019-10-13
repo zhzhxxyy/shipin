@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!--顶部菜单-->
+    <LinearLayout
+        android:id="@+id/ll_top_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <!--主播头像观众人数-->
+        <RelativeLayout
+            android:background="@drawable/icon_room_top_pop"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="100dp"
+                android:scaleType="fitCenter"
+                android:layout_height="32dp" />
+            <LinearLayout
+                android:paddingLeft="3dp"
+                android:id="@+id/ll_live_room_info"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp">
+
+                    <com.duomizhibo.phonelive.widget.AvatarView
+                        android:id="@+id/iv_live_emcee_head"
+                        android:layout_width="33dp"
+                        android:layout_height="33dp"
+                        app:border_color="@color/global"
+                        app:border_width="1dp" />
+
+                    <ImageView
+                        android:id="@+id/iv_live_emcee_level"
+                        style="@style/live_level_style"
+                        android:layout_marginLeft="@dimen/space_20"
+                        android:layout_marginTop="@dimen/space_20"/>
+                </RelativeLayout>
+                <LinearLayout
+                    android:layout_marginTop="3dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <com.duomizhibo.phonelive.widget.BlackTextView
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/text_size_11"
+                        android:text="直播Live"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <com.duomizhibo.phonelive.widget.BlackTextView
+                        android:layout_gravity="center"
+                        android:id="@+id/tv_live_num"
+                        android:layout_marginTop="1dp"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/text_size_11"
+                        android:gravity="center"
+                        android:text="0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <TextView
+                    android:visibility="gone"
+                    android:gravity="center"
+                    android:text="关注"
+                    android:layout_marginLeft="2dp"
+                    android:id="@+id/tv_attention"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="45dp"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="4dp"
+                    android:background="@drawable/guanzhu"/>
+            </LinearLayout>
+
+
+        </RelativeLayout>
+        <android.support.v7.widget.RecyclerView
+            android:layout_marginTop="12dp"
+            android:id="@+id/hl_room_user_list"
+            android:layout_marginLeft="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"/>
+
+    </LinearLayout>
+    <!--顶部菜单end-->
+
+    <!--魅力值labe-->
+    <LinearLayout
+        android:layout_marginLeft="10dp"
+        android:id="@+id/ll_yp_labe"
+        android:background="@drawable/btn_ticket_labe"
+        android:layout_marginTop="55dp"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:paddingRight="7dp">
+        <ImageView
+            android:src="@drawable/zuanshi"
+            android:layout_marginLeft="7dp"
+            android:layout_gravity="center_vertical"
+            android:layout_width="13dp"
+            android:layout_height="13dp" />
+        <TextView
+            android:id="@+id/tv_live_tick_name"
+            android:textSize="@dimen/text_size_12"
+            android:textColor="@color/white"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:textSize="@dimen/text_size_12"
+            android:id="@+id/tv_yingpiao_num"
+            android:textColor="@color/white"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="7dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <com.duomizhibo.phonelive.widget.BlackTextView
+            android:textSize="@dimen/text_size_12"
+            android:layout_marginRight="3dp"
+            android:textColor="@color/white"
+            android:id="@+id/tv_live_number"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:scaleType="centerCrop"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/room_yingpiao_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <!--魅力值labe end-->
+    <!--私播时间-->
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/ll_time"
+        android:gravity="center_vertical"
+        android:background="@drawable/btn_ticket_labe"
+        android:layout_height="25dp"
+        android:layout_marginLeft="@dimen/space_10"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/ll_yp_labe"
+        android:layout_width="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="私播时长  "
+            android:textColor="@color/white" />
+        <Chronometer
+            android:id="@+id/chronometer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white" />
+        <ImageView
+            android:layout_marginLeft="@dimen/space_10"
+            android:layout_width="25dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/hangup3"/>
+    </LinearLayout>
+    <!--私播时间end-->
+    <!--映客号-->
+    <com.duomizhibo.phonelive.widget.BlackTextView
+        android:visibility="gone"
+        android:textSize="@dimen/text_size_14"
+        android:layout_marginRight="10dp"
+        android:textColor="@color/black"
+        android:layout_marginTop="80dp"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+
+
+    <LinearLayout
+        android:id="@+id/ll_live_all"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="60dp"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/beauty_choose"
+            layout="@layout/beauty_choose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_live_join_room_animation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_join_room_animation"
+            android:paddingBottom="2dp"
+            android:paddingLeft="2dp"
+            android:paddingTop="2dp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_17"
+            android:textStyle="bold" />
+
+
+        <!--聊天list_view-->
+        <ListView
+            android:id="@+id/lv_live_room"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:divider="@null"
+            android:fadingEdge="none"
+            android:listSelector="@color/transparent"
+            android:padding="10dp"
+            android:scrollbars="none">
+
+        </ListView>
+
+
+
+    </LinearLayout>
+
+    <!--礼物动画显示start-->
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/ll_show_gift_animator"
+        android:layout_marginTop="200dp"
+        android:layout_width="match_parent"
+        android:layout_height="120dp">
+
+    </LinearLayout>
+    <!--礼物动画显示end-->
+
+    <!--弹幕显示-->
+    <!--底部菜单-->
+
+    <master.flame.danmaku.ui.widget.DanmakuView
+        android:id="@+id/danmakuView"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_above="@id/lv_live_room"
+        android:layout_centerInParent="true" />
+
+    <LinearLayout
+        android:layout_below="@id/ll_yp_labe"
+        android:visibility="visible"
+        android:id="@+id/ll_live_gif"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:scaleType="center"
+            android:id="@+id/iv_live_gif"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:textColor="@color/maintone"
+            android:id="@+id/tv_live_gif_words"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+
+
+</merge>

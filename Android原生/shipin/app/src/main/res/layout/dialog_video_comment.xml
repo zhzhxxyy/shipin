@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_video_comment"
+                android:orientation="vertical"
+    >
+
+    <RelativeLayout
+        android:id="@+id/rl_1"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        >
+
+        <TextView
+            android:id="@+id/nums"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:textColor="#737373"
+            android:textSize="16sp"/>
+
+        <ImageView
+            android:id="@+id/close"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/guanbi"/>
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/line1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/rl_1"
+        android:background="#ccc"/>
+
+    <LinearLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"
+        android:background="#f8f8f8"
+        android:gravity="center_vertical"
+        >
+
+        <EditText
+            android:id="@+id/comment_edit"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_comment_input"
+            android:gravity="center_vertical"
+            android:hint="说点什么..."
+            android:singleLine="true"
+            android:textColor="@color/gray"
+            android:textColorHint="@color/gray"
+            android:textSize="15sp"
+            android:imeOptions="actionSend"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+
+            />
+
+
+        <TextView
+            android:id="@+id/btn_send"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:text="发送"
+            android:textColor="@color/gray"
+            android:textSize="16sp"
+            android:background="@drawable/bg_comment_btn_send"
+            android:layout_marginRight="10dp"
+            />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/line2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/bottom"
+        android:background="#ccc"
+        />
+
+    <com.duomizhibo.phonelive.ui.customviews.RefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/line2"
+        android:layout_below="@id/line1"
+        >
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+    </com.duomizhibo.phonelive.ui.customviews.RefreshLayout>
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateDrawable="@drawable/anim_loading"
+        android:indeterminateOnly="true"
+        android:layout_centerInParent="true"
+        />
+</RelativeLayout>

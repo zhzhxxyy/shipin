@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_selected="true"><shape>
+            <!-- 填充色 -->
+            <solid android:color="@color/white" />
+
+            <corners android:bottomLeftRadius="5dp" android:bottomRightRadius="0dp" android:topLeftRadius="5dp" android:topRightRadius="0dp" />
+        </shape></item>
+    <item android:state_pressed="true"><shape>
+            <!-- 填充色 -->
+            <solid android:color="@color/white" />
+
+            <corners android:bottomLeftRadius="5dp" android:bottomRightRadius="0dp" android:topLeftRadius="5dp" android:topRightRadius="0dp" />
+        </shape></item>
+    <item><shape android:bottom="0dip" android:left="-0.8dip" android:right="0dip" android:shape="rectangle" android:top="-0.8dip">
+
+            <!-- 填充色 -->
+            <solid android:color="@color/maintone" />
+
+            <stroke android:width="0.8dip" android:color="@color/white" />
+
+            <corners android:bottomLeftRadius="7dp" android:bottomRightRadius="0dp" android:topLeftRadius="7dp" android:topRightRadius="0dp" />
+        </shape></item>
+
+</selector>
