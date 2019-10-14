@@ -1,0 +1,777 @@
+import React,{Component} from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+
+    Switch,
+    Button,
+    ImageBackground,
+    Dimensions,
+    ScrollView
+} from 'react-native';
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import {sys,NoDataView,isIphoneX} from "../../common/Data"
+
+
+import {LeftButton} from "../cqssc/CqsscPublic"
+import {styles} from "../common/homeStyle"
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+import HttpUtils from "../../common/HttpUtil"
+
+
+
+const host = sys.host;
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const  text_arr = ["定位胆","定单双",'猜中位']//,'任选胆拖'];
+const  title_arr = ["第一位","第二位","第三位","第四位"];
+const  title_dsArr = ["定单双"];
+const  title_czwArr = ["猜中位"];
+
+var Buffer = require('buffer').Buffer;
+
+
+var thiz = this;
+var headthis;
+var thishead_arr = [];
+
+var selectedIndex = 0;
+
+
+
+export default class Quwei extends React.Component {
+
+
+    constructor(props) {
+
+        super(props);
+
+        this.state = {
+
+            fontLoaded: false,
+
+            number_arr: {},
+
+            zhushu: "0注",
+            amount: "0元",
+            count: 0,
+            index: 0,
+            beishu: '1',
+
+
+            currFullExpect:"",
+
+            x5dwd:{},
+            x5dds:{},
+            x5czw:{},
+
+            data:{},
+
+
+        }
+    }
+
+
+
+
+    async componentDidMount() {
+        this.setState({ fontLoaded: true });
+        selectedIndex = 0;
+
+        this.setState({ currFullExpect: this.props.currFullExpect });
+
+        if(this.props.datalist["x5dwd"] != null){
+            this.setState({ x5dwd: this.props.datalist["x5dwd"]});
+
+        }
+
+        if(this.props.datalist["x5dds"] != null){
+            this.setState({ x5dds: this.props.datalist["x5dds"]});
+
+        }
+
+        if(this.props.datalist["x5czw"] != null){
+            this.setState({ x5czw: this.props.datalist["x5czw"]});
+
+        }
+
+
+    }
+
+
+    //生成随机订单号
+    generateMixed(n) {
+
+        var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
+        var res = "";
+        for(var i = 0; i < n ; i ++) {
+            var id = Math.ceil(Math.random()*35);
+            res += chars[id];
+        }
+        return res;
+    }
+
+
+    onButtonPress(index){
+
+
+        if (index == this.state.index){
+            return;
+        }
+
+
+
+        this.setState({
+            index:index,
+            zhushu:"0注",
+            amount:"0元",
+            count : 0,
+            beishu:'1',
+            number_arr : [],
+        },()=>{
+
+
+            for(var key in thiz.refs){
+                // if(thiz.refs[key].state.selected != null){
+                if (key.includes('位') || key.includes('定单双')) {   
+                    thiz.refs[key].setState({
+                        selected:false
+                    });
+                }
+
+                if(key.includes('header')){//customheader
+                    for(var subkey in thiz.refs[key].refs){
+                        thiz.refs[key].refs[subkey].setState({
+                            selected:false
+                        });
+                    }
+                }
+            }
+
+            if(selectedIndex != this.state.index){
+                thiz.refs["left"+selectedIndex].setState({
+                    selected: false
+                });
+
+                selectedIndex = this.state.index;
+                thiz.refs["left"+selectedIndex].setState({
+                    selected: true
+                });
+            }
+
+
+
+        })
+    };
+
+
+
+    itemClick(){
+        this.setState({
+            index:thiz.state.index,
+            zhushu:thiz.state.zhushu,
+            amount : thiz.state.amount,
+            count:thiz.state.count,
+            beishu:thiz.state.beishu
+        })
+    }
+
+
+
+    buynow(){
+
+        let isCunZai = this.props.datalist.hasOwnProperty('x5dwd')
+
+        if (!isCunZai){
+            this.props.lodaData()
+            return;
+        }
+
+        if(thiz.state.count == 0){
+            this.refs.toast.show("您的选注不符合规则", DURATION.LENGTH_LONG);          
+            return;
+        }
+
+        if(thiz.state.beishu == '0' || thiz.state.beishu == ''){
+            this.refs.toast.show("请填写下注倍数", DURATION.LENGTH_LONG);
+            return;
+        }
+
+        var number = '';
+
+
+        var data = {};
+
+        if(this.state.index == 0){
+            data = this.state.x5dwd;
+            number = thiz.state.number_arr['d1'] + '|' + thiz.state.number_arr['d2'] + '|' + thiz.state.number_arr['d3'] + '|' + thiz.state.number_arr['d4'];
+        }else  if (this.state.index == 1){
+            data = this.state.x5dds;
+
+
+
+            number = thiz.state.number_arr['dds'] + "";
+
+        }else  if (this.state.index == 2) {
+            data = this.state.x5czw;
+            number = thiz.state.number_arr['czw'] + "";
+        }
+
+
+        this.setState({
+
+            data : data,
+            number : number
+
+        },()=>{
+            this.props.onPress();
+        });
+
+
+
+    }
+
+    render(){
+
+
+        thiz = this;
+
+        var  zhushu  = thiz.state.zhushu ;
+        var  amount = thiz.state.amount;
+
+        var remark = "";
+        var rate = 0;
+        var titleArr = [];
+
+        var changeView = null;
+
+
+        if(this.state.index == 0){
+            if(this.props.datalist["x5dwd"] != null){
+                this.state.x5dwd = this.props.datalist["x5dwd"];
+                remark = this.state.x5dwd.remark;
+                rate = this.state.x5dwd.rate;
+            }
+            titleArr = title_arr;
+
+        }else if(this.state.index == 1){
+
+            if(this.props.datalist["x5dds"] != null){
+
+                this.state.x5dds = this.props.datalist["x5dds"];
+                remark = this.state.x5dds.remark;
+                rate = this.state.x5dds.rate;
+            }
+            titleArr = title_dsArr;
+
+        }else if(this.state.index == 2){
+            if(this.props.datalist["x5czw"] != null){
+                this.state.x5czw = this.props.datalist["x5czw"];
+                remark = this.state.x5czw.remark;
+                rate = this.state.x5czw.rate;
+            }
+            titleArr = title_czwArr;
+        }
+
+
+        if(this.state.index == 0){
+
+
+            changeView = titleArr.map((info, index)=> {
+                return (
+                    <View key={index} >
+                        <Text style={styles.x5title}>{info}</Text>
+                        <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="01"  ref={ info +'01'}/>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="02"  ref={ info +'02'}/>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="03"  ref={ info +'03'}/>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="04"  ref={ info +'04'}/>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="05"  ref={ info +'05'}/>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="06"  ref={ info +'06'}/>
+                        </View>
+                        <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="07"  ref={ info +'07'}/>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="08"  ref={ info +'08'}/>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="09"  ref={ info +'09'}/>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="10"  ref={ info +'10'}/>
+                            <CustomButton type="2" index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="11"  ref={ info +'11'}/>
+                        </View>
+                    </View>
+                );
+            })
+
+        }else if(this.state.index == 1){
+
+
+            changeView = titleArr.map((info, index)=> {
+                return (
+                    <View key={index} >
+                        <Text style={styles.x5title}>{info}</Text>
+                        <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                            <DdsButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="5单0双"  ref={ info +'5单0双'}/>
+                            <DdsButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="4单1双"  ref={ info +'4单1双'}/>
+                        </View>
+                        <View style={{flexDirection: 'row', marginTop: 0, marginLeft: 0}}>
+                            <DdsButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="3单2双"  ref={ info +'3单2双'}/>
+                            <DdsButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="2单3双"  ref={ info +'2单3双'}/>
+                        </View>
+                        <View style={{flexDirection: 'row', marginTop: 0, marginLeft: 0}}>
+                            <DdsButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="1单4双"  ref={ info +'1单4双'}/>
+                            <DdsButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="0单5双"  ref={ info +'0单5双'}/>
+                        </View>
+                    </View>
+                );
+            })
+
+
+
+        }else if(this.state.index == 2){
+
+
+            changeView = titleArr.map((info, index)=> {
+                return (
+                    <View key={index} >
+                        <Text style={styles.x5title}>{info}</Text>
+                        <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                            <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="03"  ref={ info +'03'}/>
+                            <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="04"  ref={ info +'04'}/>
+                            <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="05"  ref={ info +'05'}/>
+                            <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="06"  ref={ info +'06'}/>
+                        </View>
+                        <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                            <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="07"  ref={ info +'07'}/>
+                            <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="08"  ref={ info +'08'}/>
+                            <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="09"  ref={ info +'09'}/>
+                        </View>
+                    </View>
+                );
+            })
+        }
+
+
+
+        let isCunZai = this.props.datalist.hasOwnProperty('x5dwd')
+
+        let rarmkView = isCunZai?<Text style={styles.remarkHeader}>{remark}赔率<Text 
+        style={{color:'red'}}>{rate}</Text>倍</Text>:<NoDataView 
+             isloading = {this.props.visible} click={()=>this.props.lodaData()}
+             text = {"重新加载"}></NoDataView>
+
+
+
+        // var scrollH = sys.dheight-290;
+        // if(isIphoneX()){
+        //     scrollH = sys.dheight-320;
+        // }
+
+        var scrollH = sys.zhongjianIsHaveChange;
+
+        return (
+            <KeyboardAwareScrollView
+                style={styles.container}
+                keyboardShouldPersistTaps = {"always"}
+
+            >
+                <View style={{flex:1}}>
+                    <View style={{ flex: 1 ,flexDirection:'row'}}>
+
+                        <ScrollView
+
+                            style={{
+
+                                backgroundColor:sys.grayColor,
+                                width:LEFT_WIDTH,
+                                height:scrollH
+                            }}>
+
+                            {text_arr.map((info, index) => {
+                                var selected = false;
+                                if (this.state.index == index){
+                                    selected = true;
+                                }
+
+                                return (
+
+                                    <LeftButton key={index} xuanzo={index==0?1:0} title={info}    index={index} selected={selected} ref={"left"+index}
+                                                onPress={()=>{
+                                                    this.onButtonPress(index)
+                                                }}></LeftButton>
+                                );
+                            })}
+                        </ScrollView>
+                        <ScrollView
+                            style={{
+                                backgroundColor:"white",
+                                width:RIGHT_WIDTH,
+                                height:scrollH
+                            }}
+                        >
+
+                            {/* <Text style={styles.remarkHeader}>{remark}赔率<Text style={{color:'red'}}>{rate}</Text>倍</Text> */}
+                            {rarmkView}
+                            {
+                                changeView
+                            }
+
+                           <View style={{height:50}}></View>
+
+                        </ScrollView>
+
+                    </View>
+
+                    <View style={styles.beishuView} >
+
+                        <TouchableOpacity  style={styles.reduceBtn }
+                                           onPress={() => {
+
+                                               if(thiz.state.beishu == '1'){
+                                                   return;
+                                               }else {
+                                                   var mewBeishu = parseInt(thiz.state.beishu) - 1;
+                                                   thiz.setState({
+                                                       beishu : mewBeishu+'',
+                                                       amount :  thiz.state.count*2*mewBeishu + "元"
+                                                   })
+                                               }
+
+                                           }}
+                        >
+                            <Text style={styles.payButtonText} >-</Text>
+                        </TouchableOpacity>
+
+                        <TextInput underlineColorAndroid='transparent' value={thiz.state.beishu}
+                                   keyboardType='numeric'  style={styles.beishuCount}  ref="beishucount"
+                                   onChangeText={(text) =>{
+                                       thiz.setState({
+                                           beishu:text,
+                                           amount : thiz.state.count*2*parseInt(text) + "元"
+                                       })
+
+                                       if(text == '' || text == null){
+
+                                           thiz.setState({
+                                               amount : "0元"
+                                           })
+                                       }
+                                   }
+                                   }
+                        ></TextInput>
+
+
+                        <TouchableOpacity  style={styles.reduceBtn }
+                                           onPress={() => {
+
+                                               var mewBeishu = parseInt(thiz.state.beishu) + 1;
+                                               if(thiz.state.beishu == '' ){
+                                                   mewBeishu = 1;
+                                               }
+
+
+                                               thiz.setState({
+                                                   beishu : mewBeishu+'',
+                                                   amount :  thiz.state.count*2*mewBeishu + "元"
+                                               })
+
+
+                                           }}
+                        >
+                            <Text style={styles.payButtonText}>+</Text>
+                        </TouchableOpacity>
+
+                    </View>
+
+
+
+                    <View style={styles.footer} >
+                        <View style={styles.yuerbar}>
+                            <Text style={styles.nameHeader}>总额</Text>
+                            <Text style={styles.yuer}>{amount}</Text>
+                        </View>
+                        <View style={styles.yuerbar}>
+                            <Text style={styles.nameHeader}>单注：</Text>
+                            <Text style={styles.yuer}>2元</Text>
+                            {/*<FormInput style={styles.yuer} placeholder="111" />*/}
+                        </View>
+                        <View style={styles.yuerbar}>
+                            <Text style={styles.nameHeader}>共</Text>
+                            <Text style={styles.yuer}>{zhushu}</Text>
+                        </View>
+
+                        <TouchableOpacity  style={styles.payButton }
+                                           onPress={() => {
+                                               this.buynow();
+                                           }}
+                        >
+
+                            <Text style={styles.payButtonText}>下注</Text>
+                        </TouchableOpacity>
+
+                    </View>
+
+                </View>
+                <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='top'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                />  
+            </KeyboardAwareScrollView>
+
+        )
+    }
+}
+
+
+
+class CustomButton extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+            selected: false,
+        };
+    }
+
+
+
+
+
+
+
+    render() {
+        var { title,style,xuanzo,type,index } = this.props;
+
+
+        if(style==undefined){
+            style = {backgroundColor:sys.redColor,borderRadius:RIGHT_WIDTH/14,
+                width:RIGHT_WIDTH/7,height:RIGHT_WIDTH/7,marginLeft: (RIGHT_WIDTH-RIGHT_WIDTH/7*5)/6}
+        }
+        if(xuanzo==1)this.state.selected=true;
+
+        const { selected } = this.state;
+
+        let myStyle={};
+        if (type==2) {
+            myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-180)/7,marginTop:(RIGHT_WIDTH-180)/14};
+        } else {
+            myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-120)/5,marginTop:(RIGHT_WIDTH-120)/10};
+        }
+
+        return (
+
+            <TouchableOpacity index={index} style={[selected?styles.stouchButton : styles.touchButton,myStyle]}
+                              onPress={() => {
+
+
+                                  {/*this.customclick(index);*/}
+
+
+
+
+
+                                  var d1Arr = [];
+                                  var d2Arr = [];
+                                  var d3Arr = [];
+                                  var d4Arr = [];
+
+
+
+                                  var ddsArr = [];
+
+                                  var czwArr = [];
+
+
+
+                                  this.setState({
+                                      selected:!selected
+                                  });
+
+
+                                  this.setState({ selected: !selected } ,() => {
+
+
+                                      for(var key in thiz.refs){
+
+                                            if(key.includes('第一位')){
+                                                if (thiz.refs[key].state.selected) {
+                                                    d1Arr.push(key.substr(3,2))
+                                                }
+                                                
+                                            }else if(key.includes('第二位')){
+                                                if (thiz.refs[key].state.selected) {
+                                                    d2Arr.push(key.substr(3,2))
+                                                }
+                                                
+                                            }else if(key.includes('第三位')){
+                                                if (thiz.refs[key].state.selected) {
+                                                    d3Arr.push(key.substr(3,2))
+                                                }
+                                                
+                                            }else if(key.includes('第四位')){
+                                                if (thiz.refs[key].state.selected) {
+                                                    d4Arr.push(key.substr(3,2))
+                                                }
+                                                
+                                            }else if(key.includes('定单双')){
+                                                if (thiz.refs[key].state.selected) {
+                                                    ddsArr.push(key.substr(3,2))
+                                                }
+                                                
+                                            }else if(key.includes('猜中位')){
+                                                if (thiz.refs[key].state.selected) {
+                                                    czwArr.push(key.substr(3,2))
+                                                }
+                                                
+                                            }
+                                         
+                                          
+                                      }
+
+
+                                      var count = 0;
+
+
+                                      var arr = [];
+                                      if(thiz.state.index == 0){
+                                          thiz.state.number_arr['d1'] = d1Arr;
+                                          thiz.state.number_arr['d2'] = d2Arr;
+                                          thiz.state.number_arr['d3'] = d3Arr;
+                                          thiz.state.number_arr['d4'] = d4Arr;
+
+                                          arr.push(d1Arr);
+                                          arr.push(d2Arr);
+                                          arr.push(d3Arr);
+                                          arr.push(d4Arr);
+
+                                          count = d1Arr.length + d2Arr.length + d3Arr.length + d4Arr.length;
+                                      }else if(thiz.state.index == 1){
+                                          thiz.state.number_arr['dds'] = ddsArr;
+
+
+                                          count = combine(ddsArr,3);
+                                      }else if(thiz.state.index == 2){
+                                          thiz.state.number_arr['czw'] = czwArr;
+
+                                          count = czwArr.length;
+                                      }
+
+                                      thiz.state.zhushu = count + "注";
+                                      thiz.state.amount = count*2*thiz.state.beishu + "元";
+                                      thiz.state.count = count;
+                                      this.props.onPress();
+
+
+                                  })
+                              }}>
+                <Text style={selected?styles.stouchButtonText: styles.touchButtonText}>{title}</Text>
+            </TouchableOpacity>
+
+        );
+
+    }
+}
+
+
+class DdsButton extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+            selected: false,
+        };
+    }
+
+
+
+
+
+
+
+    render() {
+        var { title,style,xuanzo,type,index } = this.props;
+
+
+        if(style==undefined){
+            style = {backgroundColor:sys.redColor,borderRadius:RIGHT_WIDTH/14,
+                width:RIGHT_WIDTH/7,height:RIGHT_WIDTH/7,marginLeft: (RIGHT_WIDTH-RIGHT_WIDTH/7*5)/6}
+        }
+        if(xuanzo==1)this.state.selected=true;
+
+        const { selected } = this.state;
+
+        let myStyle = {margin:0,marginLeft:(RIGHT_WIDTH-140)/3,marginTop:(RIGHT_WIDTH-140)/6}
+
+        return (
+
+            <TouchableOpacity index={index} style={[selected?styles.stouchLongButton : styles.touchLongButton,myStyle]}
+                              onPress={() => {
+
+
+                                  {/*this.customclick(index);*/}
+
+
+
+
+
+
+                                  var ddsArr = [];
+
+
+                                  this.setState({
+                                      selected:!selected
+                                  });
+
+
+                                  this.setState({ selected: !selected } ,() => {
+
+
+                                      for(var key in thiz.refs){
+
+                                        if(key.includes('定单双')){
+                                             if (thiz.refs[key].state.selected) {
+                                                ddsArr.push(key.substr(3,4))
+                                             }                                          
+                                              
+                                        }
+                                      }
+
+
+                                      var count = 0;
+
+                                      var arr = [];
+                                      if(thiz.state.index == 1){
+                                          thiz.state.number_arr['dds'] = ddsArr;
+
+
+                                          count = ddsArr.length;
+                                      }
+                                      thiz.state.zhushu = count + "注";
+                                      thiz.state.amount = count*2*thiz.state.beishu + "元";
+                                      thiz.state.count = count;
+                                      this.props.onPress();
+
+
+                                  })
+                              }}>
+                <Text style={selected?styles.stouchButtonText: styles.touchButtonText}>{title}</Text>
+            </TouchableOpacity>
+
+        );
+
+    }
+}

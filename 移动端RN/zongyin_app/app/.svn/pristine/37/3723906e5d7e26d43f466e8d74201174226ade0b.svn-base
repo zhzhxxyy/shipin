@@ -1,0 +1,307 @@
+import {Platform, AsyncStorage, Alert, DeviceEventEmitter} from 'react-native'
+
+//import ToastManger from './ToastManger'
+// const Frisbee = require('frisbee');
+
+
+
+let isAlertTint = false;
+
+export default class HttpUtil{
+
+    static get(url){
+
+        let formData = new FormData();
+        return new Promise((resolve,reject)=>{
+            fetch(url,{
+                method: 'POST',
+                headers:{},
+                body:formData
+            })
+                .then(response=>response.json())
+                .then(result=>{
+                    resolve(result);
+                })
+                .catch(error=>{
+                    reject(error);
+                })
+        })
+    }
+
+
+    static async myConsole(str){
+
+        //    console.log(str)
+    }
+
+    // static async post(url,data){
+
+    //     if(global.user.loginState==-1){
+    //         await storage.load('islogin',(user)=>{
+    //             if (user != "" && user != null) {
+    //                 global.user.loginState=1;
+    //                 global.user.userData=user;
+    //                 global.user.token=user.token;
+    //             }else{
+    //                 global.user.loginState=0;
+    //                 global.user.userData=null;
+    //                 global.user.token="";
+    //             }
+    //          })
+    //     }
+    //     let userInfor=global.user.userData;
+    //     userInfor=global.user.userData;
+    //     const api = new Frisbee({
+    //         baseURI: 'http://w.520cpz.com', // optional
+    //         headers: {
+    //            'Accept': 'application/json',
+    //           'Content-Type': 'application/json'
+    //         }
+    //       });
+    //       let formData = data;
+    //       formData.append('source',Platform.OS)
+    //       formData.append('token',  global.user.token);
+    //       var ent = formData.getParts();
+    //       var dict = {};
+    //       ent.forEach(function(element) {
+    //           dict[element["fieldName"]] = element["string"];
+    //       }, this);
+
+    //       console.log(url);
+    //       console.log(dict);
+    //       res = await api.post(url,{body:dict});
+
+    //       if (res.err) {
+    //           throw "网络错误"
+    //       }else{
+    //           var result = res.body;
+    //           console.log(result);
+    //           if(result['respCode'] == 1){
+    //              return result;
+    //           }else if(result['respCode'] == 2){
+    //               Alert.alert('请先登录','',
+    //                   [
+    //                       {text:"取消", onPress: ()=>{
+
+    //                               DeviceEventEmitter.emit('LoginQuxiao', {});
+    //                           }},
+    //                       {text:"登录", onPress: ()=>{
+    //                               DeviceEventEmitter.emit('Login', userInfor);
+    //                       }}
+    //                   ]
+    //               );
+    //               return result;
+
+    //           }else if(result['respCode'] == 3){
+    //               storage.remove('token')
+    //               Alert.alert('登录失效','',
+    //                   [
+    //                       {text:"取消", onPress: ()=>{
+    //                               DeviceEventEmitter.emit('LoginQuxiao', {});
+    //                           }},
+    //                       {text:"登录", onPress: ()=>{
+    //                            //Alert.alert("xia xia xia shang shang"+JSON.stringify(userInfor))
+    //                               DeviceEventEmitter.emit('Login', userInfor);
+    //                           }}
+    //                   ]
+    //               );
+    //               return result;
+
+    //           }else{
+    //             return result;
+    //           }
+    //       }
+    // }
+
+     static async post(url,data){
+        if(global.user.loginState==-1){
+            await storage.load('islogin',(user)=>{
+                if (user != "" && user != null) {
+                    global.user.loginState=1;
+                    global.user.userData=user;
+                    global.user.token=user.token;
+                }else{
+                    global.user.loginState=0;
+                    global.user.userData=null;
+                    global.user.token="";
+                }
+             })
+        }
+        let userInfor=global.user.userData;
+        let formData = data;
+        formData.append('source',Platform.OS)
+        formData.append('token',  global.user.token);
+        this.myConsole("url is "+url);
+        this.myConsole("param is "+JSON.stringify(formData));
+
+
+        // var ent = formData.getParts();
+        // var dict = {};
+        // ent.forEach(function(element) {
+        //     dict[element["fieldName"]] = element["string"];
+        // }, this);
+
+        // console.log('http://w.520cpz.com'+url);
+        // console.log(dict);
+
+        // 定义一个4秒超时函数
+        const timeoutRequest = new Promise((resolve, reject) => {
+              setTimeout(reject, 10000, '连接超时');
+        });
+        const request = new Promise((resolve,reject)=>{
+            fetch(url,{
+                method: 'POST',
+                headers: {
+                //     'Accept': 'application/json',
+                //    'Content-Type': 'application/json'
+                 },
+                body:formData
+            }) .then(response=>response.json())
+                .then(result=>{
+
+
+
+                    this.myConsole('result')
+                    this.myConsole(result)
+
+                    if(result['respCode'] == 1){
+                        resolve(result)
+
+                    }else if(result['respCode'] == 2){
+                        
+            
+
+                        Alert.alert('请先登录','',
+                            [
+                                {text:"取消", onPress: ()=>{
+
+                                        DeviceEventEmitter.emit('LoginQuxiao', {});
+                                    }},
+                                {text:"登录", onPress: ()=>{
+                                        DeviceEventEmitter.emit('Login', userInfor);
+                                }}
+                            ]
+                        );
+
+                    }else if(result['respCode'] == 3){
+                        
+
+                      
+                        Alert.alert('登录失效','',
+                            [
+                                {text:"取消", onPress: ()=>{
+                                        DeviceEventEmitter.emit('LoginQuxiao', {});
+                                    }},
+                                {text:"登录", onPress: ()=>{
+                                     //Alert.alert("xia xia xia shang shang"+JSON.stringify(userInfor))
+                                        DeviceEventEmitter.emit('Login', userInfor);
+                                    }}
+                            ]
+                        );
+
+                    }else{
+                        reject(result['respMsg'])
+                    }
+                })
+                .catch(error=>{
+
+
+                    //  ToastManger.show('网络错误')
+
+
+                    reject("网络请求错误");
+                    // if (JSON.stringify(error) !='{}') {
+                    //     console.log(""+JSON.stringify(error));
+                    //     reject(JSON.stringify(error));
+                    // }else{
+                    //     reject("请求错误");
+                    // }
+                })
+        })
+        //竞时函数，谁先完成调用谁
+        return new Promise
+            .race([request, timeoutRequest])
+            .then(res => {
+                return res
+                }, m => {
+                // throw new Error(m);
+                throw m;
+            });
+    }
+
+
+    /*
+ *
+ *   上传图片请求
+ *   @param
+ *   @returns
+ * */
+    static async uploadImage(url,imgAry) {
+        if(global.user.loginState==-1){
+            await storage.load('islogin',(user)=>{
+                if (user != "" && user != null) {
+                    global.user.loginState=1;
+                    global.user.userData=user;
+                    global.user.token=user.token;
+                }else{
+                    global.user.loginState=0;
+                    global.user.userData=null;
+                    global.user.token="";
+                }
+             })
+        }
+        let userInfor=global.user.userData;
+        let formData = new FormData();
+        formData.append('source',Platform.OS)
+        formData.append('token',  global.user.token);
+         //因为需要上传多张图片,所以需要遍历数组,把图片的路径数组放入formData中
+        for(var i = 0;i<imgAry.length;i++){
+            let file = {uri: imgAry[i], type: 'multipart/form-data', name: 'image.png'};   //这里的key(uri和type和name)不能改变,
+            formData.append("file",file);   //这里的files就是后台需要的key
+        }
+        return new Promise((resolve,reject)=>{
+            fetch(url,{
+            method:'POST',
+            headers:{
+                'Content-Type':'multipart/form-data',
+            },
+            body:formData,
+            })
+            .then((response) => response.json() )
+            .then((result)=>{
+                console.log(result);
+                if(result['respCode'] == 1){
+                    resolve(result)
+                }else if(result['respCode'] == 2){
+
+                    Alert.alert('请登录','',
+                        [
+                            {text:"取消"},
+                            {text:"登录", onPress: ()=>{
+
+                                    DeviceEventEmitter.emit('Login', {});
+                                }}
+                        ]
+                    );
+                }else if(result['respCode'] == 3){
+                    
+                                        Alert.alert('登录失效','',
+                                            [
+                                                {text:"取消"},
+                                                {text:"登录", onPress: ()=>{
+                    
+                                                        DeviceEventEmitter.emit('Login', userInfor);
+                                                    }}
+                                            ]
+                                        );
+                }else{
+                    reject(result['respMsg'])
+                }
+
+            })
+            .catch((error)=>{
+                reject(error);
+            })
+        })
+    }
+}

@@ -1,0 +1,364 @@
+/**
+ * Created by 卓原 on 2017/10/31.
+ * zhuoyuan93@gmail.com
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Button,
+    DeviceEventEmitter,
+    ImageBackground,
+    Platform,
+    ScrollView
+} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import {sys} from "../../common/Data"
+const host = sys.host;
+
+
+
+
+import RNLogin from "../../common/RNLoginModule"
+import HttpUtils from "../../common/HttpUtil";
+
+
+export default class DelegateCenter extends React.Component {
+
+
+    static  navigationOptions = ({navigation}) => ({
+        headerTitle:"代理中心",
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            
+        },
+        headerRight: <View />
+    });
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            downuserportsData:null,
+            reportstatisticsData:null,
+            fandian:'0',
+            fanshui:'0'
+        }
+    }
+
+    componentDidMount(){
+
+        this.getDelegateDownuserportsData()
+
+        this.getDelegateReportsData()
+
+
+        storage.load('islogin', (dic) => {
+            if (dic != "" && dic != null) {
+                
+                // console.log('islogin')
+                // console.log(dic)
+                this.setState({
+                    fandian:dic.fandian,
+                    fanshui:dic.fanshui
+                })
+
+            }
+        })
+
+
+    }
+
+    clickfourBtn(tag){
+
+        if (tag == 0) {
+
+            const {navigate} = this.props.navigation;
+            console.log(navigate);
+            navigate("DelegateKaiHuCenter",{item:tag});
+        }
+
+
+       if(tag == 1){
+            const {navigate} = this.props.navigation;
+            console.log(navigate);
+            navigate("DelegateManger",{item:tag});
+       }
+
+       if(tag == 2){
+        const {navigate} = this.props.navigation;
+        console.log(navigate);
+        navigate("DelegateZaiXianHuiYuan",{item:tag});
+       }
+
+       if(tag == 3){
+        const {navigate} = this.props.navigation;
+        console.log(navigate);
+        navigate("DelegateXiaZhuJilu",{item:tag});
+       }
+
+       if(tag == 4){
+        const {navigate} = this.props.navigation;
+        console.log(navigate);
+        navigate("DelegateZhangBianJiLu",{item:tag});
+       }
+       if(tag == 5){
+        const {navigate} = this.props.navigation;
+        console.log(navigate);
+        navigate("DelegateCunTk",{item:tag});
+       }
+
+       if(tag == 6){
+       
+        const {navigate} = this.props.navigation;
+        console.log(navigate);
+        navigate("DelegateBaoBiao",{item:tag});
+       }
+
+
+       
+
+    }
+
+
+    render(){
+
+        let transferIn=0;
+        let transferOut=0;
+        if (this.state.reportstatisticsData != null) {
+            transferIn = this.state.reportstatisticsData['transferIn']
+            transferOut = this.state.reportstatisticsData['transferOut']
+        }
+        let totalnum=0;
+        let totalamount=0;
+        if (this.state.downuserportsData != null) {
+            totalnum = this.state.downuserportsData['totalnum']
+            totalamount = this.state.downuserportsData['totalamount']
+        }
+
+        return(
+            <ScrollView style={{width:sys.dwidth,height:sys.dheight,backgroundColor:sys.backgroundColor}}>
+
+
+            <View style={{backgroundColor:sys.backgroundColor}}>
+                <View style={{width:sys.dwidth,backgroundColor:sys.mainColor,paddingBottom:40,flexDirection:'row',height: Platform.OS == 'ios' ? 120 : 135}}>
+                    <View style={{width:sys.dwidth*2/3}}>
+                        <Text style={{marginTop:12,paddingLeft:10,color:'white',fontSize:13}}>我的下级(人)</Text>
+                        <Text style={{marginTop:3,paddingLeft:10,color:'white',fontSize:22,fontWeight:'bold'}}>{totalnum}</Text>
+                        <Text style={{marginTop:10,paddingLeft:10,color:'white',fontSize:13}}>团队余额(元)</Text>
+                        <Text style={{marginTop:3,paddingLeft:10,color:'white',fontSize:22,fontWeight:'bold'}}>{totalamount}</Text>        
+                    </View>
+
+                    <View style={{height:140,width:sys.dwidth/3}}>
+                        
+                        <TouchableOpacity style={{marginLeft:sys.dwidth/3 - 80,marginTop:(125-37)/2,height:37,
+                            width:90,backgroundColor:"rgba(255,255,255,0.3)",
+                            borderTopLeftRadius:37/2,borderBottomLeftRadius:37/2,}} onPress={()=>this.clickfourBtn(6)}>
+                            <Text style={{marginTop:0,textAlign:'center',color:sys.whiteColor,
+                            fontSize:14,alignSelf:'center',width:90,lineHeight:37}}>团队报表</Text>
+                        </TouchableOpacity>
+
+                    </View>
+
+                </View>
+
+           {/* // <View style={{height:1,width:sys.dwidth,backgroundColor:'black'}}></View> */}
+
+                <View style={{width:sys.dwidth,backgroundColor:'white'
+                    ,flexDirection:'row',height:55,marginTop:10}}>
+                    <View style={{width:sys.dwidth/2,height:55}}>
+                    <Text style={{marginTop:10,textAlign:'center',fontSize:13}}>充值量(元)</Text>
+                    <Text style={{marginTop:5,textAlign:'center',fontSize:13}}>{transferIn}</Text>
+                    </View>
+
+                    <View style={{width:sys.dwidth/2,height:55}}>
+                    <Text style={{marginTop:10,textAlign:'center',fontSize:13}}>提现量(元)</Text>
+                    <Text style={{marginTop:5,textAlign:'center',fontSize:13}}>{transferOut}</Text>
+                    </View>
+                
+                </View>
+
+
+                <View style={{width:sys.dwidth,backgroundColor:'white'
+                    ,flexDirection:'row',height:55,marginTop:1}}>
+                    <View style={{width:sys.dwidth/2,height:55}}>
+                    <Text style={{marginTop:10,textAlign:'center',fontSize:13}}>我的返点</Text>
+                    <Text style={{marginTop:5,textAlign:'center',fontSize:13}}>{this.state.fandian+'%'}</Text>
+                    </View>
+
+                    <View style={{width:sys.dwidth/2,height:55}}>
+                    <Text style={{marginTop:10,textAlign:'center',fontSize:13}}>我的返水</Text>
+                    <Text style={{marginTop:5,textAlign:'center',fontSize:13}}>{this.state.fanshui+'%'}</Text>
+                    </View>
+                
+                </View>
+
+               
+                <TouchableOpacity style={{marginTop:10,flexDirection:'row',backgroundColor:'white',
+                height:38}} onPress={()=>this.mineYongJin()}>
+               
+                <Text style={{marginLeft:10,width:150,fontSize:16,height:20,marginTop:9,
+                color:sys.titleColor,}}>我的佣金</Text>
+                      
+                <Image style={{marginTop:(38-14.25)/2,marginLeft:sys.dwidth-150-20 - 10, width:9,
+              height:14.25,}} source={require('../images/icon_path.png')}></Image>
+            </TouchableOpacity>
+
+            </View>  
+
+                <View style={{top:10,width:sys.dwidth ,height:190,paddingBottom:10,flexDirection:'row',flexWrap:'wrap',backgroundColor:'white'}}>
+                    
+                    <TouchableOpacity style={styles.button} onPress={()=>this.clickfourBtn(0)}>
+                        <Image style={styles.bimage} source={require('../../my/images/delegateCenter1.png')}></Image>
+                        <Text style={styles.buttontext}>开户中心</Text>
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity style={styles.button} onPress={()=>this.clickfourBtn(1)}>
+                        <Image style={styles.bimage} source={require('../../my/images/delegateCenter2.png')}></Image>
+                        <Text style={styles.buttontext}>会员管理</Text>
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity style={styles.button} onPress={()=>this.clickfourBtn(2)}>
+                        <Image style={styles.bimage} source={require('../../my/images/delegateCenter3.png')}></Image>
+                        <Text style={styles.buttontext}>在线会员</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.button} onPress={()=>this.clickfourBtn(3)}>
+                        <Image style={styles.bimage} source={require('../../my/images/delegateCenter4.png')}></Image>
+                        <Text style={styles.buttontext}>下注记录</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.button} onPress={()=>this.clickfourBtn(4)}>
+                        <Image style={styles.bimage} source={require('../../my/images/delegateCenter5.png')}></Image>
+                        <Text style={styles.buttontext}>账变记录</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.button} onPress={()=>this.clickfourBtn(5)}>
+                        <Image style={styles.bimage} source={require('../../my/images/delegateCenter6.png')}></Image>
+                        <Text style={styles.buttontext}>团队存提款</Text>
+                    </TouchableOpacity> 
+
+                    
+
+                </View>
+
+            </ScrollView>
+        )
+
+
+    }
+
+
+    mineYongJin(){
+        // Alert.alert('我的佣金')
+
+        this.props.navigation.navigate("TradingRecord",{fubi:this.state.fubi,isyongjin:true});
+    }
+
+
+    getDelegateDownuserportsData() {
+        let codeurl = host + '/AppApijiekou.downuserports';
+        let formData = new FormData();
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                
+                if(result['respCode']==1) {
+
+
+                    let downuserportsData = result['data']
+                       
+
+                    console.log('downuserportsData')
+                    console.log(downuserportsData)
+
+                    this.setState({
+                        downuserportsData:downuserportsData
+                    })
+
+
+                }
+
+
+            })
+            .catch(error=>{
+                
+
+
+            })
+
+    }
+
+    getDelegateReportsData() {
+        let codeurl = host + '/AppApijiekou.reportstatistics';
+        let formData = new FormData();
+
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                if(result['respCode']==1) {
+                    let reportstatisticsData = result['data']
+                       
+
+                    this.setState({
+                        reportstatisticsData:reportstatisticsData
+                    })
+                }
+
+            
+            })
+            .catch(error=>{
+                
+
+
+            })
+
+    }
+
+   
+
+}
+
+const styles = StyleSheet.create({
+
+
+    buttontext:{
+        marginTop:10,
+        textAlign:'center',
+        fontSize:14,
+        alignSelf:'center',
+        width:sys.dwidth/4,
+        // paddingBottom:15
+    },
+    button:{
+        width:sys.dwidth/3,
+        // marginTop:10,
+        backgroundColor:'white',
+        paddingTop:10,
+        paddingBottom:10
+    },
+    bimage:{
+        marginLeft:sys.dwidth/6-20,
+        // marginTop:7.5,
+        width:40,
+        height:40,
+
+    },
+
+
+})
+
+
+

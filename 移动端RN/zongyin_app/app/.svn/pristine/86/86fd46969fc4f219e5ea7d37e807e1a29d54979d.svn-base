@@ -1,0 +1,326 @@
+//
+//  Created by Liu Jinyong on 17/4/5.
+//  Copyright © 2016年 Liu Jinyong. All rights reserved.
+//
+//  @flow
+//  Github:
+//  https://github.com/huanxsd/react-native-refresh-list-view
+
+import React, {Component} from 'react'
+import {View, StyleSheet, Text, Platform,Alert,TouchableOpacity,Image,PixelRatio,DeviceEventEmitter} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import CourseCell from './CourseCell'
+import {sys,NoDataView} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+// import FcusImage from './HeadView2';
+import RNLogin from "../common/RNLoginModule"
+
+import ScrollableTabView, {DefaultTabBar, } from 'react-native-scrollable-tab-view';
+
+
+export default class TradingRecordCz extends Component {
+
+    
+    static  navigationOptions = ({navigation}) => {
+       
+        return {
+        title:'交易记录',
+        headerTitleStyle:{
+            alignSelf:'center',
+            textAlign: 'center',
+            flex:1
+        },
+        headerRight:React.createElement(View, null, null),
+    }
+    };
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:20
+        }
+    }
+
+    onHeaderRefresh = () => {
+        this.state.currentPage = 1;
+        this.setState(
+            {
+                refreshState: RefreshState.HeaderRefreshing,
+            },()=>{
+                this.getDataList(true)
+            })
+
+
+    }
+
+    onFooterRefresh = () => {
+ 
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        },()=>{
+            this.getDataList(false)
+        })
+    }
+
+
+    componentDidMount(){
+        
+        this.getDataList();
+
+    }
+
+
+    getDataList(isReload){
+        let codeurl = host + '/AppAccount.dealRecord2.p.'+this.state.currentPage+'.do';
+        let formData = new FormData();
+
+        if (!this.state.dataList.length) {
+            this.setState({
+                isloading:true
+            })
+        }
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+               
+                let testData = result['data']['rows'];
+                let newList = [];
+                for(var i=0;i<testData.length;i++) {
+                    
+                    let dataMap = testData[i];
+                    newList.push(dataMap)
+                }
+
+                let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+                this.state.currentPage = parseInt(dataList.length/this.state.pageSize)+2;
+
+                this.setState(
+                    {
+                        isloading:false,
+                        dataList:dataList,
+                        refreshState: (dataList.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                    }
+                )
+
+            })
+            .catch(error=>{
+                //Alert.alert(error)
+                this.setState({
+                    isReload:false,
+                    refreshState: RefreshState.Failure,
+                })
+
+            })
+
+    }
+
+
+    render() {
+
+        // return <View></View>
+
+        let showView = this.state.dataList.length?
+        <RefreshListView
+            data={this.state.dataList}
+            keyExtractor={this.keyExtractor}
+            renderItem={this.renderCell}
+            refreshState={this.state.refreshState}
+            onHeaderRefresh={this.onHeaderRefresh}
+            onFooterRefresh={this.onFooterRefresh}
+            numColumns ={1}
+            ListHeaderComponent={this.renderHeadView}
+            // horizontal={false}
+            //ItemSeparatorComponent={this._separator}
+            // 可选
+            footerRefreshingText= '玩命加载中 >.<'
+            footerFailureText = '我擦嘞，居然失败了 点击重新加载!'
+            footerNoMoreDataText= '-我是有底线的-'
+        />
+        : <NoDataView click={()=>this.getDataList(true)}
+
+        isloading={this.state.isloading}
+        text = {this.state.isloading?"加载中":"暂无记录,点击重新加载"}
+        />
+    return(
+
+        <View style={styles.container}>
+
+            {showView}
+
+        </View>
+
+    )
+
+
+    }
+
+
+
+    keyExtractor = (item, index) => {
+        return index
+    }
+
+
+    renderCell = (item) => {
+
+        return this.itemView(item.index)
+    }
+
+
+    itemView(index){
+
+
+        var follow = this.state.dataList[index];
+
+
+// {
+//     amount: "+3.92"  //金额
+// amountafter: "8596.92"
+// amountbefor: "8593.00"
+// id: "2649555"
+// oddtime: "1550635809"
+// remark: "江苏快3第20190220003期-和值小"
+// trano: "N1902200857398"
+// type: "reward"
+// typename: "返奖"
+// uid: "143"
+// username: "Ttyyuu"
+// }
+
+
+        let dateStr = follow['oddtime']
+        var statestr = "成功";
+        if(follow['state']==-1){
+            statestr = "取消"
+        }else if(follow['state']==0){
+            statestr = "审核中"
+        }
+
+
+        let followStr = '充值'
+
+        if (!(follow['typename']=='' || follow['typename']==null)) {
+            followStr = follow['typename']
+        }
+
+
+        return <View>
+            <View style={styles.topStyle}>
+               
+                <Text style={styles.nametext1}>{followStr}</Text>
+                <Text style={styles.nametext2}>{"金额:" + follow['amount']}</Text>
+            </View>
+            <View style={styles.bottomStyle}>
+                <Text style={styles.nametext3}>{dateStr}</Text>
+                <Text style={styles.nametext4}>{statestr}</Text>
+            </View>
+
+            <View style={{width:sys.dwidth,backgroundColor:sys.grayColor,height:1}}/>
+
+        </View>
+
+
+
+    }
+
+
+
+
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:sys.grayColor,
+
+
+    },
+    headView:{
+        width:sys.dwidth,
+        height:sys.dwidth/2
+    }
+
+    ,
+    topStyle:{
+
+        flexDirection:'row',
+        width:sys.dwidth,
+        height:35,
+        backgroundColor:sys.whiteColor
+    },
+
+    bottomStyle:{
+
+        flexDirection:'row',
+        width:sys.dwidth,
+        height:25,
+        backgroundColor:sys.whiteColor
+    },
+
+    nametext1:{
+        marginLeft:10,
+        width:sys.dwidth/2 - 10,
+        height:35,
+        fontSize:17,
+        color:'black',
+        textAlign:'left',
+        textAlignVertical:'center',
+         ...Platform.select({
+            ios: { lineHeight:35},
+             android: {}
+         })
+    },
+    nametext2:{
+
+        marginLeft:0,
+        width:sys.dwidth/2 - 10,
+        height:35,
+        fontSize:17,
+        color:sys.mainColor,
+        textAlign:'right',
+        textAlignVertical:'center',
+         ...Platform.select({
+            ios: { lineHeight:35},
+             android: {}
+         })
+    },
+    nametext3:{
+
+        marginLeft:10,
+        width:sys.dwidth/2 - 10,
+        height:25,
+        fontSize:14,
+        color:sys.titleColor,
+        textAlign:'left',
+        textAlignVertical:'center',
+         ...Platform.select({
+            ios: { lineHeight:25},
+             android: {}
+         })
+    },
+    nametext4:{
+
+        marginLeft:0,
+        width:sys.dwidth/2 - 10,
+        height:25,
+        fontSize:14,
+        color:sys.titleColor,
+        textAlign:'right',
+        textAlignVertical:'center',
+         ...Platform.select({
+            ios: { lineHeight:25},
+             android: {}
+         })
+    },
+    
+
+})
+
+

@@ -1,0 +1,97 @@
+/**
+ * Created by 卓原 on 2017/10/31.
+ * zhuoyuan93@gmail.com
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Button,
+    DeviceEventEmitter
+} from 'react-native';
+
+
+import {sys} from "../common/Data"
+const host = sys.host;
+
+
+export default class RewardRules extends React.Component {
+
+    static  navigationOptions = ({navigation}) => ({
+        headerTitle:"奖励规则",
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+    
+        },
+        headerRight: <View />
+    });
+
+    render(){
+        return <View style={styles.container}>
+            <Image style={styles.image} source={require('./images/icon_jlgz.png')}></Image>
+            <Text style={styles.text}>奖励规则</Text>
+
+
+            <Text style={styles.content}>
+                为了感恩您推广专业佛教平台，传播佛法智慧的无量功德，同时弥补您在此过程中所耗费的人力物力财力，以便您更一步传播佛法，我司将对您的推广行为作出如下支持奖励：
+            </Text>
+            <Text style={styles.content1}>
+                您所邀请的佛友每次购买福币后，您可获得购买金额*1%的奖励，可自由兑换支配。您所邀请的佛友成为主播后，您可获得主播弹性扶持*5%的奖励，人民币1000元封顶，可自有兑换支配。
+            </Text>
+
+
+        </View>
+    }
+
+}
+
+const styles = StyleSheet.create({
+
+    container: {
+        flex:1,
+        alignItems:'center',
+        backgroundColor:sys.grayColor
+    },
+    image:{
+        marginTop:70,
+        width:260.4,
+        height:100,
+        borderRadius:12,
+    },
+    text:{
+        fontSize:18,
+        color:"#666666",
+        textAlign: 'center',
+        marginTop:5,
+        width:150
+    },
+    content:{
+        marginTop:55,
+        alignSelf:'center',
+        fontSize:16,
+        color:"#333333",
+        marginRight:14,
+        marginLeft:14,
+        width:sys.dwidth - 28,
+    },
+    content1:{
+        marginTop:10,
+        alignSelf:'center',
+        fontSize:16,
+        color:"#333333",
+        marginRight:14,
+        marginLeft:14,
+        width:sys.dwidth - 28,
+    },
+
+
+})
+

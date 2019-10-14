@@ -1,0 +1,19 @@
+{
+    "version": "1.3.0",
+    "name": "static-container",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:magicismight/StaticContainer.git"
+    },
+    "license": "MIT",
+    "main": "./StaticContainer",
+    "description": "react StaticContainer",
+    "keywords": [
+        "react-component",
+        "ios",
+        "android"
+    ],
+    "peerDependencies": {
+        "prop-types": "^15.5.10"
+    }
+}

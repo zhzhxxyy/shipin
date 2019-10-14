@@ -1,0 +1,160 @@
+/**
+ * Copyright (c) 2017-present, Liu Jinyong
+ * All rights reserved.
+ *
+ * https://github.com/huanxsd/MeiTuan
+ * @flow
+ */
+
+import React, {PureComponent} from 'react'
+import {View, Text, StyleSheet, ImageBackground,Platform,TouchableOpacity, Image, PixelRatio} from 'react-native'
+import {sys} from "../common/Data"
+const host = sys.host;
+import {
+    CachedImage,
+    ImageCacheProvider
+} from 'react-native-cached-image';
+
+
+class DetailCell extends PureComponent {
+
+    constructor(props) {
+        super(props)
+
+    }
+
+    render() {
+        console.log('render cell')
+        let {info} = this.props
+
+        //info.front_cover = info.front_cover.replace('w.h', '160.0')
+        let defaulthot =  require('./images/image_xiuxing_color.png');
+        return (
+            <TouchableOpacity activeOpacity={1} style={styles.container} onPress={this.props.onPress}>
+
+
+                <View style={styles.mengban}>
+                    <ImageBackground style={styles.head_pic} source={{ uri: info.head_pic}}></ImageBackground>
+                    <Text style={styles.username}>{info.name}</Text>
+                    <Text style={styles.userid}>宗隐号:{info.identifier}</Text>
+                    <Text style={styles.visit_num}>{info.visit_num}人已看</Text>
+                    <Text style={styles.date}>{info.timestamp}</Text>
+                </View>
+
+                <ImageBackground style={styles.front_cover} source={defaulthot}>
+                <CachedImage
+                    source={{
+                        uri: info.front_cover?info.front_cover:this.props.fronturl
+                    }}
+                    style={styles.front_cover}
+                />
+                <View style={styles.descView}>
+                    <Text style={styles.desc}>{info.title?info.title:'暂无签名'}</Text>
+                </View>
+                </ImageBackground>
+            </TouchableOpacity>
+
+        )
+    }
+}
+
+const styles = StyleSheet.create({
+    container: {
+        paddingLeft:0,
+        width:sys.dwidth,
+        height:sys.dwidth/3*2 + 95,
+        backgroundColor:'#ffffff'
+    },
+    front_cover: {
+
+
+        width: sys.dwidth,
+        height: sys.dwidth/3 * 2,
+
+    },
+    head_pic:{
+
+        marginTop:8,
+        marginLeft:14,
+        height:50,
+        width:50,
+        borderRadius: 25,
+        borderWidth: (Platform.OS==='ios' ? 1.0 : 1.5) / PixelRatio.get(),
+        overflow:'hidden'
+    },
+    mengban:{
+
+        width:sys.dwidth,
+        height:60,
+        flexDirection:'row',
+        marginLeft:0,
+        marginBottom:5,
+
+        alignItems:'center'
+
+    },
+    username:
+        {
+            marginTop:-8,
+            marginLeft:10,
+            width:120,
+            fontSize:14,
+            fontWeight: 'bold',
+            color: '#999999',
+        },
+    userid:{
+        marginLeft:-120,
+        marginTop:28,
+        color: '#999999',
+        fontSize:12
+    },
+    visit_num:{
+        marginLeft:sys.dwidth-200-85,
+        marginTop:-8,
+        fontSize: 13,
+        color: '#999999',
+        width:100,
+        textAlign:'right'
+    },
+    date:{
+        marginLeft:-120,
+        fontSize: 11,
+        marginTop:28,
+        color: '#999999',
+        width:120,
+        textAlign:'right'
+    },
+    rightContainer: {
+        flex: 1,
+        paddingLeft: 20,
+        paddingRight: 10,
+    },
+    price: {
+        color: 'white'
+    },
+
+    livetext: {
+        fontSize: 13,
+        color: '#999999',
+        marginLeft:10
+    },
+
+    liveInfo:{
+        flexDirection:'row',
+        justifyContent: 'flex-start',
+        marginTop:-19,
+        marginLeft:70
+    },
+    descView:{
+        marginTop:10,
+        flexDirection:'row'
+    },
+    desc:{
+        fontSize:13,
+        marginTop:-2,
+        marginLeft:10,
+        color: '#999999'
+    }
+})
+
+export default DetailCell

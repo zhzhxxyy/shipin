@@ -1,0 +1,159 @@
+
+import React, {Component} from 'react'
+import {
+    View,
+    WebView,
+    Dimensions,
+    // Alert,
+    Animated,
+    Platform, 
+    ActivityIndicator,
+    DeviceEventEmitter,
+    TouchableOpacity
+} from 'react-native';
+
+
+import HttpUtils from "../common/HttpUtil"
+import Draggable from './Draggable';
+import {NoDataView, sys,TitleHeadView, isIphoneX} from "../common/Data"
+import Alert from '../common/Alert'
+// import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+// import SuspendButton from 'suspend-button'
+// import ReactDOM from 'react-dom'
+
+export default class Game extends Component{
+
+    // static  navigationOptions = ({navigation}) => {
+    //     const { params } = navigation.state;
+
+    //     return {
+    //         headerTitle: params.item.title?params.item.title:'时时彩',
+    //         headerTitleStyle:{
+    //             alignSelf:'center',
+    //             flex: 1,
+    //             textAlign: 'center',   
+    //         },
+    //         headerRight: <TouchableOpacity onPress={()=>self.rightButtonClick()}>
+    //         <Text style={{color:sys.titleColor,marginRight:8}}>聊天室</Text>
+    //         </TouchableOpacity>,
+
+    //     }
+    // };
+
+   
+
+    constructor(props) {
+        super(props);
+
+        self = this;
+        this.state = {
+            gameUrl:this.props.navigation.state.params.gameUrl
+        };
+
+    }
+
+
+
+    componentDidMount() {
+        // this.getGameUrl(3);    
+    }
+
+  
+
+
+    getGameUrl(num){
+
+    
+        storage.load('islogin',(userInfo)=>{
+            let codeurl = sys.host + '/AppKy.kylogin.do';
+            let formData = new FormData();
+            formData.append('username',userInfo.username)
+            // 请求参数 ('key',value)
+          
+            console.log('~~lllllll~~')
+            console.log(userInfo.username)
+            HttpUtils.post(codeurl,formData)
+                .then(result=>{
+
+                    console.log('~~~~~lalalalaal~~')
+                    console.log(result)
+
+
+                    if(result['respCode']==1){
+                
+        
+                        this.setState({
+                            gameUrl: result['data']['url']
+                        })
+
+                    }else{
+    
+                    }
+                }).catch(error=>{
+                    console.log('error~~~~lalalal~~~~')
+                    console.log(error)
+                   if(num<=0){
+                       this.getGameUrl(num+1);
+                   }
+                })    
+
+        })    
+     
+     }
+
+    onNavigationStateChange(e){
+        this.setState({
+        title:e.title,
+        cangoback:e.canGoBack
+        })
+    }
+
+    render(){
+        return  <View  style={{flex:1}}>
+                <WebView
+                    source={{uri:this.state.gameUrl}}  // 地址
+                    onNavigationStateChange={e=>this.onNavigationStateChange(e)}  输出一些信息
+                    ref={webView=>this.webView=webView}  //提供api 给开发者使用 比如 goback（）
+                    startInLoadingState={true}  // 加载菊花
+                />  
+         <Draggable logout={()=>this.logout()} />
+
+         <Alert ref="alert" />
+        </View>
+    }
+
+
+    logout(){
+        
+
+        this.refs.alert.alertWithOptions({
+            options:['游戏额度转换','重新加载游戏','退出游戏','取消'],
+            title:'温馨提示',
+            detailText:'请选择您要执行的操作'
+        },
+             // index是当前点击选项的索引
+            (index)=>{
+               
+              if(index == 0) {
+                console.log('~~index~~~')
+                console.log(index)
+                this.props.navigation.navigate("GameScore",{});      
+              }else if(index == 1) {
+                this.getGameUrl(3);
+              }else if(index == 2) {
+                this.props.navigation.goBack();
+              }
+            }
+        );
+
+       
+    }
+
+}
+
+// ReactDOM.render(
+//     <Game />,
+//     document.getElementById('container')
+// )
+

@@ -1,0 +1,95 @@
+/**
+ * Created by penn on 2016/12/14.
+ */
+
+import React,{Component} from 'react';
+import {
+    View,
+    StyleSheet,
+    Text,
+    Alert, BackHandler, ToastAndroid
+} from 'react-native'
+import {NavigationActions} from 'react-navigation'
+import HomePage from './home/Home'
+import ThemeDao from './common/ThemeDao'
+import SplashScreen from 'react-native-splash-screen'
+
+
+
+export default class WelcomePage extends Component {
+    constructor(props) {
+        super(props);
+
+    }
+
+     componentDidMount() {
+
+        new ThemeDao().getTheme().then((data)=>{
+            this.theme=data;
+        })
+        this.timer=setTimeout(()=> {
+            SplashScreen.hide();
+            // storage.load('isFrist', (ret) => {
+            //     Alert.alert('isfirst')
+            //     if (ret != '' && ret != null) {
+                    // const resetAction = NavigationActions.reset({
+                    //     index: 0,
+                    //     actions: [
+                    //         NavigationActions.navigate({routeName: 'Tab', params: { token: '123456' }})
+                    //     ]
+                    // })
+                    // this.props.navigation.dispatch(resetAction);
+                    this.props.navigation.reset([NavigationActions.navigate({ routeName: 'Tab' })])
+        //         } else {
+        //             Alert.alert('no tisfirst')
+        //             storage.save('isFrist', 'false')
+        //             const resetAction = NavigationActions.reset({
+        //                 index: 0,
+        //                 actions: [
+        //                     NavigationActions.navigate({routeName: 'GuideView', params: { token: '123456' }})
+        //                 ]
+        //             })
+        //             this.props.navigation.dispatch(resetAction);
+        //
+        //         }
+        //     }).catch((e)=>{
+        //         Alert.alert('catch ')
+        //         storage.save('isFrist', 'false')
+        //         const resetAction = NavigationActions.reset({
+        //             index: 0,
+        //             actions: [
+        //                 NavigationActions.navigate({routeName: 'GuideView', params: { token: '123456' }})
+        //             ]
+        //         })
+        //         this.props.navigation.dispatch(resetAction);
+        //
+        //     })
+        //     Alert.alert('isfirst'+"jin bu qu")
+        }, 300);
+    }
+
+    // componentWillUnmount(){
+    //     this.timer&&clearTimeout(this.timer);
+    // }
+    render() {
+
+        const {params} = this.props.navigation.state;
+        return (
+            <View style={styles.container}>
+                <Text>红彩在线</Text>
+            </View>
+        )
+    }
+
+}
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems:'center',
+        justifyContent:'center'
+
+    },
+    tips: {
+        fontSize: 29
+    }
+})

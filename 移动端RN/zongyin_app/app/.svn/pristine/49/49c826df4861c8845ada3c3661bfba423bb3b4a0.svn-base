@@ -1,0 +1,271 @@
+//
+//  Created by Liu Jinyong on 17/4/5.
+//  Copyright © 2016年 Liu Jinyong. All rights reserved.
+//
+//  @flow
+//  Github:
+//  https://github.com/huanxsd/react-native-refresh-list-view
+
+import React, {Component} from 'react'
+import {View, StyleSheet, Text, Platform,Alert,TouchableOpacity,Image,PixelRatio,DeviceEventEmitter} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import Cell from './Cell'
+import {sys,NoDataView} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+import FcusImage from './HeadView';
+import RNLogin from "../common/RNLoginModule"
+import DialogSelected from '../common/AlertSelect';
+
+var clickLastTime=0;
+
+class Hot extends Component {
+
+    static  navigationOptions = ({navigation}) => ({
+        headerTitle:"聊天",
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            
+        },
+        headerRight: <View />
+    });
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:20,
+            noNetwork:false,
+            noData:true,
+        }
+    }
+
+    onHeaderRefresh = () => {
+        this.state.currentPage = 1;
+        this.setState(
+            {
+                refreshState: RefreshState.HeaderRefreshing,
+            })
+        //获取测试数据
+        if(this.state.refreshState !=RefreshState.FooterRefreshing) this.getDataList(true)
+
+    }
+
+    onFooterRefresh = () => {
+        this.state.currentPage = this.state.currentPage+1;
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        })
+
+        if(this.state.refreshState != RefreshState.HeaderRefreshing)
+            this.getDataList(false)
+    }
+
+    // 获取网络数据
+    getDataList(isReload) {
+        let codeurl = host + '/AppChat.getChatPage.do';
+        let formData = new FormData();
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){
+                    let testData = result['data']['roomList'];
+                    let newList = testData.map((data) => {
+                      
+                        return {
+                            id: data.id?data.id:1,
+                            typeid: data.code,
+                            title: data.name,
+                            ftitle: data.name,
+                            pic:data.pic,
+                            name:data.name
+                        }
+                    });
+                    let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+                    let state = dataList.length >= result['data']['total'] ? RefreshState.NoMoreData : RefreshState.Idle;
+                    let nodata = false;
+                    if(isReload){
+                        state = RefreshState.Idle;
+                        if(testData.length == 0){
+                            nodata=true;
+                        }
+                    }
+
+                    this.setState({
+                        dataList: dataList,
+                        refreshState: state,
+                        noData:nodata,
+                        noNetwork:false,
+                    })
+                }else{
+                    this.setState({
+                        refreshState: RefreshState.Idle,
+                        noNetwork:false,
+                    })
+                }
+
+            }).catch(error=>{
+                  this.setState({
+                        refreshState: RefreshState.Idle,
+                        noNetwork:true
+                    })
+
+            })
+    }
+
+
+
+     keyExtractor = (item, index) => {
+        return index.toString()
+    }
+
+    renderCell = (info) => {
+        return <Cell info={info.item} onPress={this.itemClick.bind(this, info)}/>
+    }
+
+    renderHeadView = (info) => {
+
+        return <View style={styles.headView}>
+            <FcusImage/>
+        </View>
+
+
+    }
+
+    componentDidMount(){
+
+
+        this.onHeaderRefresh()
+        //注册通知
+        DeviceEventEmitter.addListener('pressImage',(dic)=>{
+            //接收到详情页发送的通知，刷新首页的数据，改变按钮颜色和文字，刷新UI
+            const {navigate} = this.props.navigation;
+            navigate('WebViewScene', {uri: dic});
+        });
+
+        //监听事件名为EventName的事件
+        DeviceEventEmitter.addListener('eventName',(dic)=>{
+
+            const {navigate} = this.props.navigation;
+            navigate('CourseDetail',{item:dic})
+
+        });
+
+        //监听事件名为EventName的事件
+        DeviceEventEmitter.addListener('followChange',(dic)=>{
+
+           this.onHeaderRefresh()
+
+        });
+
+
+
+    }
+
+
+    itemClick(e){
+        var nowTime= (new Date()).getTime();
+        if(Math.abs(nowTime-clickLastTime)<sys.clickIntervalTime){
+            //小于0.5秒
+            return false;
+        }
+        clickLastTime=nowTime;
+        storage.load('islogin',(userInfo)=>{
+            if(userInfo==null||userInfo==""){
+                Alert.alert('请先登录','',
+                [
+                    {text:"取消", onPress: ()=>{
+
+                        DeviceEventEmitter.emit('LoginQuxiao', {});
+                    }},
+                    {text:"登录", onPress: ()=>{
+
+                        DeviceEventEmitter.emit('Login', {});
+                    }}
+                ]
+                );
+              return;
+            }
+            var item=e.item;
+            item['userInfo']={
+                "id":userInfo.id,
+                "username":userInfo.username,
+                "face":userInfo.face,
+            };
+            item['token']=userInfo.token;
+            const {navigate} = this.props.navigation;
+            this.props.navigation.navigate("Chat",{item:item});
+
+        })
+    }
+
+    // 回调
+    callbackSelected(info,i){
+        switch (i){
+            case 0:
+              
+                break;
+
+        }
+    }
+
+
+    render() {
+
+        return(
+            (this.state.noNetwork || this.state.noData)?<NoDataView click={()=>this.getDataList(true)}
+                                                                      noNet={this.state.noNetwork}
+                                                                      text = {this.state.noNetwork?"暂无网络，点击可重新加载":"暂无内容"}
+                />:
+            <View style={styles.container}>
+
+                <RefreshListView
+                    data={this.state.dataList}
+                    keyExtractor={this.keyExtractor}
+                    renderItem={this.renderCell}
+                    refreshState={this.state.refreshState}
+                    onHeaderRefresh={this.onHeaderRefresh}
+                    //onFooterRefresh={this.onFooterRefresh}
+                    ListFooterComponent={null}
+                    numColumns ={1}
+                    ListHeaderComponent={this.renderHeadView}
+                    // horizontal={false}
+                    ItemSeparatorComponent={this._separator}
+                    // 可选
+                    footerRefreshingText= '玩命加载中 >.<'
+                    footerFailureText = '我擦嘞，居然失败了 =.=!'
+                    footerNoMoreDataText= '-我是有底线的-'
+                />
+                <DialogSelected ref={(dialog)=>{
+                    this.dialog = dialog;
+                }} />
+            </View>
+        )
+
+    }
+
+    _separator = () => {
+        return <View style={{height:1,backgroundColor:'#f2f2f2'}}/>;
+    }
+
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:sys.grayColor,
+
+    },
+    headView:{
+       width:sys.dwidth,
+       height:sys.dwidth/3
+    }
+})
+
+export default Hot

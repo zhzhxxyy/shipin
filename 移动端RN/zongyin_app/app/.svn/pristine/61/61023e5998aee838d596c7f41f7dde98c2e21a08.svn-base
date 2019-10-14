@@ -1,0 +1,174 @@
+/**
+ * Created by 卓原 on 2017/10/31.
+ * zhuoyuan93@gmail.com
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Button,
+    DeviceEventEmitter,
+    ImageBackground,
+    Platform,
+    ScrollView,
+    TouchableHighlight
+} from 'react-native';
+
+import {sys} from "../../common/Data"
+import { LongPressGestureHandler } from 'react-native-gesture-handler';
+const host = sys.host;
+// import codePush from "react-native-code-push";
+// var ImagePicker = require('react-native-image-picker');
+
+// import RNLogin from "../common/RNLoginModule"
+// import HttpUtils from "../common/HttpUtil";
+
+
+
+export default class BetsResult extends React.Component {
+
+ 
+    static  navigationOptions = ({navigation}) => ({
+        headerTitle:"下注成功",
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            
+        },
+       
+        headerRight: <View />
+
+    });
+
+
+    
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+           
+        }
+
+        
+    }
+
+    componentDidMount(){
+
+
+ 
+            storage.load('islogin',(user)=>{
+               
+                const {params} = this.props.navigation.state;
+                var arr = {}  //等同于 arr=new Array();
+                arr['token'] = user.token,
+                arr['userInfo'] = user
+                let dic = {
+                    data:{'logined':JSON.stringify(arr),'room':'common','text':JSON.stringify(params.canshu),'type':'touzhu'},
+                    url:'Chat.sendToAll'
+                }
+                // if(global.lianjiestate!=2){
+                //     global.ws = new WebSocket(sys.webSocketUrl);
+                //     ws.onopen = () => {
+                //          global.lianjiestate =  2;
+                //       };
+                    ws.send(JSON.stringify(dic))
+                // }
+           
+             
+             })
+        
+    }
+
+    segmentClick(){
+        this.props.navigation.goBack();
+    }
+
+    render() {
+       
+        return(
+            <View style={styles.container}>
+
+                <Image style={styles.image} source={require('../images/beatsSuccess.png')}></Image>
+
+                <Text style={styles.text}>红彩在线  祝君中奖</Text>
+
+                <TouchableOpacity ref="left" index={0} style={styles.button}
+                                   onPress={() => {
+                                       this.segmentClick();
+                                   }}
+                >
+                    <Text style={  styles.segementText}>确定</Text>
+                </TouchableOpacity>
+
+            </View>
+        )
+    }
+
+
+}
+
+const styles = StyleSheet.create({
+
+    container: {
+        flex:1,
+        backgroundColor:'white',
+        height:sys.dheight
+    },
+
+    text:{
+        fontSize:18,
+        color:sys.titleColor,
+        textAlign: 'center',
+        marginTop:30,
+        width:sys.dwidth,
+        // marginLeft:sys.dwidth/2-75,
+        marginBottom:10
+    },
+
+    image:{
+        marginTop:50,
+        alignSelf:'center',
+        width:115,
+        height:115,
+        // borderRadius:40,
+        // borderWidth:1,
+        // borderColor:sys.grayColor,
+        overflow:'hidden'
+    },
+
+
+    button:{
+        width:240,
+        height:50,
+        marginTop:45,
+        left:sys.dwidth/2 - 120,
+        backgroundColor:sys.mainColor,
+         borderRadius:5,
+        // borderWidth:1,
+        // borderColor:sys.grayColor,
+        overflow:'hidden'
+
+    },
+
+
+    segementText:{
+    
+        color:'white',
+        textAlign:'center',
+        width:240,
+        height:50,
+        lineHeight:50,
+        color:'white',
+        fontSize:16
+    },
+
+
+})

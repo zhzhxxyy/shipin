@@ -1,0 +1,375 @@
+/**
+ * Created by 卓原 on 2017/10/31.
+ * zhuoyuan93@gmail.com
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    Keyboard,
+    Alert, Platform
+} from 'react-native';
+
+import {sys,isIphoneX} from "../common/Data"
+import HttpUtils from "../common/HttpUtil"
+const host = sys.host;
+const key = "/index/index/code"
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+// import CountDownButton from 'react-native-smscode-count-down'
+
+
+
+
+export default class ForgetCode extends React.Component {
+
+
+    constructor(props){
+        super(props)
+        this.state = {
+            flag:'5',
+            pageno:1,
+            pagesize:10,
+            Action:'FetchList',
+            phone: '',
+            code: '',
+            passwd:"",
+            repasswd:"",
+
+            type:"",
+            requestSucc:"",
+            result:"",
+            keyboardHeight:0
+        }
+        this._requestAPI = this._requestAPI.bind(this)
+    }
+    //2 秒后随机模拟获取验证码成功或失败的情况
+    _requestAPI(shouldStartCounting){
+        this.loadCode()
+        setTimeout(()=>{
+            const requestSucc = (this.state.result == 1);
+            this.setState({
+                state: `（随机）模拟验证码获取${requestSucc ? '成功' : '失败'}`
+            })
+
+            if(shouldStartCounting && shouldStartCounting(requestSucc)){
+                Alert.alert(this.state.result);
+            }
+
+        }, 10000);
+    }
+
+    //请求验证吗
+    loadCode() {
+
+        let codeurl = host + '/index/index/code';
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+        formData.append('phone', this.state.phone);
+        formData.append('type','retrieve');
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                this.setState({
+                    result:1
+                })
+                Alert.alert('请查收验证码');
+            })
+            .catch(error=>{
+                this.setState({
+                    result:JSON.stringify(error)
+                })
+            })
+    }
+
+    //下一步
+    register() {
+
+        if(this.state.phone.length<11){
+            Alert.alert("请输入正确的手机号");
+            return;
+        }
+        if(this.state.code.length<4){
+            Alert.alert("请输入正确验证码");
+            return;
+        }
+
+        if(this.state.passwd < 6){
+            Alert.alert("密码长度不能小于6位数");
+            return;
+        }
+
+        if(this.state.passwd != this.state.repasswd){
+            Alert.alert("两次密码必须相同");
+            return;
+        }
+
+       // this.props.navigation.navigate('ForgetPws',{phone:this.state.phone,code:this.state.code});
+        // if(this.state.phone.length<6) {
+ 
+        //     return;
+        // }
+
+        let codeurl = host + '/index/index/findPassword';
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+        formData.append('phone', this.state.phone);
+        formData.append('code',this.state.code);
+        formData.append('password',this.state.passwd);
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){
+                    Alert.alert("重置密码成功");
+                    this.popBack()
+                }else{
+                    Alert.alert(result['respMsg'])
+                }
+
+            })
+            .catch(error=>{
+                Alert.alert("重置密码失败"+JSON.stringify(error));
+            })
+    }
+
+    static navigationOptions = ({navigation}) => ({
+        header:null
+    });
+
+    onload(){
+        let url = this.getUrl(this.text)
+    }
+    getUrl(query_str){
+        return host+key+query_str;
+
+    }
+
+
+    popBack(){
+        this.props.navigation.goBack()
+    }
+    render() {
+        return (
+
+
+
+            <View style={styles.container}>
+
+
+                {/*<Image style={styles.image} source={require('../..//res/images/logo.png')}></Image>*/}
+
+
+
+                <KeyboardAwareScrollView
+                    keyboardShouldPersistTaps = {"always"}
+                >
+                    <View style={styles.row}>
+                        <TouchableOpacity onPress={()=>{
+                            this.popBack();
+                        }}>
+                            <Image style={styles.back} source={require('../res/images/icon_back.png')}></Image>
+                        </TouchableOpacity>
+                        <Text style={styles.text}>忘记密码</Text>
+
+                    </View>
+                    <Image style={styles.image} source={require('../res/images/logo.png')}></Image>
+                <TextInput
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp}
+                    placeholder="手机号码"
+                    onChangeText={(text) => this.setState({phone:text})}
+                />
+                <View style={styles.view}></View>
+
+                <View style={styles.codeView}>
+                    <TextInput
+                        underlineColorAndroid='transparent'
+                        style={styles.codeText}
+                        placeholder="请输入验证码"
+                        onChangeText={(text) => this.setState({code:text})}
+                        textStyle={{color:'green'}}
+                    />
+                    {/* <CountDownButton
+                        style={styles.countButton}
+                        textStyle={{color: '#ffffff'}}
+                        disableColor="gray"
+                        timerCount={60}
+                        timerTitle={'获取验证码'}
+                        enable={this.state.phone.length > 10}
+                        onClick={(shouldStartCounting)=>{
+                            this._requestAPI(shouldStartCounting)
+                        }}
+
+
+                        timerEnd={()=>{
+                            this.setState({
+                                state: '倒计时结束'
+                            })
+                        }}/> */}
+                </View>
+                <View style={styles.view}></View>
+                <TextInput
+                    secureTextEntry={true}//显示输入的为密码
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp3}
+                    placeholder="密码"
+                    onChangeText={(text) => this.setState({passwd:text})}
+                />
+
+                <View style={styles.view}></View>
+                <TextInput
+                    secureTextEntry={true}//显示输入的为密码
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp3}
+                    placeholder="再次输入密码"
+                    onChangeText={(text) => this.setState({repasswd:text})}
+                />
+
+
+                <View style={styles.view}></View>
+
+
+                <TouchableOpacity style={styles.button} onPress={()=>this.register()}>
+                    <Text style={styles.buttontext}>确定</Text>
+                </TouchableOpacity>
+
+                <View style={styles.bommview}></View>
+
+                </KeyboardAwareScrollView>
+
+
+
+            </View>
+
+        )
+    }
+
+
+}
+
+const styles = StyleSheet.create({
+    row:{
+        //改变主轴的方向
+        flexDirection:'row',
+        height:60,
+
+        top: 10,
+
+    },
+    back:{
+        marginLeft:14,
+        marginTop: Platform.OS == 'ios' ? 21 : 5,
+    },
+    container: {
+        marginTop: 0,
+        paddingTop:isIphoneX()?20:0,
+        backgroundColor:'#ffffff',
+        flex:1
+    },
+    text:{
+        fontSize:18,
+        color:"#333333",
+        textAlign: 'center',
+        marginTop: Platform.OS == 'ios' ? 21 : 5,
+        width:150,
+        marginLeft:sys.dwidth/2-75-21
+    },
+    image:{
+        marginTop:20,
+        alignSelf:'center',
+        width:100,
+        height:100
+
+    },
+    textIp:{
+        marginTop:45,
+        marginLeft:12,
+        width:sys.dwidth-40,
+        height:40,
+    },
+    textIp3:{
+        marginTop:25,
+        marginLeft:12,
+        width:sys.dwidth-40,
+        height:40,
+    },
+
+    view:{
+        height:0.8,//TODO这里小于0.8没显示出来
+        backgroundColor:'#cccccc',
+        marginTop:0,
+        marginLeft:12,
+        width:sys.dwidth-24,
+    },
+
+    bommview:{
+        height:20,//TODO这里小于0.8没显示出来
+      //  backgroundColor:'#cccccc',
+        marginTop:0,
+        marginLeft:12,
+        width:sys.dwidth-24,
+    },
+
+    button:{
+        width:sys.dwidth-40,
+        marginLeft:20,
+        marginTop:40,
+        height:40,
+        backgroundColor:sys.mainColor,
+
+    },
+    buttontext:{
+        marginTop:11,
+        color:'#ffffff',
+        textAlign:'center',
+        fontSize:18
+    },
+    forgetregister:{
+        flexDirection:'row'
+    },
+    forgetPw:{
+        marginLeft:20,
+        marginTop:20,
+        width:100,
+        color:sys.mainColor,
+    },
+    register:{
+        marginLeft:sys.dwidth-120-100-20,
+        flexDirection:'row',
+        width:100,
+        justifyContent:'flex-end',
+        marginTop:20
+    },
+    registerTX:{
+        fontSize:14,
+        color:sys.mainColor
+    },
+    stateText:{
+        paddingTop: 50,
+        color: 'gray'
+    },
+    codeView:{
+        flexDirection:'row',
+    },
+    codeText:{
+        marginTop:25,
+        width:sys.dwidth-130,
+        marginLeft:12,
+        height:40
+    },
+    countButton:{
+        width: 110,
+        marginLeft: 0,
+        backgroundColor:sys.mainColor,
+        marginTop:25,
+        justifyContent:'center',
+        flexDirection:'row',
+        borderRadius:5,
+        height:40
+    }
+
+})

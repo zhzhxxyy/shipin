@@ -1,0 +1,309 @@
+//   <KaijiangHeadView name={'dfkeno'} typeid={'keno'} codeNum={20}  onPress={''}/>  
+import React,{Component} from 'react';
+
+import {
+    Text,
+    View,
+    TouchableOpacity,
+    AppState,
+    Alert
+} from 'react-native';
+import {sys,NoDataView} from "../../common/Data"
+import {styles} from "./CommonStyle"
+import HttpUtils from "../../common/HttpUtil"
+
+var myThis=null
+
+
+function getRandomResult(num){//获取随机开奖结果
+    var randomOpenCode="";
+    for(var i=0;i<num;i++){
+        if(i!=0){
+            randomOpenCode=randomOpenCode+" ";
+        }
+        randomOpenCode=randomOpenCode+Math.floor(Math.random()*10);
+    }
+    return randomOpenCode;
+}
+
+
+export class KaijiangHeadView extends Component {
+    constructor() {//构造函数
+        super();
+        this.state = {
+            name:'',//彩种标识 唯一 xjssc
+            typeid:'',//彩票分类 ssc 
+            lastExpect:'', //上一期期数
+            lastOpenCode:'' ,//上一期开奖结果
+            isOpenLast:false,//上一期是否已开奖
+            randomOpenCode:'',//随机数
+            curExpect:'',//当前期数
+            remainigTime:-1,//剩余时间
+            codeNum:-1,//开奖结果有几个数字 -1 表示未获取到数据
+        };
+    }
+
+    componentWillMount(){//将要被挂载
+      
+    }
+
+    render() {//渲染    
+        
+        myThis = this;
+        
+        const {name,typeid,codeNum} = this.props;
+        if(this.state.codeNum==-1){
+            this.state.name=name;//
+            this.state.typeid=typeid;//
+            this.state.codeNum=codeNum;//个数 必须大于0
+            this.state.randomOpenCode=getRandomResult(this.state.codeNum);
+            this.getRemainigTime(this.state.name,this.state.typeid,0);
+        }
+
+        this.state.remainigTime = this.state.remainigTime<0?0:this.state.remainigTime
+
+        var hourNum = parseInt(this.state.remainigTime/3600);
+        hourNum = (hourNum<10)?'0'+hourNum:hourNum
+
+        var minuteNum = (parseInt(this.state.remainigTime/60))%60;
+        minuteNum = (minuteNum<10)?'0'+minuteNum:minuteNum
+
+        var secondNum = this.state.remainigTime%60;
+        secondNum = (secondNum<10)?'0'+secondNum:secondNum
+
+        if(this.state.lastExpect==""||this.state.lastExpect==null){
+            var lastExpect="--";
+        }else{
+            var lastExpect=this.state.lastExpect;
+        }
+
+        if(this.state.curExpect==""||this.state.curExpect==null){
+            var curExpect="-";
+        }else{
+            var curExpect=this.state.curExpect;
+        }
+
+        if(this.state.lastOpenCode==""||this.state.lastOpenCode==null){
+            //未开奖的话 使用随机数
+            var lastOpenCode=this.state.randomOpenCode;
+        }else{
+            var lastOpenCode=this.state.lastOpenCode;
+        }
+
+        var lastOpenCodeLength=lastOpenCode.length;
+
+       
+        if(lastOpenCodeLength<=22){
+            var kaijiangHeight=70;//一行
+            var kaijiangResultHeight=25;
+            var fontSize=16;
+        }else if(lastOpenCodeLength<=25){
+            var kaijiangHeight=70;//一行
+            var kaijiangResultHeight=25;
+            var fontSize=13;
+        }else if(lastOpenCodeLength<=30){
+            var kaijiangHeight=70;//一行
+            var kaijiangResultHeight=25;
+            var fontSize=12;
+        }else{
+            var kaijiangHeight=70;//一行
+            var kaijiangResultHeight=25;
+            var fontSize=10;
+        }
+
+        return (
+            <View>
+            <View style={[styles.kaijiangHeadViewContainer,{height:kaijiangHeight}]}>
+            <TouchableOpacity   activeOpacity={0.2} focusedOpacity={0.5}>
+                <View style= {[styles.kaijiangHeadViewItem,{height:kaijiangHeight}]}>
+                    <Text style={styles.kaijiangHeadViewTitleContent}>{lastExpect+'期'}</Text>
+                    <View style={styles.kaijiangHeadViewResultView}>
+                        <Text style={[styles.kaijiangHeadViewResultContent,{height:kaijiangResultHeight,fontSize:fontSize}]}>{lastOpenCode}</Text>
+                    </View>
+                </View>
+            </TouchableOpacity>
+            <View style= {[styles.kaijiangHeadViewItem,{height:kaijiangHeight}]}>
+                <Text style={styles.kaijiangHeadViewTitleContent}>{'距离'+curExpect+'期截止'}</Text>
+                <Text style={styles.kaijiangHeadViewTimeContent}>{(hourNum+':'+minuteNum+':'+secondNum)}</Text>
+            </View>
+            </View>
+            <View style={{height:2,backgroundColor:'#f2f2f2'}}/>
+            </View>
+        );
+    }
+
+    componentDidMount() {//完成挂载
+       this.timingTaskStart();
+       AppState.addEventListener('change', myThis.handleAppStateChange);
+    }
+
+    componentDidUpdate(prevProps,prevState){//完成更新
+      
+    }
+
+    componentWillUnmount(){//销毁
+        this.timingTaskEnd();
+        AppState.removeEventListener('change', myThis.handleAppStateChange);
+    }
+
+
+    //状态改变响应
+    handleAppStateChange(appState) {
+
+        if(appState == 'active'){
+           //需要判断当前的期数还有时间
+
+           myThis.getRemainigTime(myThis.state.name,myThis.state.typeid,0);
+        
+        }
+
+    }
+
+
+    timingTaskStart(){//定时任务
+        //获取剩余时间
+        this.lastExceptTimingTask=setInterval(
+            () => {      
+                if(this.state.lastOpenCode==""||this.state.lastOpenCode==null){
+                    var randomOpenCode=getRandomResult(this.state.codeNum);
+                    this.setState({randomOpenCode:randomOpenCode});
+                }   
+            },
+            20
+        );
+        //倒计时
+        this.countDownTask=setInterval(
+            () => {
+                if(this.state.remainigTime>0){
+                    var remainigTime=this.state.remainigTime-1; 
+                    if(remainigTime==0){
+                        this.getRemainigTime(this.state.name,this.state.typeid,0);
+                        var randomOpenCode=getRandomResult(this.state.codeNum);
+                        this.props.KaijiangReturn("");
+                        this.setState({lastExpect:"",lastOpenCode:"",randomOpenCode:randomOpenCode,curExpect:'',remainigTime:0});
+                    }else{
+                        this.setState({remainigTime:remainigTime});
+                    }
+                } else{
+                    if (this.state.remainigTime==0) {
+                        this.getRemainigTime(this.state.name,this.state.typeid,0);
+                    }
+                }   
+            },
+            1000
+        );
+       //获取上一期的开奖结果
+        this.lastOpenCodeTimingTask=setInterval(
+            () => {     
+                this.getOpenCodeResult(this.state.name,this.state.lastExpect,0);
+            },
+            4000
+        );
+
+    }
+    timingTaskEnd(){
+        this.lastExceptTimingTask && clearTimeout(this.lastExceptTimingTask);
+        this.countDownTask && clearTimeout(this.countDownTask);
+        this.lastOpenCodeTimingTask && clearTimeout(this.lastOpenCodeTimingTask);
+    }
+
+    //获取开奖的剩余时间
+    getRemainigTime(lotteryname,cptype,num){
+
+        // console.log('开奖时间')
+        // console.log(lotteryname,cptype,num)
+
+        let codeurl = sys.host + "/AppApijiekou.lotterytimes";
+        let formData = new FormData();
+        formData.append('lotteryname',lotteryname);
+        formData.append('cptype',cptype);
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                // console.log('1111111')
+                // console.log(result)
+
+                if(result['respCode']==1){
+                    var randomOpenCode=getRandomResult(this.state.codeNum);
+                    var lastExpect=result['data']['lastFullExpect'];
+                    var curExpect= result['data']['currFullExpect'];
+                    var remainigTime=result['data']['remainTime'];
+
+
+                    if (this.state.lastExpect != lastExpect) {
+                        this.setState({lastOpenCode:""})
+                    }
+
+                    this.setState({randomOpenCode:randomOpenCode,lastExpect:lastExpect,curExpect:curExpect,remainigTime:remainigTime,});
+
+
+                    // console.log('this.state.remainigTime')
+                    // console.log(this.state.remainigTime)
+
+                    // if (remainigTime ==0) {
+                    //     this.getRemainigTime(this.state.name,this.state.typeid,0);
+                    // } else {
+                    if (remainigTime) {
+                        this.getOpenCodeResult(lotteryname,lastExpect,0);
+                    }
+                    
+                     this.props.KaijiangReturn(curExpect);
+                    // }
+
+                    
+
+                }else{
+                   if(num<=2){
+                    this.getRemainigTime(this.state.name,this.state.typeid,++num);
+                   }
+                }
+            }).catch(error=>{
+                if(num<=2){
+                    this.getRemainigTime(this.state.name,this.state.typeid,++num);
+                 }
+            })
+    }
+    //获取开奖结果
+    getOpenCodeResult(lotteryname,expect,num){
+
+
+        // Alert.alert(lotteryname+expect)
+
+
+        if(lotteryname==""||lotteryname==null||expect==""||expect==null){
+            return false;
+        }
+        if(this.state.lastOpenCode!=null&&this.state.lastOpenCode!=""&&this.state.lastExpect==expect){
+            //已经开奖了 并且期数是一致的 则不再获取
+            return false;
+        }
+        var timestamp = (new Date()).getTime()
+        let codeurl = sys.host  + "/AppApijiekou.loadopencode?_="+timestamp
+        let formData = new FormData();
+        formData.append('lotteryname', lotteryname);
+        formData.append('expect', expect);
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){
+                    if (result['data'].hasOwnProperty('opencode')) {
+                        if(this.state.lastExpect!=""&&this.state.lastExpect==expect){
+                            this.setState({lastOpenCode: result['data']['opencode']});
+                            this.props.ReloadRecord()
+                        }
+                    }
+                }else{
+                
+                }
+            }).catch(error=>{
+                 
+            })
+    }
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,829 @@
+/**
+ * Created by Native on 2019/2/17.
+ */
+
+
+import React, {Component} from 'react'
+import {
+    StyleSheet,
+    Text,
+    View,
+    Dimensions,
+    ScrollView, SafeAreaView,
+    Button,
+    TextInput,
+    Alert,
+    TouchableOpacity, Picker, Platform, DeviceEventEmitter
+} from 'react-native';
+
+import ScrollableTabView, {DefaultTabBar, } from 'react-native-scrollable-tab-view';
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+import {sys,NoDataView,isIphoneX} from "../../common/Data"
+
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+
+const host = sys.host;
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+
+
+import LeftPlayView from '../LeftPlayView';
+
+var myThis;
+
+export default class SixhcWeiShu extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+
+        this.state = {
+            playList:['特码头尾','二尾连','三尾连','四尾连'],
+            leftbtnSeletIndex:0,
+            twoMianList:['0头','1头','2头','3头','4头','0尾','2尾','3尾','4尾','5尾','6尾','7尾','8尾','9尾'],
+
+            weishuList:['0尾','2尾','3尾','4尾','5尾','6尾','7尾','8尾','9尾'],
+            nowcpinfo:{},
+            lhcRates:{},
+            zhushuNum:0,
+            beishu:'1',
+
+
+            wanFaStr:'lingtou',
+            wanFaArr:['lingtou','ws2wl','ws3wl','ws4wl'],
+
+            twoMianPl:['lingtou','yitou','ertou','santou','sitou',
+            'lingwei','yiwei','erwei','sanwei','siwei','wuwei','liuwei'
+            ,'qiwei','bawei','jiuwei'],
+
+            xiazhiArr:[],
+            twoMianXiaZhuPl:[],
+        }
+    }
+
+
+    render(){
+
+      myThis = this;
+        let changeKj = null;
+
+        
+
+        // var scrollH = sys.dheight-310;
+        // if(isIphoneX()){
+        //     scrollH = sys.dheight-340;
+
+        // }
+
+        var scrollH = sys.zhongjianIsHaveChange;
+
+        
+        if (this.state.leftbtnSeletIndex ==0) {
+
+            changeKj = this.teMaLiangMian();
+
+        } else {
+            changeKj = this.weishuView();
+        }
+
+
+
+        var remark = ''
+        var rate = ''
+
+        if (this.state.leftbtnSeletIndex ==0) {
+
+            if (this.state.lhcRates.hasOwnProperty('lingtou')) {
+
+                remark = this.state.lhcRates['lingtou']['remark'];
+                rate = this.state.lhcRates['yitou']['rate'] + "~" +this.state.lhcRates['lingwei']['rate'];
+            }
+        } else if (this.state.leftbtnSeletIndex ==1) {
+            if (this.state.lhcRates.hasOwnProperty('ws2wl')) {
+
+                remark = this.state.lhcRates['ws2wl']['remark'];
+                rate = this.state.lhcRates['ws2wl']['rate'];
+            }
+        } else if (this.state.leftbtnSeletIndex ==2) {
+            if (this.state.lhcRates.hasOwnProperty('ws3wl')) {
+
+                remark = this.state.lhcRates['ws3wl']['remark'];
+                rate = this.state.lhcRates['ws3wl']['rate'];
+            }
+        } else if (this.state.leftbtnSeletIndex ==3) {
+            if (this.state.lhcRates.hasOwnProperty('ws4wl')) {
+
+                remark = this.state.lhcRates['ws4wl']['remark'];
+                rate = this.state.lhcRates['ws4wl']['rate'];
+            }
+        }
+
+        let isCunZai = this.state.lhcRates.hasOwnProperty('lingtou')
+        let rarmkView = isCunZai?<Text style={{
+            marginLeft: 10, marginTop: 10,width: RIGHT_WIDTH - 20,
+          color: sys.titleColor,textAlign: 'left',textAlignVertical: 'center',paddingBottom:10
+        }}>{remark+'赔率'}<Text style={{color:sys.mainColor}}>{rate}</Text>{"倍"}</Text>:<NoDataView
+              isloading = {this.props.visible} click={()=>this.props.lodaData()}
+              text = {"重新加载"}></NoDataView>
+
+
+        rightView = <ScrollView
+            style={{
+                backgroundColor:"white",
+                width:RIGHT_WIDTH,
+                height:scrollH
+            }}
+        >
+                    {rarmkView}
+                
+                
+                    {changeKj}
+
+                    <View style={{height:50}}></View>
+               
+            </ScrollView>
+
+        return(
+            <KeyboardAwareScrollView
+                style={styles.container}
+                keyboardShouldPersistTaps = {"always"}
+
+            >
+        <View>
+            <View style={styles.hengcontainer}>
+                <LeftPlayView scrollH={scrollH} playList={this.state.playList} playtit="999" leftclickselet={(indext,leftbtnSeletIndex)=>{
+
+                    this.leftClickSelet(indext)
+
+                }}
+                />
+
+                {rightView}
+
+            
+            </View>
+
+
+                <View style={styles.footer}>
+                <View style={styles.yuerbar}>
+                    <Text style={styles.nameHeader}>总额</Text>
+                    <Text style={styles.yuer}>{this.state.beishu*sys.priceNum*this.state.zhushuNum + '元'}</Text>
+                </View>
+                <View style={styles.yuerbar}>
+                    <Text style={styles.nameHeader}>单注：</Text>
+                    <Text style={styles.yuer}>{sys.priceNum+'元'}</Text>
+                    {/*<FormInput style={styles.yuer} placeholder="111" />*/}
+                </View>
+                <View style={styles.yuerbar}>
+                    <Text style={styles.nameHeader}>共</Text>
+                    <Text style={styles.yuer}>{this.state.zhushuNum +'注'}</Text>
+                </View>
+
+                </View>
+
+                <View style={styles.beishuView} >
+
+                <TouchableOpacity  style={[styles.reduceBtn,{marginLeft:30}]}
+                    onPress={() => {
+
+
+                        if (this.state.beishu == '' || this.state.beishu == null) {
+                            this.setState({
+                                beishu : '',
+                             
+                            })
+                            return;
+                        }
+
+                        if(this.state.beishu == 1){
+                        return;
+                        }else {
+
+                        var mewBeishu = parseInt(this.state.beishu) - 1;
+
+
+                            this.setState({
+                                beishu : mewBeishu+'',
+
+                            })
+
+                        }
+                    }}
+                >
+                    <Text style={styles.payButtonText} >-</Text>
+                </TouchableOpacity>
+
+
+                <TextInput underlineColorAndroid='transparent' value={this.state.beishu}
+                keyboardType='numeric'  style={styles.beishuCount}  ref="beishucount"
+                onChangeText={(text) =>{
+                    text = text.replace(/[^\d]+/, '');
+                    this.setState({beishu:text})}}
+                ></TextInput>
+
+                <TouchableOpacity  style={styles.reduceBtn }
+                    onPress={() => {
+                        
+                    if (this.state.beishu == '' || this.state.beishu == null) {
+                        this.setState({
+                            beishu : '1',
+                            
+                        })
+                        return;
+                    }
+
+                    var mewBeishu = parseInt(this.state.beishu) + 1
+
+                        this.setState({
+                            beishu : mewBeishu+'',
+                        })
+                    }}
+                >
+                    <Text style={styles.payButtonText}>+</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{height:45,width:sys.dwidth/2,marginLeft:sys.dwidth/2 - 160}}
+                    onPress={() => {
+                        this.buyClick()
+                    }}
+                    >
+                    <TouchableOpacity  style={[styles.payButton,{marginLeft:(sys.dwidth/2 - 60)/2}]}
+                                       onPress={() => {
+                                          this.buyClick()
+                                       }}
+                    >
+                        <Text style={styles.payButtonText}>下注</Text>
+                    </TouchableOpacity>
+
+                    </TouchableOpacity>
+
+                </View>
+
+        </View>
+
+        <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='top'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                />  
+        
+        </KeyboardAwareScrollView>
+
+        )
+
+
+
+    }
+
+
+    buyClick(){
+       // console.log('下注')
+
+       let isCunZai = this.state.lhcRates.hasOwnProperty('lingtou')
+
+       if (!isCunZai) {
+        this.props.lodaData()
+         return;
+       }
+
+       if (!myThis.state.zhushuNum) {
+
+        this.refs.toast.show("请选择完整的号码!", DURATION.LENGTH_LONG);    
+        return;
+        }
+       this.props.onPress();
+    }
+
+    leftClickSelet(indext){
+
+        if (this.state.leftbtnSeletIndex == indext) {
+            return;
+        }
+
+        this.cleanJiemian(true,indext)
+    }
+
+
+    cleanJiemian(isDqClean,indext) {
+        for (var key in myThis.refs) {
+
+            if ((key.indexOf("CustomTwoButton") != -1) ||(key.indexOf("CustomWeiButton") != -1)) {
+
+                myThis.refs[key].setState({
+                    selected: false
+                });
+            }
+        }
+
+        if (isDqClean) {
+            this.setState({
+                leftbtnSeletIndex:indext,
+                xiazhiArr:[],
+                 twoMianXiaZhuPl:[],
+                 zhushuNum:0,
+                 wanFaStr:this.state.wanFaArr[indext],
+            })
+        } else {
+            this.setState({
+                xiazhiArr:[],
+                 twoMianXiaZhuPl:[],
+                 zhushuNum:0,
+                 wanFaStr:this.state.wanFaArr[indext],
+            })
+        }
+
+        
+    }
+
+
+
+    weishuView(){
+        return<View style={{// 主轴方向
+            flexDirection:'row',
+            //  justifyContent: 'space-between',
+            // 一行显示不下,换一行
+            flexWrap:'wrap',
+            // 侧轴方向
+            width:RIGHT_WIDTH,
+            alignItems:'center',}
+            }>
+
+            {this.state.weishuList.map((info, index) => {
+                return (
+
+                    <CustomWeiButton ref={'CustomWeiButton'+index} style={{height:100,width:50,backgroundColor:'red'}} key={index} info={info}  onPress={this.itemClick.bind(this, info)}/>
+
+                );
+            })}
+
+
+
+
+        </View>
+    }
+
+
+    teMaLiangMian(){
+
+
+        return<View style={{// 主轴方向
+            flexDirection:'row',
+            //  justifyContent: 'space-between',
+            // 一行显示不下,换一行
+            flexWrap:'wrap',
+            // 侧轴方向
+            width:RIGHT_WIDTH,
+            alignItems:'center',}
+            }>
+
+            {this.state.twoMianList.map((info, index) => {
+                return (
+
+                    //<CustomTwoButton ref={'CustomTwoButton'+index} style={{height:100,width:50,backgroundColor:'red'}} key={index} info={info}  onPress={this.itemTwoClick.bind(this, info)}/>
+
+                    <CustomTwoButton ref={'CustomTwoButton'+index} style={{height:100,width:50,backgroundColor:'red'}} key={index} info={info} indext={index}  onPress={this.itemTwoClick.bind(this,index,info)}/>
+
+                );
+            })}
+
+
+
+
+        </View>
+
+    }
+
+
+    countFun(isTwo) {
+
+
+        if (isTwo) {
+            myThis.state.xiazhiArr = [];
+            myThis.state.twoMianXiaZhuPl = [];
+            var index = 0
+            for (var key in myThis.refs) {
+
+                if ((key.indexOf("CustomTwoButton") != -1)) {
+    
+                    if(myThis.refs[key].state.selected != null&&myThis.refs[key].state.selected){
+                        var plkey = myThis.state.twoMianPl[index]
+                        var numStr = myThis.state.twoMianList[index];
+                        myThis.state.xiazhiArr.push(numStr)
+                        myThis.state.twoMianXiaZhuPl.push(plkey)
+
+                        //console.log(myThis.state.twoMianXiaZhuPl)
+                    }
+                    index++;
+                }
+            }
+        } else {
+            myThis.state.xiazhiArr = [];
+            var index = 0
+            for (var key in myThis.refs) {
+
+                if ((key.indexOf("CustomWeiButton") != -1)) {
+    
+                    if(myThis.refs[key].state.selected != null&&myThis.refs[key].state.selected){
+                        var numStr = myThis.state.weishuList[index];
+                        myThis.state.xiazhiArr.push(numStr)
+                    }
+
+                    // console.log(key)
+
+                   // console.log(index)
+
+                    index++;
+                }
+            }
+        }
+
+        
+
+    }
+
+
+    itemTwoClick(index,info) {
+        // var plkey = myThis.state.twoMianPl[index]
+
+
+        // // console.log(plkey)
+
+        // // var plStr='0'
+        
+        // // if (myThis.state.lhcRates.hasOwnProperty(plkey)) {
+        // //     plStr = myThis.state.lhcRates[plkey]['rate'];
+        // // } 
+
+        // var numStr = info;
+
+        // if (myThis.state.xiazhiArr.indexOf(numStr) == -1) {
+        //     myThis.state.xiazhiArr.push(numStr)
+
+        //     myThis.state.twoMianXiaZhuPl.push(plkey)
+        // } else {
+        //     myThis.state.xiazhiArr.splice(myThis.state.xiazhiArr.indexOf(numStr, 1))
+        //     myThis.state.twoMianXiaZhuPl.splice(myThis.state.xiazhiArr.indexOf(numStr, 1))
+
+        // }
+
+        myThis.countFun(true)
+
+        myThis.setState({
+            xiazhiArr:myThis.state.xiazhiArr,
+            twoMianXiaZhuPl:myThis.state.twoMianXiaZhuPl,
+            zhushuNum:myThis.state.xiazhiArr.length,
+        })
+    }
+
+    itemClick(info) {
+        // var numStr = info;
+
+        // if (myThis.state.xiazhiArr.indexOf(numStr) == -1) {
+        //     myThis.state.xiazhiArr.push(numStr)
+
+        // } else {
+        //     myThis.state.xiazhiArr.splice(myThis.state.xiazhiArr.indexOf(numStr, 1))
+
+        // }
+
+
+        myThis.countFun(false)
+
+        var zhushuNum = myThis.combine(myThis.state.xiazhiArr,myThis.state.leftbtnSeletIndex+1).length
+
+        console.log(myThis.state.xiazhiArr)
+        console.log(myThis.state.leftbtnSeletIndex+1)
+        console.log(zhushuNum)
+
+        myThis.setState({
+            xiazhiArr:myThis.state.xiazhiArr,
+            twoMianXiaZhuPl:myThis.state.twoMianXiaZhuPl,
+            zhushuNum:zhushuNum,
+        })
+    }
+
+
+    combine(arr, num) {
+        var r = [];
+        (function f(t, a, n) {
+            if (n == 0) return r.push(t);
+            for (var i = 0, l = a.length; i <= l - n; i++) {
+                f(t.concat(a[i]), a.slice(i + 1), n - 1);
+            }
+        })([], arr, num);
+        return r;
+    }
+}
+
+
+class CustomWeiButton extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+
+            selected: false,
+       
+        };
+    }
+
+
+    render() {
+        var {info} = this.props;
+
+         const { selected } = this.state;
+
+        return (
+
+                 <TouchableOpacity  style={selected?styles.weistouchButton:styles.weitouchButton}
+                                onPress={() => {
+
+                                    this.setState({ selected: !selected } ,() => {
+                                        //这里打印的是最新的state值
+                                        this.props.onPress();
+
+                                    })
+                                }}>
+                                
+                    <Text style={selected?styles.stouchButtonText:styles.touchButtonText}>{info}</Text>
+                </TouchableOpacity>
+        
+
+        );
+    }
+}
+
+class CustomTwoButton extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+
+            selected: false,
+       
+        };
+    }
+
+
+    render() {
+        var {indext,info} = this.props;
+
+
+         const { selected } = this.state;
+
+         var plkey = myThis.state.twoMianPl[indext]
+
+        var plStr='0'
+
+        //console.log(plkey)
+
+        if (myThis.state.lhcRates.hasOwnProperty(plkey)) {
+            plStr = myThis.state.lhcRates[plkey]['rate'];
+        }
+
+        // console.log(myThis.state.twoMianPl)
+        // console.log(myThis.state.lhcRates)
+        // console.log(indext)
+
+        return (<View style={styles.twoButtonView}>
+
+                 <TouchableOpacity  style={selected?styles.twostouchButton:styles.twotouchButton}
+                                onPress={() => {
+
+                                    this.setState({ selected: !selected } ,() => {
+                                        //这里打印的是最新的state值
+                                        this.props.onPress();
+
+                                    })
+                                }}>
+                                
+                    <Text style={selected?styles.stouchButtonText:styles.touchButtonText}>{info}</Text>
+                </TouchableOpacity>
+               
+                 <Text style={styles.peilvText}>{plStr}</Text>
+            
+
+            </View>
+
+
+        );
+    }
+}
+
+const styles = StyleSheet.create({
+
+
+    hengcontainer:{
+        flexDirection:'row',
+        marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:'white'
+    },
+
+    stouchButton:{
+        height: 30,
+        width: 30,
+
+        borderRadius:15,
+        backgroundColor: sys.mainColor,
+
+        
+
+        justifyContent: 'center',
+        overflow: 'hidden',
+      //  margin:(RIGHT_WIDTH - 150)/6,
+        marginLeft:(RIGHT_WIDTH - 150)/6,
+        marginTop:(RIGHT_WIDTH - 150)/6,
+    },
+
+    touchButton: {
+        height: 30,
+        width: 30,
+
+        borderRadius:15,
+        borderWidth:1,
+        borderColor:sys.grayColor,
+        backgroundColor: "white",
+        justifyContent: 'center',
+        overflow: 'hidden',
+        marginLeft:(RIGHT_WIDTH - 150)/6,
+        marginTop:(RIGHT_WIDTH - 150)/6,
+
+    },
+
+    touchButtonText: {
+        color: sys.mainColor,
+        textAlign: 'center',
+    },
+
+
+    stouchButtonText: {
+        color: "white",
+        textAlign: 'center',
+    },
+
+
+    twostouchButton:{
+        height: 40,
+        width: 60,
+
+        borderRadius:5,
+        borderWidth:1,
+        borderColor:sys.mainColor,
+        backgroundColor: sys.mainColor,
+        justifyContent: 'center',
+        overflow: 'hidden',
+      //  margin:(RIGHT_WIDTH - 150)/6,
+
+    },
+
+    twotouchButton: {
+        height: 40,
+        width: 60,
+
+        borderRadius:5,
+        borderWidth:1,
+        borderColor:sys.grayColor,
+        backgroundColor: "white",
+        justifyContent: 'center',
+        overflow: 'hidden',
+        
+        // marginLeft:(RIGHT_WIDTH - 150)/6,
+        // marginTop:(RIGHT_WIDTH - 150)/6,
+
+    },
+
+    twoButtonView:{
+        height: 70,
+        width: 60,
+
+        backgroundColor: sys.whiteColor,
+        
+        marginLeft:(RIGHT_WIDTH - 180)/4,
+        marginTop:10,
+
+    },
+
+
+    peilvText:{
+        width:70,
+        height:30,
+        color:sys.titleColor,
+        textAlign:'center',
+        textAlignVertical:'center',
+        fontSize:15,
+        ...Platform.select({
+            ios: { lineHeight:30},
+            android: {}
+        })
+    },
+    weistouchButton:{
+        height: 40,
+        width: 60,
+
+        borderRadius:5,
+        borderWidth:1,
+        borderColor:sys.mainColor,
+        backgroundColor: sys.mainColor,
+        justifyContent: 'center',
+        overflow: 'hidden',
+      //  margin:(RIGHT_WIDTH - 180)/4,
+        marginLeft:(RIGHT_WIDTH - 180)/4,
+        marginTop:(RIGHT_WIDTH - 180)/4,
+
+    },
+
+    weitouchButton: {
+        height: 40,
+        width: 60,
+
+        borderRadius:5,
+        borderWidth:1,
+        borderColor:sys.grayColor,
+        backgroundColor: "white",
+        justifyContent: 'center',
+        overflow: 'hidden',
+        
+        marginLeft:(RIGHT_WIDTH - 180)/4,
+        marginTop:(RIGHT_WIDTH - 180)/4,
+
+    },
+    beishuView:{
+        height: 45,
+        width: SCREEN_WIDTH,
+        flexDirection:'row',
+        borderTopWidth:1,
+        borderTopColor:sys.backgroundColor,
+    },
+    reduceBtn:{
+        height: 30,
+        width: 30,
+        top:10,
+        borderRadius: 3,
+        backgroundColor: sys.mainColor,
+        justifyContent: 'center',
+        overflow: 'hidden',
+        margin:2,
+    },
+
+    payButtonText: {
+        color: "white",
+        textAlign: 'center',
+    },
+    footer: {
+        height: 60,
+        width: SCREEN_WIDTH,
+        flexDirection:'row'
+    },
+    yuerbar: {
+        height: 60,
+        width: SCREEN_WIDTH/4,
+        justifyContent: 'center',
+        alignContent: 'center',
+    },
+    nameHeader: {
+        color: sys.subTitleColor,
+        fontSize: 16,
+        margin:5,
+        // fontFamily: 'regular',
+        textAlign: 'center'
+    },
+    yuer:{
+        color:sys.mainColor,
+        fontSize: 17,
+        textAlign: 'center'
+    },
+    payButton:{
+        height: 30,
+        width: 60,
+        top:10,
+        borderRadius: 3,
+        backgroundColor: sys.mainColor,
+        justifyContent: 'center',
+        overflow: 'hidden',
+        margin:2,
+    },
+    beishuCount:{
+        marginTop:10,
+        height: 35,
+        width: 60,
+        lineHeight:15,
+        borderRadius: 3,
+        fontSize:16,
+        textAlign: 'center',
+        overflow: 'hidden',
+        backgroundColor: 'white',
+        paddingTop: 5
+    },
+
+
+})

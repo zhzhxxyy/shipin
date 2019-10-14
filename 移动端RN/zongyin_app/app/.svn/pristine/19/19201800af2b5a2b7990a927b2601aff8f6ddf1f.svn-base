@@ -1,0 +1,117 @@
+import React, { Component } from 'react';
+import {
+    StyleSheet,
+    View,
+    Alert,
+    TouchableHighlight,
+    Dimensions,
+    Image, DeviceEventEmitter,
+} from 'react-native';
+
+
+import HttpUtils from "../common/HttpUtil";
+
+import ImageSlider from "./ImageSlider"
+
+import {sys} from "../common/Data"
+const host = sys.host;
+var self= this;
+export default class HeadView2 extends Component{
+
+    componentDidMount(){
+        this.getDataList(false,0)
+    }
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataSource: [],
+            dataList:[]
+        }
+    }
+
+
+    getDataList(isReload,num) {
+        let codeurl = host + '/AppChat.getChatAd.do';
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){
+                    let imageData = result['data']['adList'];
+                    let newList = imageData.map((data) => {
+                        return data.pic
+                    })
+                    this.setState({
+                        dataSource:newList,
+                        dataList:imageData
+                    })
+                }else{
+
+                }
+            }).catch(error=>{
+               if(num<=0){
+                   this.getDataList(isReload,num+1);
+               }
+            })
+    }
+
+
+     pressImage(i){
+        var item=this.state.dataList[i];
+        if(item.type==0){
+            //只是显示图片
+        }else if(item.type==1){
+            //跳转网页
+            let link = item.extra;
+            DeviceEventEmitter.emit('pressImage', {'link':link});
+        }
+       
+    }
+
+
+
+
+    render() {
+
+        self = this;
+        if(this.state.dataSource.length == 0){
+            return (<View style={styles.view}></View>);
+        }else{
+            return (<View style={styles.view}>
+
+                {/*<ViewPager*/}
+                    {/*style={{height:130}}*/}
+                    {/*dataSource={this.state.dataSource}*/}
+                    {/*renderPage={this._renderPage}*/}
+                    {/*isLoop={true}*/}
+                    {/*autoPlay={true}/>*/}
+                <ImageSlider
+                    height={sys.dwidth*2/3} autoplay={true}
+                    images={this.state.dataSource}
+                    data={this.state.dataList}
+                />
+
+            </View>)}
+        ;
+    }
+}
+
+const styles = StyleSheet.create({
+    view: {
+        flex: 1,
+        backgroundColor:sys.redColor
+    },
+    banner: {
+        marginTop:1,
+        flexGrow: 1,
+    },
+    page: {
+        flex: 1,
+        height: sys.dwidth/2,
+        width:sys.dwidth,
+        resizeMode: 'stretch'
+    },
+})
+

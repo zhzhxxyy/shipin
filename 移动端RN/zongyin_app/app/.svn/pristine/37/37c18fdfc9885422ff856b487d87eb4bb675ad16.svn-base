@@ -1,0 +1,243 @@
+/**
+ * Copyright (c) 2017-present, Liu Jinyong
+ * All rights reserved.
+ *
+ * https://github.com/huanxsd/MeiTuan
+ * @flow
+ */
+
+import React, {PureComponent} from 'react'
+import {View, Text, StyleSheet, Platform,TouchableOpacity, Image, PixelRatio,ImageBackground} from 'react-native'
+import {sys} from "../common/Data"
+
+
+
+
+
+class Cell extends PureComponent {
+
+    constructor(props) {
+        super(props)
+    }
+
+    _onPress = () => {
+        this.props.onPressItem(this.props.id);
+    };
+
+
+    render() {
+        // console.log('render cell')
+        let {info,type,index} = this.props
+
+
+         let changView=null;
+
+        if (type=='all') {
+            changView=<TouchableOpacity activeOpacity={1}  onPress={this.props.onPress}>
+          
+             <View style={[styles.mengban,{marginLeft:0,height:sys.dwidth/4 +50,
+                borderRightWidth:(index+1)%3==0?0:1,borderBottomWidth:1,borderColor:sys.silveryColor,width:sys.dwidth/3}]}>
+                 <Image
+                 source={{
+                 uri: info.pic
+                 }}
+                 style={[styles.front_cover,{marginLeft:(sys.dwidth/3 - (sys.dwidth/4 - 20))/2}]}
+                 />
+
+                 <View style={[styles.title,{marginLeft:0,width:sys.dwidth/3,height:50}]}>
+
+                     <Text style={{marginTop:10,marginLeft:0,fontSize:14,
+                      color:sys.heiColor,textAlign:'center'}} numberOfLines={1}>{info.title}</Text>
+                     <Text style={{marginTop:3,fontSize: 13,color: '#999999',textAlign:'center'}} 
+                     numberOfLines={1}>{info.ftitle}</Text>
+                 </View>
+             </View>
+         </TouchableOpacity>
+
+        } else {
+
+//             changView=(
+//             <TouchableOpacity activeOpacity={1}  onPress={this.props.onPress}>
+//             <View style={{backgroundColor:sys.whiteColor,width:sys.dwidth,height:10}}></View>
+//             {/* <ImageBackground source={ require('./images/bg.png')} style={{flex:1,width:sys.dwidth, height:150}}> */}
+//                <View style={{width:sys.dwidth,height:sys.dwidth/4+10,marginLeft:0,
+// 
+
+            let isRemainTime = info.hasOwnProperty('remainTime')
+
+            var bomView = null;
+
+
+            var qishuStr = '距离-期截止';
+
+            var timeStr = '00:00:00';
+
+            if (isRemainTime) {
+            
+                var remainigTime = info['remainTime']
+
+                var curExpect = info['curExpect']
+
+
+
+                if (curExpect.length == 11) {
+                    curExpect = curExpect.substr(curExpect.length-4,3)
+                }
+
+                if (curExpect.length == 12) {
+                    curExpect = curExpect.substr(curExpect.length-5,4)
+                }
+        
+                // console.log('00000')
+
+
+                // if (remainigTime<0) {
+                //     remainigTime = -remainigTime;
+                // }
+                
+
+                var hourNum = parseInt(remainigTime/3600);
+                 hourNum = (hourNum<10)?'0'+hourNum:hourNum
+
+                var minuteNum = (parseInt(remainigTime/60))%60;
+                minuteNum = (minuteNum<10)?'0'+minuteNum:minuteNum
+
+                var secondNum = remainigTime%60;
+                 secondNum = (secondNum<10)?'0'+secondNum:secondNum
+
+                 timeStr = hourNum+':'+minuteNum+':'+secondNum
+                 qishuStr = '距离'+curExpect+'期截止'
+            }
+
+
+            bomView = <View style={{marginTop:5,marginLeft:10,width:sys.dwidth - 110,height:16,
+            textAlign:'left',flexDirection:'row'}}>
+                <Text style={[styles.livetext,{marginTop:0,marginLeft:0,width:(sys.dwidth - 110) - 80,
+                height:16,textAlignVertical:'center',fontSize:13,
+            }]}numberOfLines={1}>{qishuStr}</Text>
+                <Text style={[styles.livetext,{marginTop:0,marginLeft:0,width:80,
+                textAlign:'right',color:sys.mainColor,height:16,textAlignVertical:'center',
+                fontSize:13,
+             }]}numberOfLines={1}>{timeStr}</Text>
+                </View>
+
+
+             changView=(<TouchableOpacity activeOpacity={1}  onPress={this.props.onPress}>
+               <View style={{width:sys.dwidth,height:90,marginLeft:0,
+
+                }}>
+
+                <View style={[styles.mengban,{flexDirection:'row'}]}>
+                    <Image
+                    source={{
+                    uri: info.pic
+                    }}
+                    style={[styles.front_cover,{height:70,width:70}]}
+                    />
+
+
+                    <View style={[styles.title,{width:sys.dwidth - 110}]}>
+
+                        <Text style={[styles.username,{color:sys.heiColor,paddingTop:0,height:20,marginTop:10
+                            }]} numberOfLines={1}>{info.title}</Text>
+
+
+                    <Text style={[styles.livetext,{marginTop:5,marginLeft:10,height:18,fontSize:13
+                    }]}
+                    numberOfLines={1}>{info.ftitle}</Text>
+
+
+                    {bomView}
+
+                    </View>
+
+                    {/* <Image style={{marginTop:(80 - 14.5)/2,marginLeft:10,
+                  width:9,height:14.25}} source={require('../my/images/icon_path.png')}></Image> */}
+
+                </View>
+
+
+                </View>
+                <View style={{backgroundColor:sys.backgroundColor,width:sys.dwidth,height:10}}></View>
+     
+
+            </TouchableOpacity>
+             
+            )
+        }
+
+
+        return (
+            changView
+        )
+    }
+}
+
+const styles = StyleSheet.create({
+    
+    front_cover: {
+
+        marginLeft:10,
+        marginTop:10,
+        width: sys.dwidth/4 - 20,
+        height: sys.dwidth/4 - 20,
+        borderRadius:0,
+        // borderWidth:2,
+        // borderColor:'white',
+        alignItems:'center',
+
+        // backgroundColor:sys.yellowColor
+
+    },
+
+
+    mengban:{
+
+        // top:-28,
+        width:sys.dwidth,
+        marginLeft:0,
+
+        // backgroundColor:sys.whiteColor
+    },
+
+    username:{
+        paddingTop:30,
+        marginLeft:10,
+        fontSize:16,
+       //  fontWeight: 'bold',
+        // color: '#FFFFFF',
+       
+        textAlign:'left',
+
+      
+    },
+    userid:{
+        marginLeft:10,
+        color: '#FFFFFF',
+        fontSize:12
+    },
+
+    livetext: {
+
+        marginTop:10,
+        marginLeft:10,
+        fontSize: 13,
+        color: sys.subTitleColor,
+        textAlign:'left',
+
+      
+    },
+
+    liveInfo:{
+      flexDirection:'row',
+        justifyContent: 'flex-start',
+        marginLeft:70,
+        marginTop:-20,
+
+    },
+    title:{
+        marginLeft:10,marginTop:0,width:sys.dwidth,height:sys.dwidth/4
+    },
+})
+
+export default Cell

@@ -1,0 +1,531 @@
+
+import {View,
+
+    StyleSheet,
+    Platform,
+    TouchableOpacity,
+    Image,
+    PixelRatio,
+    ImageBackground,
+    Dimensions,
+    Button,
+    Alert,
+    ScrollView} from 'react-native'
+
+
+import {sys,NoDataView} from "../../common/Data"
+
+
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+
+export const styles = StyleSheet.create({
+
+    container:{
+        flex:1,
+    },
+
+    customHeadBtn:{
+        backgroundColor:sys.greenColor,
+        borderRadius:5,
+        width:RIGHT_WIDTH/7,
+        height:RIGHT_WIDTH/7,
+        marginLeft:(RIGHT_WIDTH-RIGHT_WIDTH/7*6)/7,
+        marginTop:20
+    },
+
+    leftBtn:{
+        width:LEFT_WIDTH,
+        height:50,
+        marginLeft:0,
+        borderBottomColor:'white',
+        borderBottomWidth:1
+
+    },
+
+    leftBtnSelected:{
+        backgroundColor:"white",
+        width:LEFT_WIDTH,
+        height:50,
+        marginLeft:0,
+    },
+
+
+    leftText:{
+        width:LEFT_WIDTH,
+        height:49,
+        marginLeft:0,
+        textAlign: 'center',
+        fontSize:14,
+        color: sys.subTitleColor,
+        borderBottomColor:'white',
+        textAlignVertical:'center',
+        borderBottomWidth:1,
+        ...Platform.select({
+            ios:{
+                lineHeight:50,
+            },
+            android:{
+            }
+        }),
+    },
+
+    leftTextSelected:{
+
+        width:LEFT_WIDTH,
+        height:50,
+        marginLeft:0,
+        textAlign: 'center',
+        color:sys.mainColor,
+        fontSize:14,
+        textAlignVertical:'center',
+        ...Platform.select({
+            ios:{
+                lineHeight:50,
+            },
+            android:{
+            }
+        }),
+    },
+
+
+    footer: {
+        height: 60,
+        width: SCREEN_WIDTH,
+        flexDirection:'row'
+    },
+
+    yuerbar: {
+        height: 60,
+        width: SCREEN_WIDTH/4,
+        justifyContent: 'center',
+        alignContent: 'center',
+    },
+
+    nameHeader: {
+        color: sys.subTitleColor,
+        fontSize: 16,
+        margin:5,
+        // fontFamily: 'regular',
+        textAlign: 'center'
+    },
+
+    remarkHeader: {
+        color: sys.subTitleColor,
+        fontSize: 16,
+        margin:10,
+        textAlign: 'left'
+    },
+
+
+    x5title:{
+
+        left:10,
+        top:5,
+
+        borderWidth:1,
+        borderColor:sys.subTitleColor,
+        color:sys.subTitleColor,
+        width:70,
+        fontSize:13,
+        height:25,
+        textAlign:'center',
+        borderRadius:5,
+        overflow:'hidden',
+        textAlignVertical:'center',
+        ...Platform.select({
+            ios:{
+                lineHeight:20,
+            },
+            android:{
+            }
+        }),
+
+
+    },
+
+
+    yuer:{
+        color:sys.mainColor,
+        fontSize: 17,
+        textAlign: 'center'
+    },
+
+
+
+    reduceBtn:{
+        height: 30,
+        width: 30,
+        top:10,
+        borderRadius: 3,
+        backgroundColor: sys.mainColor,
+        justifyContent: 'center',
+        overflow: 'hidden',
+        margin:2,
+    },
+
+    beishuView:{
+        height: 45,
+        width: SCREEN_WIDTH,
+        flexDirection:'row',
+        // backgroundColor:'white',
+    },
+
+
+    segment:{
+        top:10,
+        height: 35,
+        width: 160,
+        flexDirection:'row',
+        left:sys.dwidth*0.8/2-80,
+        bottom : 10,
+
+    },
+
+
+
+    segmentItemSelected:{
+        height: 30,
+        width: 80,
+        // flexDirection:'row',
+        backgroundColor:sys.mainColor
+    },
+
+    segmentItem:{
+        height: 30,
+        width: 80,
+        // flexDirection:'row',
+        backgroundColor:'white',
+
+        borderWidth:1,
+        borderColor:sys.mainColor
+
+    },
+    segmentItemSelected1:{
+        height: 30,
+        width: 80,
+        // flexDirection:'row',
+        backgroundColor:sys.mainColor
+    },
+
+    segmentItem1:{
+        height: 30,
+        width: 80,
+        // flexDirection:'row',
+        backgroundColor:'white',
+
+        borderWidth:1,
+        borderColor:sys.mainColor
+
+    },
+
+
+    segementTextSelected:{
+        color:'white',
+        textAlign:'center',
+        width:'100%',
+        height:30,
+        textAlignVertical:'center',
+        ...Platform.select({
+            ios:{
+                lineHeight:30,
+            },
+            android:{
+            }
+        }),
+    },
+
+    segementText:{
+        color:sys.mainColor,
+        width:'100%',
+        height:30,
+        textAlign:'center',
+        textAlignVertical:'center',
+        ...Platform.select({
+            ios:{
+                lineHeight:30,
+            },
+            android:{
+            }
+        }),
+    },
+
+
+
+    beishuCount:{
+        marginTop:10,
+        height: 35,
+        width: 60,
+        lineHeight:15,
+        borderRadius: 3,
+        fontSize:16,
+        textAlign: 'center',
+        overflow: 'hidden',
+        backgroundColor: 'white',
+        paddingTop: 5
+    },
+
+
+
+
+    payButton:{
+        height: 30,
+        width: 60,
+        top:10,
+        borderRadius: 3,
+        backgroundColor: sys.mainColor,
+        justifyContent: 'center',
+        overflow: 'hidden',
+        margin:2,
+    },
+
+    stouchButton:{
+        height: 30,
+        width: 30,
+
+        borderRadius: 15,
+        backgroundColor: sys.mainColor,
+        justifyContent: 'center',
+        overflow: 'hidden',
+        margin:2,
+   
+    },
+
+    touchButton: {
+        height: 30,
+        width: 30,
+
+        borderRadius: 15,
+        backgroundColor: "white",
+        justifyContent: 'center',
+        overflow: 'hidden',
+        margin:2,
+        borderWidth:1,
+        borderColor:sys.grayColor,
+
+    },
+
+
+    stouchLongButton:{
+        height: 30,
+        width: 70,
+
+        borderRadius: 5,
+        backgroundColor: sys.mainColor,
+        justifyContent: 'center',
+        overflow: 'hidden',
+        margin:10,
+    },
+
+    touchLongButton: {
+        height: 30,
+        width: 70,
+
+        borderRadius: 5,
+        backgroundColor: "white",
+
+        justifyContent: 'center',
+        overflow: 'hidden',
+        margin:10,
+        borderWidth:1,
+        borderColor:sys.mainColor
+
+    },
+
+
+
+    touchButtonText: {
+        color: sys.mainColor,
+        textAlign: 'center',
+    },
+
+
+    stouchButtonText: {
+        color: "white",
+        textAlign: 'center',
+    },
+
+
+
+
+
+    payButtonText: {
+        color: "white",
+        textAlign: 'center',
+    },
+
+    webView: {
+        backgroundColor: '#ffffff',
+    },
+
+    content:{
+        backgroundColor:sys.backgroundColor,
+        // height:182,
+        width:sys.dwidth*0.9,
+        flexDirection: 'row',
+        bottom:10,
+    },
+
+
+    lotteryContent:{
+        backgroundColor:sys.backgroundColor,
+        // height:182,
+        width:sys.dwidth,
+        // flexDirection: 'row',
+        bottom:10,
+    },
+
+
+    opencontent:{
+        backgroundColor:sys.backgroundColor,
+        // height:182,
+        width:sys.dwidth*0.9,
+        // flexDirection: 'row',
+        bottom:10,
+    },
+
+
+    leftStyle:{
+        backgroundColor:'white',
+        marginTop:5,
+        width:sys.dwidth*0.9-80,
+        // marginBottom:5
+        // height:135
+    },
+    rightStyle:{
+        marginTop:5,
+        width:80,
+        // height:135,
+        backgroundColor:'white'
+    },
+
+    switchStyte:{
+        width:80,
+        height:30,
+        position: 'absolute',
+        bottom: 10,
+        // left: 0,
+        right: 15,
+        resizeMode:'center'
+    },
+    numtext:{
+        fontSize:11,
+        color:'#333333',
+        marginTop:10
+    },
+    nametext:{
+        marginLeft:10,
+        fontSize:14,
+        lineHeight:20,
+        marginTop: 8,
+        color:'#333333',
+        // width:70,
+
+    
+    },
+
+    nameRighttext:{
+        marginLeft:3,
+        fontSize:14,
+        lineHeight:20,
+       
+        marginTop: 8,
+        color:'#333333',
+        flexWrap: 'wrap',
+        paddingRight:10,
+        width:sys.dwidth*0.9 - 80,
+     
+    },
+
+
+    openNumer:{
+
+         top:10,
+        width:30,
+        height:30,
+        backgroundColor:sys.mainColor,
+        color:'white',
+        borderRadius:15,
+        // borderWidth:1,
+        textAlign:'center',
+        textAlignVertical:'center',
+       // lineHeight:30,
+        marginLeft:10,
+        overflow:'hidden',
+        ...Platform.select({
+            ios: { lineHeight: 30},
+             android: {}
+        })
+    },
+
+    openPK10Numer:{
+
+        marginTop:10,
+        width:30,
+        height:30,
+        backgroundColor:sys.mainColor,
+        color:'white',
+        borderRadius:15,
+        // borderWidth:1,
+        textAlign:'center',
+        textAlignVertical:'center',
+      //  lineHeight:30,
+        marginLeft:15,
+        overflow:'hidden',
+        ...Platform.select({
+            ios: { lineHeight: 30},
+             android: {}
+        })
+    },
+
+
+    newPK10Numer:{
+
+        marginTop:2,
+        width:20,
+        height:20,
+        backgroundColor:sys.mainColor,
+        color:'white',
+        borderRadius:3,
+        // borderWidth:1,
+        textAlign:'center',
+        fontSize:12,
+        textAlignVertical:'center',
+      //  lineHeight:30,
+        marginLeft:2,
+        overflow:'hidden',
+        ...Platform.select({
+            ios: { lineHeight: 20},
+             android: {}
+        })
+    },
+
+
+
+
+    hzNumer:{
+
+        top:5,
+        width:30,
+        height:30,
+        // backgroundColor:sys.mainColor,
+        color:'black',
+        borderRadius:15,
+        // borderWidth:1,
+        textAlign:'center',
+        textAlignVertical:'center',
+       // lineHeight:30,
+        marginLeft:15,
+        overflow:'hidden',
+        fontSize:16,
+        ...Platform.select({
+            ios: { lineHeight: 30},
+             android: {}
+        })
+
+
+    },
+
+});

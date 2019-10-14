@@ -1,0 +1,688 @@
+import React,{Component} from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+
+    Switch,
+    Button,
+    ImageBackground,
+    Dimensions,
+    ScrollView
+} from 'react-native';
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import {sys,NoDataView,isIphoneX} from "../../common/Data"
+
+import {combine,syxwqezxbd,syxwqezxfs} from './X5Rule'
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+import {LeftButton} from "../cqssc/CqsscPublic"
+import {styles} from "../common/homeStyle"
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+
+import HttpUtils from "../../common/HttpUtil"
+
+
+const host = sys.host;
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const  text_arr = ["前二直选复式","前二组选复式","前二组选拖胆"];
+const  title_arr = ["第一位","第二位"];
+const  title_zxArr = ["前二组选"];
+const  title_tdArr = ["胆码","拖码"];
+
+
+var Buffer = require('buffer').Buffer;
+
+
+
+var thiz = this;
+var headthis;
+var thishead_arr = [];
+
+var selectedIndex = 0;
+
+
+
+export default class Qian2 extends React.Component {
+
+
+    constructor(props) {
+
+        super(props);
+
+        this.state = {
+
+            fontLoaded: false,
+
+            number_arr: {},
+
+            zhushu: "0注",
+            amount: "0元",
+            count: 0,
+            index: 0,
+            beishu: '1',
+
+
+            currFullExpect:"",
+
+            x5qefs:{},
+            x5qezx:{},
+            x5qedt:{},
+
+
+        }
+    }
+
+
+    async componentDidMount() {
+        this.setState({ fontLoaded: true });
+        selectedIndex = 0;
+
+        this.setState({ currFullExpect: this.props.currFullExpect });
+
+        if(this.props.datalist["x5qefs"] != null){
+            this.setState({ x5qefs: this.props.datalist["x5qefs"]});
+
+        }
+
+        if(this.props.datalist["x5qezx"] != null){
+            this.setState({ x5qezx: this.props.datalist["x5qezx"]});
+
+        }
+
+        if(this.props.datalist["x5qedt"] != null){
+            this.setState({ x5qedt: this.props.datalist["x5qedt"]});
+
+        }
+
+
+    }
+
+
+    //生成随机订单号
+    generateMixed(n) {
+
+        var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
+        var res = "";
+        for(var i = 0; i < n ; i ++) {
+            var id = Math.ceil(Math.random()*35);
+            res += chars[id];
+        }
+        return res;
+    }
+
+
+    onButtonPress(index){
+
+
+        if (index == this.state.index){
+            return;
+        }
+
+
+
+        this.setState({
+            index:index,
+            zhushu:"0注",
+            amount:"0元",
+            count : 0,
+            beishu:'1',
+            number_arr : [],
+        },()=>{
+
+            for(var key in thiz.refs){
+                // if(thiz.refs[key].state.selected != null){
+                if(key.includes('位') || key.includes('码') || key.includes('组选')){
+                    thiz.refs[key].setState({
+                        selected:false
+                    });
+                }
+
+                if(key.includes('header')){//customheader
+                    for(var subkey in thiz.refs[key].refs){
+                        thiz.refs[key].refs[subkey].setState({
+                            selected:false
+                        });
+                    }
+                }
+            }
+
+            if(selectedIndex != this.state.index){
+                thiz.refs["left"+selectedIndex].setState({
+                    selected: false
+                });
+
+                selectedIndex = this.state.index;
+                thiz.refs["left"+selectedIndex].setState({
+                    selected: true
+                });
+            }
+
+
+
+        })
+    };
+
+
+
+    itemClick(){
+        this.setState({
+            index:thiz.state.index,
+            zhushu:thiz.state.zhushu,
+            amount : thiz.state.amount,
+            count:thiz.state.count,
+            beishu:thiz.state.beishu
+        })
+    }
+
+
+
+    buynow(){
+
+
+        let isCunZai = this.props.datalist.hasOwnProperty('x5qefs')
+
+        if (!isCunZai){
+            this.refs.toast.show('加载赔率没成功', DURATION.LENGTH_LONG); 
+            this.props.lodaData()
+            return;
+        }
+
+
+        if(thiz.state.count == 0){
+            this.refs.toast.show("您的选注不符合规则", DURATION.LENGTH_LONG); 
+            return;
+        }
+
+        if(thiz.state.beishu == '0' || thiz.state.beishu == ''){
+            this.refs.toast.show("请填写下注倍数", DURATION.LENGTH_LONG);
+            return;
+        }
+
+
+        var number = '';
+
+
+        var data = {};
+
+        if(this.state.index == 0){
+            data = this.state.x5qefs;
+            number = thiz.state.number_arr['d1'] + '|' + thiz.state.number_arr['d2'] ;
+        }else  if (this.state.index == 1){
+            data = this.state.x5qezx;
+            number = thiz.state.number_arr['zx'] + "";;
+        }else  if (this.state.index == 2) {
+            data = this.state.x5qedt;
+            number = thiz.state.number_arr['dm'] + '|' + thiz.state.number_arr['tm'];
+        }
+
+
+        this.setState({
+
+            data : data,
+            number : number
+
+        },()=>{
+            this.props.onPress();
+        });
+
+
+
+    }
+
+    clear(){ 
+               
+        for(key in thiz.refs){
+            if(key.includes('第一位') || key.includes('第二位')  || key.includes('前二组选') || key.includes('胆码') ||  key.includes('拖码') ){
+              thiz.refs[key].setState({
+                  selected:false
+                })
+            }
+        }       
+    }
+
+
+    render(){
+
+
+        thiz = this;
+
+        var  zhushu  = thiz.state.zhushu ;
+        var  amount = thiz.state.amount;
+
+        var remark = "";
+        var rate = 0;
+
+
+        var titleArr = [];
+
+
+        if(this.state.index == 0){
+            if(this.props.datalist["x5qefs"] != null){
+                remark = this.state.x5qefs.remark;
+                rate = this.state.x5qefs.rate;
+            }
+            titleArr = title_arr
+        }else if(this.state.index == 1){
+            if(this.props.datalist["x5qezx"] != null){
+                remark = this.state.x5qezx.remark;
+                rate = this.state.x5qezx.rate;
+            }
+            titleArr = title_zxArr
+        }else if(this.state.index == 2){
+            if(this.props.datalist["x5qedt"] != null){
+                remark = this.state.x5qedt.remark;
+                rate = this.state.x5qedt.rate;
+            }
+            titleArr = title_tdArr
+        }
+
+
+        var changeView = null;
+
+
+        changeView = titleArr.map((info, index)=> {
+            return (
+                <View key={index} >
+                    <Text style={styles.x5title}>{info}</Text>
+                    <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="01"  ref={ info +'01'} info={ info +'01'}/>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="02"  ref={ info +'02'} info={ info +'02'}/>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="03"  ref={ info +'03'} info={ info +'03'}/>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="04"  ref={ info +'04'} info={ info +'04'}/>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="05"  ref={ info +'05'} info={ info +'05'}/>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="06"  ref={ info +'06'} info={ info +'06'}/>
+                    </View>
+                    <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="07"  ref={ info +'07'} info={ info +'07'}/>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="08"  ref={ info +'08'} info={ info +'08'}/>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="09"  ref={ info +'09'} info={ info +'09'}/>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="10"  ref={ info +'10'} info={ info +'10'}/>
+                        <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="11"  ref={ info +'11'} info={ info +'11'}/>
+                    </View>
+                </View>
+            );
+        })
+
+
+
+        let isCunZai = this.props.datalist.hasOwnProperty('x5qefs')
+
+        let rarmkView = isCunZai?<Text style={styles.remarkHeader}>{remark}赔率<Text 
+        style={{color:'red'}}>{rate}</Text>倍</Text>:<NoDataView 
+             isloading = {this.props.visible} click={()=>this.props.lodaData()}
+             text = {"重新加载"}></NoDataView>
+
+        // var scrollH = sys.dheight-290;
+        // if(isIphoneX()){
+        //     scrollH = sys.dheight-320;
+        // }
+        var scrollH = sys.zhongjianIsHaveChange;
+        return (
+            <KeyboardAwareScrollView
+                style={styles.container}
+                keyboardShouldPersistTaps = {"always"}
+
+            >
+                <View style={{flex:1}}>
+                    <View style={{ flex: 1 ,flexDirection:'row'}}>
+
+                        <ScrollView
+
+                            style={{
+
+                                backgroundColor:sys.grayColor,
+                                width:LEFT_WIDTH,
+                                height:scrollH
+                            }}>
+
+                            {text_arr.map((info, index) => {
+                                var selected = false;
+                                if (this.state.index == index){
+                                    selected = true;
+                                }
+
+                                return (
+
+                                    <LeftButton key={index} xuanzo={index==0?1:0} title={info}    index={index} selected={selected} ref={"left"+index}
+                                                onPress={()=>{
+                                                    this.onButtonPress(index)
+                                                }}></LeftButton>
+                                );
+                            })}
+                        </ScrollView>
+                        <ScrollView
+                            style={{
+                                backgroundColor:"white",
+                                width:RIGHT_WIDTH,
+                                height:scrollH
+                            }}
+                        >
+
+                            {/* <Text style={styles.remarkHeader}>{remark}赔率<Text style={{color:'red'}}>{rate}</Text>倍</Text> */}
+                            {rarmkView}
+                            {
+                                changeView
+                            }
+                            <View style={{height:50}}></View>
+
+                        </ScrollView>
+
+                    </View>
+
+                    
+                    <View style={styles.footer} >
+                        <View style={styles.yuerbar}>
+                            <Text style={styles.nameHeader}>总额</Text>
+                            <Text style={styles.yuer}>{amount}</Text>
+                        </View>
+                        <View style={styles.yuerbar}>
+                            <Text style={styles.nameHeader}>单注：</Text>
+                            <Text style={styles.yuer}>2元</Text>
+                            {/*<FormInput style={styles.yuer} placeholder="111" />*/}
+                        </View>
+                        <View style={styles.yuerbar}>
+                            <Text style={styles.nameHeader}>共</Text>
+                            <Text style={styles.yuer}>{zhushu}</Text>
+                        </View>
+
+                        
+
+                    </View>
+
+                    <View style={styles.beishuView} >
+
+                        <TouchableOpacity  style={styles.reduceBtn }
+                                           onPress={() => {
+
+                                               if(thiz.state.beishu == '1'){
+                                                   return;
+                                               }else {
+                                                   var mewBeishu = parseInt(thiz.state.beishu) - 1;
+                                                   thiz.setState({
+                                                       beishu : mewBeishu+'',
+                                                       amount :  thiz.state.count*2*mewBeishu + "元"
+                                                   })
+                                               }
+
+                                           }}
+                        >
+                            <Text style={styles.payButtonText} >-</Text>
+                        </TouchableOpacity>
+
+                        <TextInput underlineColorAndroid='transparent' value={thiz.state.beishu}
+                                   keyboardType='numeric'  style={styles.beishuCount}  ref="beishucount"
+                                   onChangeText={(text) =>{
+
+                                    text = text.replace(/[^\d]+/, '');
+
+                                       thiz.setState({
+                                           beishu:text,
+                                           amount : thiz.state.count*2*parseInt(text) + "元"
+                                       })
+
+                                       if(text == '' || text == null){
+
+                                           thiz.setState({
+                                               amount : "0元"
+                                           })
+                                       }
+                                   }
+                                   }
+                        ></TextInput>
+
+
+                        <TouchableOpacity  style={styles.reduceBtn }
+                                           onPress={() => {
+
+                                               var mewBeishu = parseInt(thiz.state.beishu) + 1;
+                                               if(thiz.state.beishu == '' ){
+                                                   mewBeishu = 1;
+                                               }
+
+
+                                               thiz.setState({
+                                                   beishu : mewBeishu+'',
+                                                   amount :  thiz.state.count*2*mewBeishu + "元"
+                                               })
+
+
+                                           }}
+                        >
+                            <Text style={styles.payButtonText}>+</Text>
+                        </TouchableOpacity>
+
+                      
+                        <TouchableOpacity style={{height:45,width:sys.dwidth/2,marginLeft:sys.dwidth/2 - 130}}
+                    onPress={() => {
+                        this.buynow()
+                    }}
+                    >
+                    <TouchableOpacity  style={[styles.payButton,{marginLeft:(sys.dwidth/2 - 60)/2}]}
+                                       onPress={() => {
+                                          this.buynow()
+                                       }}
+                    >
+                        <Text style={styles.payButtonText}>下注</Text>
+                    </TouchableOpacity>
+
+                    </TouchableOpacity>
+
+                    </View>
+
+                </View>
+                <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='top'
+                    positionValue={200}
+                    opacity={0.7}
+                    textStyle={{color:'white'}}
+                />  
+            </KeyboardAwareScrollView>
+
+        )
+    }
+
+
+}
+
+
+
+class CustomButton extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+            selected: false,
+        };
+    }
+
+
+
+
+
+
+
+    render() {
+        var { title,style,xuanzo,type,index,info } = this.props;
+
+
+        if(style==undefined){
+            style = {backgroundColor:sys.redColor,borderRadius:RIGHT_WIDTH/14,
+                width:RIGHT_WIDTH/7,height:RIGHT_WIDTH/7,marginLeft: (RIGHT_WIDTH-RIGHT_WIDTH/7*5)/6}
+        }
+        if(xuanzo==1)this.state.selected=true;
+
+        const { selected } = this.state;
+
+
+
+        let myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-180)/7,marginTop:(RIGHT_WIDTH-180)/14};
+
+        return (
+
+            <TouchableOpacity index={index} style={[selected?styles.stouchButton : styles.touchButton,myStyle]}
+                              onPress={() => {
+
+
+
+
+                                  var d1Arr = [];
+                                  var d2Arr = [];
+
+                                  var zxArr = [];
+
+                                  var dmArr = [];
+                                  var tmArr =[];
+
+
+                                  if(thiz.state.number_arr['dm']!= null   && info.includes('胆码')){
+
+
+
+                                      if(thiz.state.number_arr['dm'].length == 1){
+                                          let removeDm = thiz.state.number_arr['dm'][0];
+
+                                          thiz.refs['胆码'+removeDm].setState({
+                                              selected : false
+                                          })
+                                      }
+
+
+
+                                      for(i in thiz.state.number_arr['tm']){
+
+                                          if(title == thiz.state.number_arr['tm'][i]){
+                                              thiz.refs['拖码'+title].setState({
+                                                  selected : false
+                                              })
+                                          }
+
+
+                                      }
+                                  }
+
+
+                                  if(thiz.state.number_arr['tm']!= null   && info.includes('拖码')){
+
+                                      for(i in thiz.state.number_arr['dm']){
+
+                                          if(title == thiz.state.number_arr['dm'][i]){
+                                              thiz.refs['胆码'+title].setState({
+                                                  selected : false
+                                              })
+                                          }
+
+
+                                      }
+
+                                  }
+
+
+
+
+
+                                  this.setState({
+                                      selected:!selected
+                                  });
+
+
+
+                                //   console.log('-----------1--------------')
+
+                                  this.setState({ selected: !selected } ,() => {
+
+
+                                      for(var key in thiz.refs){
+
+                                          if(key.includes('第一位')){
+                                              if (thiz.refs[key].state.selected){
+                                                d1Arr.push(key.substr(3,2))
+                                              }
+                                              
+                                          }else if(key.includes('第二位')){
+                                            if (thiz.refs[key].state.selected){
+                                                d2Arr.push(key.substr(3,2))
+                                            }
+                                              
+                                          } else if(key.includes('前二组选')){
+                                            if (thiz.refs[key].state.selected){
+                                                zxArr.push(key.substr(4,2))
+                                            }
+                                              
+                                          }else if(key.includes('胆码')){
+                                            if (thiz.refs[key].state.selected){
+                                                dmArr.push(key.substr(2,2))
+                                            }
+                                              
+                                          }else if(key.includes('拖码')){
+                                            if (thiz.refs[key].state.selected){
+                                                tmArr.push(key.substr(2,2))
+                                            }
+                                              
+                                          }
+                                      }
+
+
+                                    //   console.log('-----------2--------------')
+
+                                      var count = 0;
+
+                                      var arr = [];
+                                      if(thiz.state.index == 0){
+                                          thiz.state.number_arr['d1'] = d1Arr;
+                                          thiz.state.number_arr['d2'] = d2Arr;
+
+
+                                          arr.push(d1Arr);
+                                          arr.push(d2Arr);
+
+
+                                          count = syxwqezxfs(arr);
+                                      }else if(thiz.state.index == 1){
+                                          thiz.state.number_arr['zx'] = zxArr;
+
+
+                                          count = combine(zxArr,2);
+                                      }else if(thiz.state.index == 2){
+                                          thiz.state.number_arr['dm'] = dmArr;
+                                          thiz.state.number_arr['tm'] = tmArr;
+
+                                          arr.push(dmArr)
+                                          arr.push(tmArr)
+                                          count = syxwqezxbd(arr);
+                                      }
+
+
+
+                                    //   console.log('-----------3--------------')
+
+                                      thiz.state.zhushu = count + "注";
+                                      thiz.state.amount = count*2*thiz.state.beishu + "元";
+                                      thiz.state.count = count;
+                                      this.props.onPress();
+
+
+                                  })
+                              }}>
+                <Text style={selected?styles.stouchButtonText: styles.touchButtonText}>{title}</Text>
+            </TouchableOpacity>
+
+        );
+
+    }
+
+
+}

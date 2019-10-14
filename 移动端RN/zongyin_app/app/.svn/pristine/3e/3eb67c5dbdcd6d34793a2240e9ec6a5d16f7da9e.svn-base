@@ -1,0 +1,291 @@
+
+import React,{Component} from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    Dimensions,
+} from 'react-native';
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import {sys,NoDataView} from "../../common/Data"
+
+import {styles} from "./homeStyle"
+import HttpUtils from "../../common/HttpUtil"
+
+
+const host = sys.host;
+let recordWidth = sys.dwidth*0.9;
+
+
+
+export default class OrderRecord extends React.Component {
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:10,
+            visible : false,
+            lotteryname:this.props.lotteryname,
+            navigationRecord:this.props.navigationRecord
+        }
+    }
+
+    onHeaderRefresh = () => {
+        this.state.currentPage = 1;
+        this.setState(
+            {
+                refreshState: RefreshState.HeaderRefreshing,
+            },()=>{
+                this.getDataList(true)
+            })
+    }
+
+    onFooterRefresh = () => {
+  
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        },()=>{
+            this.getDataList(false)
+        })
+    }
+
+
+
+    componentDidMount(){
+
+        this.setState({
+            lotteryname:this.props.lotteryname,
+            navigation:this.props.navigation
+        },()=>{
+            this.getDataList();
+        });
+
+
+    }
+
+
+    getDataList(isReload){
+        const {params} =this.props;
+        let codeurl = host + '/AppApijiekou.betslisttoday';
+        let formData = new FormData();
+        formData.append('lotteryname',this.state.lotteryname);
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                this.setState({
+                    visible: false
+                });
+                if(result['respCode']==1){
+                    let testData = result['data']['root'];
+                    let newList = testData.map((data) => {
+                        return {
+                            Chase: data["Chase"],
+                            amount: data["amount"],
+                            amountafter: data["amountafter"],
+                            amountbefor: data["amountbefor"],
+                            beishu: data["beishu"],
+                            cpname: data["cpname"],
+                            cptitle: data["cptitle"],
+                            expect:  data["expect"],
+                            id: data["id"],
+                            isdraw:  data["isdraw"],
+                            itemcount: data["itemcount"],
+                            mode: data["mode"],
+                            oddtime:  data["oddtime"],
+                            okamount: data["okamount"],
+                            okcount: data["okcount"],
+                            opencode:  data["opencode"],
+                            playid: data["playid"],
+                            playtitle: data["playtitle"],
+                            repoint: data["repoint"],
+                            repointamout:data["repointamout"],
+                            source: data["source"],
+                            stopChase: data["stopChase"],
+                            trano: data["trano"],
+                            typeid: data["typeid"],
+                            tzcode: data["tzcode"],
+                            uid: data["uid"],
+                            username: data["username"],
+                            yjf: data["yjf"],
+                        }
+                    });
+
+                    let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+                    
+                     this.state.currentPage += 1
+                 
+                     this.setState({
+                         dataList: dataList,
+                         refreshState: (dataList.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                     })
+                }
+
+            }).catch(error=>{
+                this.setState({
+                    refreshState: RefreshState.Idle,
+                    visible: false
+                })
+
+            })
+
+    }
+
+
+    render() {
+
+
+        const {lotteryname} = this.props;
+        this.state.lotteryname = lotteryname;
+
+
+
+        let showView = this.state.dataList.length?
+            <RefreshListView
+                data={this.state.dataList}
+                keyExtractor={this.keyExtractor}
+                renderItem={this.renderCell}
+                refreshState={this.state.refreshState}
+                onHeaderRefresh={this.onHeaderRefresh}
+                onFooterRefresh={this.onFooterRefresh}
+                numColumns ={1}
+                ListHeaderComponent={this.renderHeadView}
+                // horizontal={false}
+                //ItemSeparatorComponent={this._separator}
+                // 可选
+                footerRefreshingText= '玩命加载中 >.<'
+                footerFailureText = '我擦嘞，居然失败了 =.=!'
+                footerNoMoreDataText= '-我是有底线的-'
+            />
+            :<NoDataView click={()=>this.getDataList(true)}
+
+                         text = {"暂无注单"}
+        />
+        return(
+
+            <View style={{marginTop:1,width:recordWidth,height:'100%',backgroundColor:'white'}}>
+
+        
+
+                {showView}
+
+            </View>
+
+        )
+
+
+    }
+
+
+    itemView(index){
+
+        var follow = this.state.dataList[index];
+        var text = '未开奖';
+        var color = sys.subTitleColor
+        if(follow.isdraw==1){
+            text = '已中奖';
+            color = sys.redColor
+        }else if(follow.isdraw==-1){
+            text = '未中奖';
+            color = sys.blueColor
+        }
+
+
+        return <View>
+            <TouchableOpacity key={index} style={styles.content} onPress={()=>this.itemClick(follow)}>
+                <View style={{ backgroundColor:'white', marginTop:5,width:sys.dwidth*0.9}}>
+
+                    <View style={{flexDirection:'row'}}>
+                        <Text style={{width:sys.dwidth*0.9-80,marginLeft:10,fontSize:16,marginTop: 8,color:sys.mainColor,fontWeight: 'bold'}}>{follow.cptitle+"("+follow.expect+")"}</Text>
+                        <Text style={{color:color,width:60,textAlign:'right',top:10,fontWeight: 'bold',fontSize:16}}>{text}</Text>
+                    </View>
+
+                   
+                    <Text numberOfLines={1} style={styles.nametext}>{"玩法:"+follow.playtitle+"（"+follow.mode+"）"}</Text>
+
+                    <View style={{flexDirection:'row',width:sys.dwidth*0.9}}>
+                        <Text style={styles.nametext}>{"下注情况:"}</Text>
+                        <Text style={styles.nameRighttext}>{follow.tzcode}</Text>
+                    </View>
+                    
+                    <View style={{flexDirection:'row',width:sys.dwidth*0.9}}>
+                        <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',fontWeight: 'bold',lineHeight:20}}>{"开奖结果:"}</Text>
+                        <Text style={{marginLeft:3,fontSize:14,marginTop: 8,color:'#333333',fontWeight: 'bold',width:sys.dwidth*0.9-80,lineHeight:20,flexWrap: 'wrap'}}>{follow.opencode}</Text>
+                    </View>
+
+
+                    <View style={{flexDirection:'row',width:sys.dwidth*0.9,paddingBottom:10}}>
+                        <View >
+                            <Text style={[styles.nametext]}>投注金额:<Text style={{color:'green'}}>{follow.amount}</Text></Text>
+                            <Text style={[styles.nametext]}>中奖金额:<Text style={{color:sys.mainColor}}>{follow.okamount}</Text></Text>
+                        </View>
+
+                        <View style={{left:5}}>
+                            <Text style={styles.nametext}>{"投注注数:"+follow.itemcount}</Text>
+                            <Text style={styles.nametext}>{"中奖注数:"+follow.okcount}</Text>
+                        </View>
+                        
+                   </View>
+
+                    {/* <Text style={styles.nametext}>{"下注金额:"+follow.amount+"   下注注数:"+follow.itemcount}</Text>
+                    <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',marginBottom:10}}>{"中奖金额:"+follow.okamount+"   中奖注数:"+follow.okcount}</Text> */}
+                </View>
+                
+            </TouchableOpacity>
+
+        </View>
+
+
+
+    }
+
+    itemClick(e){
+
+        // const {navigate} = this.props.navigation;
+        // navigate('CourseDetail',{item:e})
+        // const {navigate} = this.props.navigationRecord;
+        // console.log('99999')
+        // console.log(e)
+        // console.log(this.props.navigationRecord);
+        // navigate('OrderDetail',{item:e})
+        this.props.onPress(e)
+
+        
+    }
+
+    keyExtractor = (item, index) => {
+        return index
+    }
+
+
+
+    changeGz(gzob,flistD) {
+
+        if (gzob.isgz == 0) {
+            gzob.isgz =1;
+        } else {
+            gzob.isgz =0;
+        }
+
+
+        this.setState({
+
+            flistData:flistD
+        })
+
+    }
+
+    renderCell = (item) => {
+
+        return this.itemView(item.index)
+    }
+
+
+    _separator = () => {
+        return <View style={{height:1,backgroundColor:'#f2f2f2'}}/>;
+    }
+
+}

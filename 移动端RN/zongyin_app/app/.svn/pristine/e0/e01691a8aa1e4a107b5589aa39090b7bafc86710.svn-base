@@ -1,0 +1,412 @@
+//
+//  Created by Liu Jinyong on 17/4/5.
+//  Copyright © 2016年 Liu Jinyong. All rights reserved.
+//
+//  @flow
+//  Github:
+//  https://github.com/huanxsd/react-native-refresh-list-view
+
+import React, {Component} from 'react'
+import {View, StyleSheet, Text, Platform,Alert,TouchableOpacity,Image,PixelRatio,DeviceEventEmitter} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import Cell from './Cell'
+import {sys,NoDataView} from "../common/Data"
+
+
+
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+import FcusImage from './HeadView';
+import RNLogin from "../common/RNLoginModule"
+import DialogSelected from '../common/AlertSelect';
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+
+
+class ChatMore extends Component {
+
+    // static  navigationOptions = ({navigation}) => ({
+    //     headerTitle:"我的注单",
+    //     headerTitleStyle:{
+    //         alignSelf:'center',
+    //         flex: 1,
+    //         textAlign: 'center',
+            
+    //     },
+    //     headerRight: <View />
+    // });
+
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+
+        var titStr = "更多"
+
+        if (Platform.OS=='ios') {
+            var leftView = <TouchableOpacity
+            onPress={() => {
+                 navigation.goBack()
+            }}
+
+            style={{width:50}}
+
+            >
+
+           <Image
+            source={require('../res/images/iosfanhui.png')}
+            style={{marginLeft:10,marginTop:0}}
+            />
+
+            </TouchableOpacity>
+
+            return {
+                headerTitle:titStr,
+                headerTitleStyle:{
+                    alignSelf:'center',
+                    flex: 1,
+                    textAlign: 'center',
+                    
+                },
+                headerRight: <View />,
+                headerLeft:leftView
+            }
+
+        }
+
+        return {
+            headerTitle:titStr,
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+                
+            },
+            headerRight: <View />
+
+        }
+    };
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList:null,
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:20,
+            noNetwork:false,
+            noData:true,
+            isloading:false
+        }
+    }
+
+
+    componentDidMount(){
+
+
+        this.getData()
+    }
+
+    componentWillUnmount()
+    {
+       
+    }
+
+    getData(){
+
+        let codeurl = host + '/AppChat.more.do';
+            let formData = new FormData();
+            // formData.append('username',userInfo.username)
+            // 请求参数 ('key',value)
+           
+            this.setState({
+                isloading:true,
+            })
+
+
+            HttpUtils.post(codeurl,formData)
+                .then(result=>{
+
+                    // console.log('~~~~~lalalalaal~~')
+                    // console.log(result)
+
+
+                    this.setState({
+                        isloading:false,
+                    })
+
+                    if(result['respCode']==1){
+                
+        
+                        this.setState({
+                            dataList: result['data'],
+                            refreshState:RefreshState.NoMoreData
+                        })
+
+                    }else{
+    
+                    }
+                }).catch(error=>{
+                    this.setState({
+                        isloading:false,
+                        refreshState: RefreshState.Idle,
+                    })
+
+                })    
+    }
+
+    caiPiaoZhudan() {
+
+
+
+        if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+        }
+
+        this.props.navigation.navigate("MyFollow",{userInfo:''});
+
+    }
+
+
+    chongzhi() {
+
+        // Alert.alert('棋牌')
+
+        if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+        }
+
+        this.props.navigation.navigate("BuycoinsCent",{fubi:0});
+
+    }
+
+    chuangjianLiaoTianShi() {
+        if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+        }
+
+         this.props.navigation.navigate("CreateChat",{fubi:0});
+
+     //   Alert.alert('创建聊天室')
+    }
+
+
+    wanfaShuoMing() {
+        <TouchableOpacity style={{marginTop:10,flexDirection:'row',
+                     backgroundColor:'white',height:64}} onPress={()=>this.wanfaShuoMing()}>
+                        
+                        {/* <View style={{top:10}}> */}
+                        <Text style={{marginLeft:20, width:150,fontSize:16,
+                        color:sys.titleColor,textAlign:'left',
+                            textAlignVertical:'center',height:60,
+                            ...Platform.select({
+                                ios: { lineHeight: 60},
+                                 android: {}
+                            })}}>玩法说明</Text>
+                          
+                        {/* </View>                    */}
+                
+                        <Image style={{marginTop:22.5,marginLeft:sys.dwidth-150-40,
+                       width:9,height:14.25,}} source={require('../my/images/icon_path.png')}></Image>
+                    </TouchableOpacity>
+        // Alert.alert('暂没开放此功能')
+    }
+
+
+    onHeaderRefresh = () => {
+
+        this.setState(
+            {
+                refreshState: RefreshState.HeaderRefreshing,
+            },()=>{
+                this.getData()
+            })
+
+
+    }
+
+    onFooterRefresh = () => {
+
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        },()=>{
+            this.getData()
+        })
+    }
+
+
+    renderCell = (item) => {
+
+        return this.itemView(item.index)
+    }
+
+
+
+
+    itemView(index){
+
+        return(<KeyboardAwareScrollView
+
+            style={{flex:1, backgroundColor:sys.backgroundColor,height:sys.dheight}}>
+
+                <View style={{backgroundColor:sys.backgroundColor,width: sys.dwidth}}>
+
+                    
+
+                <View style={{width:sys.dwidth,backgroundColor:sys.whiteColor}}>
+
+                    {/* <Text style={{marginTop:20,marginLeft:20,fontSize:16}}>余额：9000元</Text> */}
+
+                    {/* <View style={{flexDirection:'row'}}> */}
+                    
+                    <Text style={{marginTop:20,marginLeft:20,fontSize:16}}>聊天室客服</Text>
+                        
+                        {/* <View style={{marginTop:10}}> */}
+
+                            <Text style={{marginLeft:20,marginTop:10,fontSize:16}}>{'QQ:'+this.state.dataList['qq']}</Text>
+
+                            <Text style={{marginLeft:20,marginTop:10,fontSize:16}}>{'微信:'+this.state.dataList['weixin']}</Text>
+
+                        {/* </View> */}
+
+                    {/* </View> */}
+
+                    <View style={{height:10,backgroundColor:sys.whiteColor}}></View>
+
+                </View>
+
+
+                <View style={{marginTop:10,flexDirection:'row',
+                     backgroundColor:'white',height:64}}>
+                        
+                        {/* <View style={{top:10}}> */}
+                        <Text style={{marginLeft:20, width:300,fontSize:16,
+                        color:sys.titleColor,textAlign:'left',
+                            textAlignVertical:'center',height:60,
+                            ...Platform.select({
+                                ios: { lineHeight: 60},
+                                 android: {}
+                            })}}>{'账户余额：'+this.state.dataList['balance']+'元'}</Text>
+                    
+                    </View>
+
+                <TouchableOpacity style={{marginTop:10,flexDirection:'row',
+                     backgroundColor:'white',height:64}} onPress={()=>this.chongzhi()}>
+                        
+                        {/* <View style={{top:10}}> */}
+                        <Text style={{marginLeft:20, width:150,fontSize:16,
+                        color:sys.titleColor,textAlign:'left',
+                            textAlignVertical:'center',height:60,
+                            ...Platform.select({
+                                ios: { lineHeight: 60},
+                                 android: {}
+                            })}}>我要充值</Text>
+                          
+                        {/* </View>                    */}
+                
+                        <Image style={{marginTop:22.5,marginLeft:sys.dwidth-150-40,
+                       width:9,height:14.25,}} source={require('../my/images/icon_path.png')}></Image>
+                    </TouchableOpacity>
+
+                <TouchableOpacity style={{marginTop:10,flexDirection:'row',
+                     backgroundColor:'white',height:64}} onPress={()=>this.caiPiaoZhudan()}>
+                        
+                        {/* <View style={{top:10}}> */}
+                        <Text style={{marginLeft:20, width:150,fontSize:16,
+                        color:sys.titleColor,textAlign:'left',
+                            textAlignVertical:'center',height:60,
+                            ...Platform.select({
+                                ios: { lineHeight: 60},
+                                 android: {}
+                            })}}>投注记录</Text>
+                          
+                        {/* </View>                    */}
+                
+                        <Image style={{marginTop:22.5,marginLeft:sys.dwidth-150-40,
+                       width:9,height:14.25,}} source={require('../my/images/icon_path.png')}></Image>
+                    </TouchableOpacity>
+
+                    
+
+                    <TouchableOpacity style={{marginTop:10,flexDirection:'row',
+                     backgroundColor:'white',height:64}} onPress={()=>this.chuangjianLiaoTianShi()}>
+                        
+                        {/* <View style={{top:10}}> */}
+                        <Text style={{marginLeft:20, width:150,fontSize:16,
+                        color:sys.titleColor,textAlign:'left',
+                            textAlignVertical:'center',height:60,
+                            ...Platform.select({
+                                ios: { lineHeight: 60},
+                                 android: {}
+                            })}}>创建聊天室</Text>
+                          
+                        {/* </View>                    */}
+                
+                        <Image style={{marginTop:22.5,marginLeft:sys.dwidth-150-40,
+                       width:9,height:14.25,}} source={require('../my/images/icon_path.png')}></Image>
+                    </TouchableOpacity>
+
+                    
+
+                </View>
+
+            </KeyboardAwareScrollView>
+        )
+
+    }
+
+    render() {
+
+
+        var hanNum =['1']
+
+        let showView = (this.state.dataList!=null)?
+            <RefreshListView
+                data={hanNum}
+                keyExtractor={this.keyExtractor}
+                renderItem={this.renderCell}
+                refreshState={this.state.refreshState}
+                onHeaderRefresh={this.onHeaderRefresh}
+                onFooterRefresh={this.onFooterRefresh}
+                numColumns ={1}
+                //ListHeaderComponent={this.renderHeadView}
+                // horizontal={false}
+                //ItemSeparatorComponent={this._separator}
+                // 可选
+                footerRefreshingText= '玩命加载中 >.<'
+                footerFailureText = '我擦嘞，居然失败了 =.=!'
+                footerNoMoreDataText= ''
+            />
+            :<NoDataView click={()=>this.getData()}
+                isloading={this.state.isloading}
+                text = {this.state.isloading?"加载中":"暂无内容,点击重新加载"}
+            />
+
+
+         return  showView  
+
+ 
+
+    }
+
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:sys.grayColor,
+
+    },
+    headView:{
+       width:sys.dwidth,
+       height:sys.dwidth/3
+    }
+})
+
+export default ChatMore

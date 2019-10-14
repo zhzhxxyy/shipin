@@ -1,0 +1,660 @@
+import React,{Component} from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+
+    Switch,
+    Button,
+    ImageBackground,
+    Dimensions,
+    ScrollView
+} from 'react-native';
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import {sys,NoDataView,isIphoneX} from "../../common/Data"
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+import {LeftButton} from "../cqssc/CqsscPublic"
+import {styles} from "../common/homeStyle"
+import {combine} from './X5Rule'
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+
+import HttpUtils from "../../common/HttpUtil"
+
+
+const host = sys.host;
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const  text_arr = ["选一中一","选二中二","选三中三","选四中四","选五中五","选六中五","选七中五","选八中五"];
+
+
+
+var Buffer = require('buffer').Buffer;
+
+
+
+var thiz = this;
+var headthis;
+var thishead_arr = [];
+var selectedIndex = 0;
+
+
+
+export default class RenxuanFusi extends React.Component {
+
+
+
+    constructor(props) {
+
+        super(props);
+
+        this.state = {
+
+            fontLoaded: false,
+
+            number_arr: {},
+
+            zhushu: "0注",
+            amount: "0元",
+            count: 0,
+            index: 0,
+            beishu: '1',
+
+
+            currFullExpect:"",
+
+            dataArr:[],
+
+            x5rx1z1:{},
+            x5rx2z2:{},
+            x5rx3z3:{},
+            x5rx4z4:{},
+            x5rx5z5:{},
+            x5rx6z5:{},
+            x5rx7z5:{},
+            x5rx8z5:{},
+
+        }
+    }
+
+
+    async componentDidMount() {
+        this.setState({ fontLoaded: true });
+
+        selectedIndex = 0;
+        this.setState({ currFullExpect: this.props.currFullExpect });
+
+        if(this.props.datalist["x5rx1z1"] != null){
+            this.setState({ x5rx1z1: this.props.datalist["x5rx1z1"]});
+            this.state.dataArr.push(this.state.x5rx1z1);
+        }
+
+        if(this.props.datalist["x5rx2z2"] != null){
+            this.setState({ x5rx2z2: this.props.datalist["x5rx2z2"]});
+            this.state.dataArr.push(this.state.x5rx2z2);
+        }
+
+        if(this.props.datalist["x5rx3z3"] != null){
+            this.setState({ x5rx3z3: this.props.datalist["x5rx3z3"]});
+            this.state.dataArr.push(this.state.x5rx3z3);
+        }
+
+        if(this.props.datalist["x5rx4z4"] != null){
+            this.setState({ x5rx4z4: this.props.datalist["x5rx4z4"]});
+            this.state.dataArr.push(this.state.x5rx4z4);
+        }
+
+        if(this.props.datalist["x5rx5z5"] != null){
+            this.setState({ x5rx5z5: this.props.datalist["x5rx5z5"]});
+            this.state.dataArr.push(this.state.x5rx5z5);
+        }
+
+        if(this.props.datalist["x5rx6z5"] != null){
+            this.setState({ x5rx6z5: this.props.datalist["x5rx6z5"]});
+            this.state.dataArr.push(this.state.x5rx6z5);
+        }
+
+        if(this.props.datalist["x5rx7z5"] != null){
+            this.setState({ x5rx7z5: this.props.datalist["x5rx7z5"]});
+            this.state.dataArr.push(this.state.x5rx7z5);
+        }
+
+        if(this.props.datalist["x5rx8z5"] != null){
+            this.setState({ x5rx8z5: this.props.datalist["x5rx8z5"]});
+            this.state.dataArr.push(this.state.x5rx8z5);
+        }
+
+    }
+
+
+    //生成随机订单号
+    generateMixed(n) {
+
+        var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
+        var res = "";
+        for(var i = 0; i < n ; i ++) {
+            var id = Math.ceil(Math.random()*35);
+            res += chars[id];
+        }
+        return res;
+    }
+
+
+    onButtonPress(index){
+
+
+        if (index == this.state.index){
+            return;
+        }
+
+
+
+        this.setState({
+            index:index,
+            zhushu:"0注",
+            amount:"0元",
+            count : 0,
+            beishu:'1',
+            number_arr : [],
+        },()=>{
+
+            for(var key in thiz.refs){
+               // if(thiz.refs[key].state.selected != null){
+                if(key.includes('选')){
+                    thiz.refs[key].setState({
+                        selected:false
+                    });
+                }
+
+                if(key.includes('header')){//customheader
+                    for(var subkey in thiz.refs[key].refs){
+                        thiz.refs[key].refs[subkey].setState({
+                            selected:false
+                        });
+                    }
+                }
+            }
+
+            if(selectedIndex != this.state.index){
+                thiz.refs["left"+selectedIndex].setState({
+                    selected: false
+                });
+
+                selectedIndex = this.state.index;
+                thiz.refs["left"+selectedIndex].setState({
+                    selected: true
+                });
+            }
+
+
+
+        })
+    };
+
+
+
+    itemClick(){
+        this.setState({
+            index:thiz.state.index,
+            zhushu:thiz.state.zhushu,
+            amount : thiz.state.amount,
+            count:thiz.state.count,
+            beishu:thiz.state.beishu
+        })
+    }
+
+
+
+    buynow(){
+
+        let isCunZai = this.props.datalist.hasOwnProperty('x5rx1z1')
+
+        if (!isCunZai){
+            this.props.lodaData()
+            return;
+        }
+
+        if(thiz.state.count == 0){
+            this.refs.toast.show("您的选注不符合规则", DURATION.LENGTH_LONG);    
+            return;
+
+        }
+
+        if(thiz.state.beishu == '0' || thiz.state.beishu == ''){
+            this.refs.toast.show("请填写下注倍数", DURATION.LENGTH_LONG);
+            return;
+        }
+
+        var number = thiz.state.number_arr['rx'] + "";
+
+        var data = {};
+
+        if(this.state.index == 0){
+            data = this.state.x5rx1z1;
+      
+        }else  if (this.state.index == 1){
+            data = this.state.x5rx2z2;
+
+        }else  if (this.state.index == 2) {
+            data = this.state.x5rx3z3;
+
+        } else if(this.state.index == 3){
+            data = this.state.x5rx4z4;
+
+        }else  if (this.state.index == 4){
+            data = this.state.x5rx5z5;
+
+        }else  if (this.state.index == 5){
+            data = this.state.x5rx6z5;
+
+        }else  if (this.state.index == 6){
+            data = this.state.x5rx7z5;
+
+        }else  if (this.state.index == 7){
+            data = this.state.x5rx8z5;
+
+        }
+
+
+
+        this.setState({
+
+            data : data,
+            number : number
+
+        },()=>{
+            this.props.onPress();
+        });
+
+
+
+    }
+
+    render(){
+
+
+        thiz = this;
+
+        var  zhushu  = thiz.state.zhushu ;
+        var  amount = thiz.state.amount;
+
+        var remark = "";
+        var rate = 0;
+
+
+        var titleArr = [];
+
+
+
+
+        if(this.state.index == 0){
+            if(this.props.datalist["x5rx1z1"] != null){
+                remark = this.state.x5rx1z1.remark;
+                rate = this.state.x5rx1z1.rate;
+            }
+
+        }else if(this.state.index == 1){
+            if(this.props.datalist["x5rx2z2"] != null){
+                remark = this.state.x5rx2z2.remark;
+                rate = this.state.x5rx2z2.rate;
+            }
+
+        }else if(this.state.index == 2){
+            if(this.props.datalist["x5rx3z3"] != null){
+                remark = this.state.x5rx3z3.remark;
+                rate = this.state.x5rx3z3.rate;
+            }
+
+        }else if(this.state.index == 3){
+            if(this.props.datalist["x5rx4z4"] != null){
+                remark = this.state.x5rx4z4.remark;
+                rate = this.state.x5rx4z4.rate;
+            }
+
+        }else if(this.state.index == 4){
+            if(this.props.datalist["x5rx5z5"] != null){
+                remark = this.state.x5rx5z5.remark;
+                rate = this.state.x5rx5z5.rate;
+            }
+
+        }else if(this.state.index == 5){
+            if(this.props.datalist["x5rx6z5"] != null){
+                remark = this.state.x5rx6z5.remark;
+                rate = this.state.x5rx6z5.rate;
+            }
+
+        }else if(this.state.index == 6){
+            if(this.props.datalist["x5rx7z5"] != null){
+                remark = this.state.x5rx7z5.remark;
+                rate = this.state.x5rx7z5.rate;
+            }
+
+        }else if(this.state.index == 7){
+            if(this.props.datalist["x5rx8z5"] != null){
+                remark = this.state.x5rx8z5.remark;
+                rate = this.state.x5rx8z5.rate;
+            }
+
+        }
+
+
+
+
+        let isCunZai = this.props.datalist.hasOwnProperty('x5rx1z1')
+
+        let rarmkView = isCunZai?<Text style={styles.remarkHeader}>{remark}赔率<Text 
+        style={{color:'red'}}>{rate}</Text>倍</Text>:<NoDataView
+             isloading = {this.props.visible} click={()=>this.props.lodaData()}
+             text = {"重新加载"}></NoDataView>
+
+
+
+        // var scrollH = sys.dheight-290;
+        // if(isIphoneX()){
+        //     scrollH = sys.dheight-320;
+        // }
+        var scrollH = sys.zhongjianIsHaveChange;
+        return (
+            <KeyboardAwareScrollView
+                style={styles.container}
+                keyboardShouldPersistTaps = {"always"}
+
+            >
+            <View style={{flex:1}}>
+                <View style={{ flex: 1 ,flexDirection:'row'}}>
+
+                    <ScrollView
+
+                        style={{
+
+                            backgroundColor:sys.grayColor,
+                            width:LEFT_WIDTH,
+                            height:scrollH
+                        }}>
+
+                        {text_arr.map((info, index) => {
+                            var selected = false;
+                            if (this.state.index == index){
+                                selected = true;
+                            }
+
+                            return (
+
+                                <LeftButton key={index} xuanzo={index==0?1:0} title={info}    index={index} selected={selected} ref={"left"+index}
+                                            onPress={()=>{
+                                                this.onButtonPress(index)
+                                            }}></LeftButton>
+                            );
+                        })}
+                    </ScrollView>
+                    <ScrollView
+                        style={{
+                            backgroundColor:"white",
+                            width:RIGHT_WIDTH,
+                            height:scrollH
+                        }}
+                    >
+
+                        {/* <Text style={styles.remarkHeader}>{remark}赔率<Text style={{color:'red'}}>{rate}</Text>倍</Text> */}
+                        {rarmkView}
+                        <View key={thiz.state.index} >
+                            <Text style={styles.x5title}>{text_arr[thiz.state.index]}</Text>
+                            <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="01"  ref={ 'renxuan01'}/>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="02"  ref={ 'renxuan02'}/>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="03"  ref={ 'renxuan03'}/>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="04"  ref={ 'renxuan04'}/>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="05"  ref={ 'renxuan05'}/>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="06"  ref={ 'renxuan06'}/>
+                            </View>
+                            <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="07"  ref={ 'renxuan07'}/>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="08"  ref={ 'renxuan08'}/>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="09"  ref={ 'renxuan09'}/>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="10"  ref={ 'renxuan10'}/>
+                                <CustomButton index={thiz.state.index} onPress={thiz.itemClick.bind(this)} title="11"  ref={ 'renxuan11'}/>
+                            </View>
+                        </View>
+
+
+                        <View style={{height:50}}></View>
+
+                    </ScrollView>
+
+                </View>
+
+                <View style={styles.beishuView} >
+
+                    <TouchableOpacity  style={styles.reduceBtn }
+                                       onPress={() => {
+
+                                           if(thiz.state.beishu == '1'){
+                                               return;
+                                           }else {
+                                               var mewBeishu = parseInt(thiz.state.beishu) - 1;
+                                               thiz.setState({
+                                                   beishu : mewBeishu+'',
+                                                   amount :  thiz.state.count*2*mewBeishu + "元"
+                                               })
+                                           }
+
+                                       }}
+                    >
+                        <Text style={styles.payButtonText} >-</Text>
+                    </TouchableOpacity>
+
+                    <TextInput underlineColorAndroid='transparent' value={thiz.state.beishu}
+                               keyboardType='numeric'  style={styles.beishuCount}  ref="beishucount"
+                               onChangeText={(text) =>{
+                                   thiz.setState({
+                                       beishu:text,
+                                       amount : thiz.state.count*2*parseInt(text) + "元"
+                                   })
+
+                                   if(text == '' || text == null){
+
+                                       thiz.setState({
+                                           amount : "0元"
+                                       })
+                                   }
+                               }
+                               }
+                    ></TextInput>
+
+
+                    <TouchableOpacity  style={styles.reduceBtn }
+                                       onPress={() => {
+
+                                           var mewBeishu = parseInt(thiz.state.beishu) + 1;
+                                           if(thiz.state.beishu == '' ){
+                                               mewBeishu = 1;
+                                           }
+
+
+                                           thiz.setState({
+                                               beishu : mewBeishu+'',
+                                               amount :  thiz.state.count*2*mewBeishu + "元"
+                                           })
+
+
+                                       }}
+                    >
+                        <Text style={styles.payButtonText}>+</Text>
+                    </TouchableOpacity>
+
+                </View>
+
+
+
+                <View style={styles.footer} >
+                    <View style={styles.yuerbar}>
+                        <Text style={styles.nameHeader}>总额</Text>
+                        <Text style={styles.yuer}>{amount}</Text>
+                    </View>
+                    <View style={styles.yuerbar}>
+                        <Text style={styles.nameHeader}>单注：</Text>
+                        <Text style={styles.yuer}>2元</Text>
+                        {/*<FormInput style={styles.yuer} placeholder="111" />*/}
+                    </View>
+                    <View style={styles.yuerbar}>
+                        <Text style={styles.nameHeader}>共</Text>
+                        <Text style={styles.yuer}>{zhushu}</Text>
+                    </View>
+
+                    <TouchableOpacity  style={styles.payButton }
+                                       onPress={() => {
+                                           this.buynow();
+                                       }}
+                    >
+
+                        <Text style={styles.payButtonText}>下注</Text>
+                    </TouchableOpacity>
+
+                </View>
+
+            </View>
+
+            <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='top'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                />  
+                </KeyboardAwareScrollView>
+
+        )
+    }
+
+
+}
+
+
+
+class CustomButton extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+            selected: false,
+        };
+    }
+
+
+
+
+
+
+
+    render() {
+        var { title,style,xuanzo,type,index } = this.props;
+
+
+        if(style==undefined){
+            style = {backgroundColor:sys.redColor,borderRadius:RIGHT_WIDTH/14,
+                width:RIGHT_WIDTH/7,height:RIGHT_WIDTH/7,marginLeft: (RIGHT_WIDTH-RIGHT_WIDTH/7*5)/6}
+        }
+        if(xuanzo==1)this.state.selected=true;
+
+        const { selected } = this.state;
+
+
+        let myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-180)/7,marginTop:(RIGHT_WIDTH-180)/14};
+
+        return (
+
+            <TouchableOpacity index={index} style={[selected?styles.stouchButton : styles.touchButton,myStyle]}
+                              onPress={() => {
+
+
+                                  {/*this.customclick(index);*/}
+
+
+
+
+                                  var arr = [];
+
+
+
+
+
+
+                                  this.setState({
+                                      selected:!selected
+                                  });
+
+
+                                  this.setState({ selected: !selected } ,() => {
+
+
+                                      for(var key in thiz.refs){
+
+                                          if(key.includes('renxuan')){
+                                              if (thiz.refs[key].state.selected) {
+                                                arr.push(key.substr(7,2))
+                                              }
+                                              
+                                          }
+                                      }
+
+
+                                      var count = arr.length;
+
+                                      if(thiz.state.index == 0){
+                                          count = arr.length;
+                                      }else if(thiz.state.index == 1){
+
+                                          count = combine(arr,2);
+                                      }else if(thiz.state.index == 2){
+
+                                          count = combine(arr,3);
+                                      }else if(thiz.state.index == 3){
+
+                                          count = combine(arr,4);
+                                      }else if(thiz.state.index == 4){
+
+                                          count = combine(arr,5);
+                                      }else if(thiz.state.index == 5){
+
+                                          count = combine(arr,6);
+                                      }else if(thiz.state.index == 6){
+
+                                          count = combine(arr,7);
+                                      }else if(thiz.state.index == 7){
+
+                                          count = combine(arr,8);
+                                      }
+
+
+
+
+                                      thiz.state.number_arr['rx'] = arr;
+
+                                      thiz.state.zhushu = count + "注";
+                                      thiz.state.amount = count*2*thiz.state.beishu + "元";
+                                      thiz.state.count = count;
+                                      this.props.onPress();
+
+
+
+                                  })
+                              }}>
+                <Text style={selected?styles.stouchButtonText: styles.touchButtonText}>{title}</Text>
+            </TouchableOpacity>
+
+        );
+
+    }
+}

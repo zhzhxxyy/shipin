@@ -1,0 +1,70 @@
+{
+  "name": "react-native-device-info",
+  "version": "2.3.2",
+  "description": "Get device information using react-native",
+  "main": "deviceinfo.js",
+  "typings": "./deviceinfo.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/react-native-community/react-native-device-info"
+  },
+  "scripts": {
+    "analyze": "npm run ts-check && npm run flow-check",
+    "dev-sync": "cp -r deviceinfo* *podspec default windows web android ios example/node_modules/react-native-device-info/",
+    "flow-check": "npx flow check-contents < deviceinfo.js.flow",
+    "lint": "npx eslint ./ --ignore-pattern example --ignore-pattern node_modules --fix --quiet",
+    "shipit": "np --no-yarn",
+    "ts-check": "npx tsc deviceinfo.d.ts --noEmit",
+    "precommit": "lint-staged && npm run analyze"
+  },
+  "lint-staged": {
+    "*.js": [
+      "npm run lint",
+      "git add"
+    ]
+  },
+  "keywords": [
+    "react-component",
+    "react-native",
+    "ios",
+    "android",
+    "windows",
+    "device",
+    "events",
+    "cocoapod"
+  ],
+  "author": "Rebecca Hughes <rebecca@learnium.net> (https://github.com/rebeccahughes)",
+  "contributors": [
+    {
+      "name": "Gant Laborde",
+      "email": "gant@infinite.red",
+      "url": "https://github.com/gantman"
+    },
+    {
+      "name": "Mehdi Achour",
+      "email": "machour@gmail.com",
+      "url": "https://github.com/machour"
+    },
+    {
+      "name": "Mike Hardy",
+      "email": "github@mikehardy.net",
+      "url": "https://github.com/mikehardy"
+    }
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@react-native-community/eslint-config": "0.0.5",
+    "eslint": "^6.1.0",
+    "flow-bin": "^0.104.0",
+    "husky": "^3.0.2",
+    "lint-staged": "^9.2.1",
+    "np": "^5.0.3",
+    "prettier": "^1.18.2",
+    "react": "^16.8.3",
+    "typescript": "^3.5.3"
+  },
+  "eslintConfig": {
+    "extends": "@react-native-community"
+  },
+  "dependencies": {}
+}

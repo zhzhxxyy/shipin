@@ -1,0 +1,1146 @@
+
+import React, {Component} from 'react'
+import {
+    Text,
+    View,
+    Dimensions,
+    ScrollView, SafeAreaView,
+    Button,
+    TextInput,
+    Alert,
+    Animated,
+    TouchableOpacity, Picker, Platform, DeviceEventEmitter
+} from 'react-native';
+
+import {sys} from "../../common/Data"
+
+
+import SixhcTeMa from './SixhcTeMa'
+import SixhcZhengMa from './SixhcZhengMa'
+import SixhcLianMa from './SixhcLianMa'
+import SixhcBanBo from './SixhcBanBo'
+import SixhcShengXiao from './SixhcShengXiao'
+import SixhcWeiShu from './SixhcWeiShu'
+import SixhcBuZhong from './SixhcBuZhong'
+
+import {BuySureAlert} from "../common/CommonViewButton"
+
+
+import {KaijiangHeadView} from "../common/KaijiangHeadView"
+
+import ScrollableTabView, {DefaultTabBar} from 'react-native-scrollable-tab-view';
+
+const host = sys.host;
+
+import HttpUtils from "../../common/HttpUtil";
+
+import EZSideMenu from 'react-native-ezsidemenu';
+
+
+import Pop from 'rn-global-modal'
+
+
+var Buffer = require('buffer').Buffer;
+
+import Record from '../common/Record'
+
+import {styles} from "../common/homeStyle"
+import ActionButton from 'react-native-action-button'
+
+// import ToastView from '../../common/Toast'
+import Toast,{DURATION} from 'react-native-easy-toast';
+
+var myThis;
+
+
+var clickLastTime=0;
+
+export default class Sixhc extends React.Component {
+
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+
+        return {
+            headerTitle: params.item.title?params.item.title:'时时彩',
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+                
+            },
+            headerRight: <View />
+
+        }
+    };
+
+    constructor(props) {
+        super(props);
+
+        self = this;
+        this.state = {
+
+            ///一星复式
+            newlist:[],
+            kaijianResult:[],
+            
+            iskaijianResult:false,
+        
+            lhcRearkData:{},
+            
+            lotterytimesData:{},
+
+            lotteryname:this.props.navigation.state.params.item['name'],
+            name:this.props.navigation.state.params.item['title'],
+            cptype:this.props.navigation.state.params.item['typeid'],
+            currFullExpect:"",
+            orderFullExpect:'',
+            orderList:[],
+
+            visible:false,
+            kaijianJlArr:[],
+            animation:new Animated.Value(0),
+
+            chenggongNum:0,
+
+            shibeuNum:0,
+
+            isqingqiu:true,
+
+
+             clickIndext:0,
+
+
+        };
+
+    }
+
+    componentDidMount() {
+
+        this.getLhcData(0);
+        DeviceEventEmitter.addListener('Login',(dic)=>{
+            Pop.hide()
+            this.setState({
+                visible:false
+            })
+
+        });
+
+        DeviceEventEmitter.addListener('LoginQuxiao',(dic)=>{
+            Pop.hide()
+            this.setState({
+                visible:false
+            })
+
+        });
+
+    }
+  
+
+    componentWillUnmount(){//销毁
+        this.state.isqingqiu = false;
+    }
+
+ 
+    getLhcData(num){
+
+        myThis.setState({
+            visible: true
+        });
+
+        let codeurl = host + "/AppGame.lhc.code.lhc.do"
+
+        let formData = new FormData();
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+             
+                // myThis.state.chenggongNum++;
+                
+                
+                myThis.setState({
+                    visible: false,
+                    // chenggongNum:myThis.state.chenggongNum,
+                });
+                if(result['respCode']==1){
+                    myThis.setState({
+                        lhcRearkData:result['data'],
+                    })
+                    myThis.refs['SixhcTeMa'].setState({
+                        nowcpinfo:result['data']['nowcpinfo'],
+                        lhcRates:result['data']['rates']['rates'],
+                    })
+                }else{
+                    myThis.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);                
+                }
+
+
+                if (num <=0 &&this.state.isqingqiu) {
+                    myThis.getLhcData(num+1)
+                }
+
+                
+
+            })
+            .catch(error=>{
+      
+                // myThis.state.shibeuNum++;
+                
+                myThis.setState({
+                    visible: false,
+                    // shibeuNum:myThis.state.shibeuNum
+                });
+                if (num <=0 &&myThis.state.isqingqiu) {
+                    myThis.getLhcData(num+1)
+                }else{
+
+                    if (myThis.state.isqingqiu) {
+                 
+                        myThis.refs.toast.show("请求错误"+error, DURATION.LENGTH_LONG);
+                    }
+
+                    
+                 }
+            })
+    }
+    
+
+
+    //Game.lhc.code.lhc.do
+
+    // Apijiekou.lotteryopencodes
+
+    // Apijiekou.lotterytimes
+
+
+    changLefIndext(i){
+       // console.log(i);
+
+
+        if (i==1) {
+            if(this.state.lhcRearkData.hasOwnProperty('rates')) {
+                this.refs['SixhcZhengMa'].setState({
+                    nowcpinfo:this.state.lhcRearkData['nowcpinfo'],
+                    lhcRates:this.state.lhcRearkData['rates']['rates'],
+                })
+            }
+        } else if(i ==2) {
+            if(this.state.lhcRearkData.hasOwnProperty('rates')) {
+                this.refs['SixhcLianMa'].setState({
+                    nowcpinfo:this.state.lhcRearkData['nowcpinfo'],
+                    lhcRates:this.state.lhcRearkData['rates']['rates'],
+                })
+            }
+        } else if(i ==3) {
+            if(this.state.lhcRearkData.hasOwnProperty('rates')) {
+                this.refs['SixhcBanBo'].setState({
+                    nowcpinfo:this.state.lhcRearkData['nowcpinfo'],
+                    lhcRates:this.state.lhcRearkData['rates']['rates'],
+                })
+            }
+        } else if(i ==4) {
+            if(this.state.lhcRearkData.hasOwnProperty('rates')) {
+                this.refs['SixhcShengXiao'].setState({
+                    nowcpinfo:this.state.lhcRearkData['nowcpinfo'],
+                    lhcRates:this.state.lhcRearkData['rates']['rates'],
+                })
+            }
+        } else if(i ==5) {
+            if(this.state.lhcRearkData.hasOwnProperty('rates')) {
+                this.refs['SixhcWeiShu'].setState({
+                    nowcpinfo:this.state.lhcRearkData['nowcpinfo'],
+                    lhcRates:this.state.lhcRearkData['rates']['rates'],
+                })
+            }
+        } else if(i ==6) {
+            if(this.state.lhcRearkData.hasOwnProperty('rates')) {
+                this.refs['SixhcBuZhong'].setState({
+                    nowcpinfo:this.state.lhcRearkData['nowcpinfo'],
+                    lhcRates:this.state.lhcRearkData['rates']['rates'],
+                })
+            }
+        } 
+
+    }
+
+    render(){
+
+        // var { title,xuanzo ,index} = this.props;
+
+    
+        myThis = this;
+
+
+        const menuWidth = Dimensions.get('window').width * 0.9;
+        const opacity = myThis.state.animation.interpolate({
+            inputRange: [0, menuWidth],
+            outputRange: [0, 1],
+        });
+
+        return(
+        
+            <EZSideMenu
+            onMenuStateChaned={(isOpen) => { this.setState({ isOpen }) }}
+            onPanMove={(x) => { console.log('onPanMove ' + x) }}
+            onSliding={(x, persent) => { console.log('onSliding x ' + x + ' persent ' + persent) }}
+            onPanStartMove={() => { this.setState({ scroll: false }) }}//adapt android
+            onPanEndMove={() => { this.setState({ scroll: true }) }}//adapt android
+            type={EZSideMenu.type.Default}
+            menuStyle={styles.container}
+            shadowStyle={{ backgroundColor: 'rgba(20,20,20,.7)' }}
+            direction={EZSideMenu.direction.Left}
+            ref="menu"
+            position={this.state.animation}
+            width={menuWidth}
+            menu={this.menu(opacity)}
+            panWidthFromEdge={200}
+            animationFunction={(prop, value) => Animated.spring(prop, {
+                friction: 10,
+                toValue: value
+            })}>
+            
+
+        
+            <View style={{
+                flex: 1}}>
+
+        
+              <KaijiangHeadView name={this.state.lotteryname} typeid={this.state.cptype} codeNum={7}  ReloadRecord={()=>{
+                        this.refs['Record'].getKaijianJuliData(0)
+                }} KaijiangReturn={(currFullExpect)=>{        
+                       {/* this.setState({currFullExpect:currFullExpect}) */}
+                       this.state.currFullExpect = currFullExpect
+                }}/> 
+
+
+            {/* <Text>{'失败='+myThis.state.shibeuNum+'    成功=='+myThis.state.chenggongNum}</Text> */}
+
+            <ScrollableTabView
+            style={{marginTop:0}}
+            initialPage={0}
+            renderTabBar={() => <DefaultTabBar />}
+            tabBarUnderlineStyle={{backgroundColor:sys.mainColor,height:4,width:sys.dwidth/7,marginLeft:0}}
+            tabBarBackgroundColor='#FFFFFF'
+            tabBarActiveTextColor={sys.mainColor}
+            tabBarInactiveTextColor='#333333'
+            onChangeTab={(obj) =>{
+                myThis.changLefIndext(obj.i)
+            }}
+            tabBarTextStyle={{fontSize: 15}}
+            >
+            <SixhcTeMa ref="SixhcTeMa" nowcpinfo={this.state.nowcpinfo} datalist={this.state.newlist} 
+            visible={this.state.visible} lodaData={()=>this.getLhcData(0)}
+             onPress={()=>this.buyClick(0)} currFullExpect={this.state.currFullExpect}  
+             params={this.props.navigation.state} navigation={this.props.navigation} 
+             tabLabel='特码'>yixing</SixhcTeMa>
+            <SixhcZhengMa ref="SixhcZhengMa" datalist={this.state.newlist}   
+            visible={this.state.visible} lodaData={()=>this.getLhcData(0)}
+            onPress={()=>this.buyClick(1)}  currFullExpect={this.state.currFullExpect}   
+            params={this.props.navigation.state} navigation={this.props.navigation}
+             tabLabel='正码'>yixing</SixhcZhengMa>
+            <SixhcLianMa ref="SixhcLianMa" datalist={this.state.newlist}  
+            visible={this.state.visible} lodaData={()=>this.getLhcData(0)}
+            onPress={()=>this.buyClick(2)}  currFullExpect={this.state.currFullExpect}   
+            params={this.props.navigation.state} navigation={this.props.navigation} 
+            tabLabel='连码'>yixing</SixhcLianMa>
+            <SixhcBanBo  ref="SixhcBanBo" datalist={this.state.newlist}  
+            visible={this.state.visible} lodaData={()=>this.getLhcData(0)}
+            onPress={()=>this.buyClick(3)}  currFullExpect={this.state.currFullExpect}  
+             params={this.props.navigation.state} navigation={this.props.navigation} 
+             tabLabel='半波'>yixing</SixhcBanBo>
+            <SixhcShengXiao ref="SixhcShengXiao" datalist={this.state.newlist}  
+            visible={this.state.visible} lodaData={()=>this.getLhcData(0)}
+            onPress={()=>this.buyClick(4)}  currFullExpect={this.state.currFullExpect}  
+            params={this.props.navigation.state} navigation={this.props.navigation} 
+            tabLabel='生肖'>yixing</SixhcShengXiao>
+            <SixhcWeiShu ref="SixhcWeiShu" datalist={this.state.newlist}  
+            visible={this.state.visible} lodaData={()=>this.getLhcData(0)}
+            onPress={()=>this.buyClick(5)}  currFullExpect={this.state.currFullExpect}  
+            params={this.props.navigation.state} navigation={this.props.navigation} 
+            tabLabel='尾数'>yixing</SixhcWeiShu>
+            <SixhcBuZhong ref="SixhcBuZhong" datalist={this.state.newlist} 
+            visible={this.state.visible} lodaData={()=>this.getLhcData(0)}
+            onPress={()=>this.buyClick(6)}  currFullExpect={this.state.currFullExpect}   
+            params={this.props.navigation.state} navigation={this.props.navigation} 
+            tabLabel='不中'>yixing</SixhcBuZhong>
+            
+
+            </ScrollableTabView>
+            <ActionButton
+                    buttonColor={sys.mainColor}   offsetY={ Platform.OS == 'ios' ? (sys.dheight > 750 ? 95 :70) : (sys.dheight > 700 ? 95 :80)} offsetX={10} position='right'
+                    onPress={() => {
+
+
+                        // if (!myThis.state.kaijianJlArr.length) {
+                        //     myThis.getKaijianJuliData();
+                        //     return;
+                        // } 
+                        myThis.rightViewClick();
+                     }}
+                    renderIcon={() => (<View >
+                          {/*<Text style={{color:'white',lineHeight:18,fontSize:14,textAlign:'center'}}>下注</Text>*/}
+                          <Text style={{color:'white',lineHeight:18,fontSize:14,textAlign:'center'}}>记录</Text>
+                          </View>)}
+                    />
+            </View>
+            
+                 <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                /> 
+    
+            </EZSideMenu>
+
+        )
+
+
+
+    }
+
+
+    // getKaijianJuliData() {
+    //     // AppApijiekou.lotteryopencodes 开奖记录
+    //         let codeurl = host + "/AppApijiekou.lotteryopencodes"
+    //         let formData = new FormData();
+    //         // 请求参数 ('key',value)
+    //         // formData.append('page', this.state.currentPage);
+    
+    //         myThis.setState({
+    //             visible: true
+    //         });
+    
+    //         let lotteryname = myThis.state.lotteryname;
+    //         formData.append('lotteryname',lotteryname);
+    
+    //         HttpUtils.post(codeurl,formData)
+    //             .then(result=>{
+    
+    //                 myThis.setState({
+    //                     visible: false
+    //                 });
+    
+    //                 console.log(result);
+    
+    //                 if(result['respCode']==1){
+    
+    
+    //                     let testData = result['data'];
+    
+    //                     myThis.setState({
+    
+    //                         kaijianJlArr:testData,
+    
+    //                     })
+    
+    
+    //                     myThis.rightViewClick();
+    
+    //                 }else{
+    
+    //                     myThis.setState({
+    //                         noNetwork:false,
+    //                     })
+    
+    //                 }
+    
+    //             })
+    //             .catch(error=>{
+    //                 myThis.setState({
+    //                     visible: false
+    //                 });
+    //             })
+    // }
+
+    rightViewClick(){
+        if (myThis.refs.menu) {
+            myThis.state.isOpen ? myThis.refs.menu.close() : myThis.refs.menu.open();
+        }
+    }
+
+    menu(opacity) {
+        const menu = (
+            <Animated.View style={{ flex: 1, backgroundColor: 'transparent', opacity }}>
+                <Record ref="Record" type={this.state.cptype} lotteryname={this.state.lotteryname} 
+                onPress={myThis.orderDetail.bind()}
+                style={{ flex: 1,  backgroundColor: 'red'} }>
+                </Record>
+            </Animated.View>
+        );
+        return menu
+    }
+
+
+    orderDetail(e){
+        const {navigate} = myThis.props.navigation;
+        navigate('OrderDetail',{item:e})
+    }
+
+
+    showTanKuan(zhushuNum,beishu,numberStr,playtitle)
+    {
+        var amount = beishu*2*zhushuNum;
+         var tipMessage= playtitle+":"+numberStr +"  注数:"+zhushuNum +"  金额:"+amount+'元'
+
+
+         myThis.state.orderFullExpect = myThis.state.currFullExpect;
+        Pop.show(
+
+            <BuySureAlert name={myThis.props.navigation.state.params.item['title']} lotteryname={myThis.state.lotteryname} 
+            currFullExpect={myThis.state.currFullExpect} 
+            orderDetailMessage={tipMessage} totalAmount={amount} touzhuList={[]} 
+            onPress={myThis.mashangxiazhu.bind()}/>
+            )
+
+    }
+
+
+    buyClick(tag){
+
+
+        myThis.state.clickIndext = tag;
+
+        // if(!myThis.state.lhcRearkData.hasOwnProperty('rates')) {
+        //     myThis.refs.toast.show('加载赔率没成功', DURATION.LENGTH_LONG);
+        //     return false;
+        // }
+
+
+        if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+        }
+
+        myThis.setState({
+            orderList:[],
+        })
+
+        // if(!myThis.state.lhcRearkData.hasOwnProperty('rates')) {
+        //     myThis.refs.toast.show('稍后再试', DURATION.LENGTH_LONG);
+        //     return;
+        // }
+        
+
+        if (tag == 0) { //特码
+
+            let SixhcTeMa = this.refs['SixhcTeMa']
+
+
+            let orderList=[];
+
+            var numStr=''
+                for (var i=0;i<SixhcTeMa.state.xiazhiArr.length; i++) {
+                    if (numStr.length) {
+                        numStr +=','+SixhcTeMa.state.xiazhiArr[i]
+                    } else {
+                        numStr = SixhcTeMa.state.xiazhiArr[i]
+                    }
+                }
+
+            if (SixhcTeMa.state.leftbtnSeletIndex == 1) {
+                
+                for (var i=0;i<SixhcTeMa.state.xiazhiArr.length; i++) {
+
+                    var plKey = SixhcTeMa.state.twoMianXiaZhuPl[i]
+
+                    var dateDic = SixhcTeMa.state.lhcRates[plKey];
+                   // console.log(dateDic)
+
+                    var fsate =  {
+    
+                    };
+
+                    
+    
+                    fsate['trano'] = this.generateMixed(20);
+                    fsate['playtitle'] = dateDic.title;
+    
+                    fsate['playid'] = dateDic.playid;
+                    fsate['number'] = SixhcTeMa.state.xiazhiArr[i];
+                    fsate['zhushu'] = '1';
+                    fsate['price'] = SixhcTeMa.state.beishu *2;
+                    fsate['minxf'] = dateDic.minxf;
+                    fsate['totalzs'] = dateDic.totalzs;
+                    fsate['maxjj'] = dateDic.maxjj;
+                    fsate['minjj'] = dateDic.minjj;
+                    fsate['maxzs'] = dateDic.maxzs;
+                    fsate['rate'] = dateDic.rate;
+                    fsate['yjf' ]="1";
+    
+                    orderList.push(fsate)
+    
+                   //zjMoneyNum += this.state.moneyNum *myThis.state.hzXzPlArr[i];
+                }
+
+
+            } else {
+
+                var dateDic = SixhcTeMa.state.lhcRates[SixhcTeMa.state.wanFaStr];
+
+                var fsate =  {
+    
+                };
+
+                
+
+                fsate['trano'] = this.generateMixed(20);
+                fsate['playtitle'] = dateDic.title;
+
+                fsate['playid'] = dateDic.playid;
+                fsate['number'] = numStr;
+                fsate['zhushu'] = SixhcTeMa.state.xiazhiArr.length;
+                fsate['price'] = SixhcTeMa.state.beishu *2 *SixhcTeMa.state.xiazhiArr.length;
+                fsate['minxf'] = dateDic.minxf;
+                fsate['totalzs'] = dateDic.totalzs;
+                fsate['maxjj'] = dateDic.maxjj;
+                fsate['minjj'] = dateDic.minjj;
+                fsate['maxzs'] = dateDic.maxzs;
+                fsate['rate'] = dateDic.rate;
+                fsate['yjf' ]="1";
+
+                orderList.push(fsate)
+
+            }
+
+            myThis.setState({
+                orderList:orderList,
+            })
+
+           
+
+            this.showTanKuan(SixhcTeMa.state.zhushuNum,SixhcTeMa.state.beishu,numStr,SixhcTeMa.state.playList[SixhcTeMa.state.leftbtnSeletIndex]);
+        }
+
+        if (tag == 1) { //正码
+            let SixhcZhengMa = this.refs['SixhcZhengMa']
+
+            let orderList=[];
+
+            var numStr=''
+                for (var i=0;i<SixhcZhengMa.state.xiazhiArr.length; i++) {
+                    if (numStr.length) {
+                        numStr +=','+SixhcZhengMa.state.xiazhiArr[i]
+                    } else {
+                        numStr = SixhcZhengMa.state.xiazhiArr[i]
+                    }
+                }
+
+            if (SixhcZhengMa.state.leftbtnSeletIndex ==2 || SixhcZhengMa.state.leftbtnSeletIndex ==4 || SixhcZhengMa.state.leftbtnSeletIndex ==6 || 
+                SixhcZhengMa.state.leftbtnSeletIndex ==8 || SixhcZhengMa.state.leftbtnSeletIndex ==10 || SixhcZhengMa.state.leftbtnSeletIndex ==12){
+                
+
+                for (var i=0;i<SixhcZhengMa.state.xiazhiArr.length; i++) {
+
+                    var plKey = SixhcZhengMa.state.twoMianXiaZhuPl[i]
+
+                    var dateDic = SixhcZhengMa.state.lhcRates[plKey];
+
+                    // console.log(SixhcZhengMa.state.twoMianXiaZhuPl)
+                    // console.log(plKey)
+                    // console.log(dateDic)
+
+                    var fsate =  {
+    
+                    };
+    
+                    fsate['trano'] = this.generateMixed(20);
+                    fsate['playtitle'] = dateDic.title;
+    
+                    fsate['playid'] = dateDic.playid;
+                    fsate['number'] = SixhcZhengMa.state.xiazhiArr[i];
+                    fsate['zhushu'] = '1';
+                    fsate['price'] = SixhcZhengMa.state.beishu *2;
+                    fsate['minxf'] = dateDic.minxf;
+                    fsate['totalzs'] = dateDic.totalzs;
+                    fsate['maxjj'] = dateDic.maxjj;
+                    fsate['minjj'] = dateDic.minjj;
+                    fsate['maxzs'] = dateDic.maxzs;
+                    fsate['rate'] = dateDic.rate;
+                    fsate['yjf' ]="1";
+    
+                    orderList.push(fsate)
+    
+                   //zjMoneyNum += this.state.moneyNum *myThis.state.hzXzPlArr[i];
+                }
+
+
+            } else {
+
+                var dateDic = SixhcZhengMa.state.lhcRates[SixhcZhengMa.state.wanFaStr];
+
+                var fsate =  {
+    
+                };
+
+                // console.log('999999999')
+                // console.log(dateDic)
+
+                fsate['trano'] = this.generateMixed(20);
+                fsate['playtitle'] = dateDic.title;
+
+                fsate['playid'] = dateDic.playid;
+                fsate['number'] = numStr;
+                fsate['zhushu'] = SixhcZhengMa.state.xiazhiArr.length;
+                fsate['price'] = SixhcZhengMa.state.beishu *2 *SixhcZhengMa.state.xiazhiArr.length;
+                fsate['minxf'] = dateDic.minxf;
+                fsate['totalzs'] = dateDic.totalzs;
+                fsate['maxjj'] = dateDic.maxjj;
+                fsate['minjj'] = dateDic.minjj;
+                fsate['maxzs'] = dateDic.maxzs;
+                fsate['rate'] = dateDic.rate;
+                fsate['yjf' ]="1";
+
+                orderList.push(fsate)
+
+            }
+            myThis.setState({
+                orderList:orderList,
+            })
+            this.showTanKuan(SixhcZhengMa.state.zhushuNum,SixhcZhengMa.state.beishu,numStr,
+                SixhcZhengMa.state.playList[SixhcZhengMa.state.leftbtnSeletIndex]);
+        }
+       
+        if (tag ==2) { //连码
+            let SixhcLianMa = this.refs['SixhcLianMa']
+            let orderList=[];
+            var dateDic = SixhcLianMa.state.lhcRates[SixhcLianMa.state.wanFaStr];
+
+                var fsate =  {
+    
+                };
+
+                var numStr=''
+                for (var i=0;i<SixhcLianMa.state.xiazhiArr.length; i++) {
+                    if (numStr.length) {
+                        numStr +=','+SixhcLianMa.state.xiazhiArr[i]
+                    } else {
+                        numStr = SixhcLianMa.state.xiazhiArr[i]
+                    }
+                }
+
+                fsate['trano'] = this.generateMixed(20);
+                fsate['playtitle'] = dateDic.title;
+
+                fsate['playid'] = dateDic.playid;
+                fsate['number'] = numStr;
+                fsate['zhushu'] = SixhcLianMa.state.zhushuNum;
+                fsate['price'] = SixhcLianMa.state.beishu *2 *SixhcLianMa.state.zhushuNum;
+                fsate['minxf'] = dateDic.minxf;
+                fsate['totalzs'] = dateDic.totalzs;
+                fsate['maxjj'] = dateDic.maxjj;
+                fsate['minjj'] = dateDic.minjj;
+                fsate['maxzs'] = dateDic.maxzs;
+                fsate['rate'] = dateDic.rate;
+                fsate['yjf' ]="1";
+
+                orderList.push(fsate)
+
+                myThis.setState({
+                    orderList:orderList,
+                })
+
+                this.showTanKuan(SixhcLianMa.state.zhushuNum,SixhcLianMa.state.beishu,numStr,
+                    SixhcLianMa.state.playList[SixhcLianMa.state.leftbtnSeletIndex]);
+        }
+
+        if (tag == 3) { //半波
+
+
+            let SixhcBanBo = this.refs['SixhcBanBo']
+
+            let orderList=[];
+            var dateDic = SixhcBanBo.state.lhcRates[SixhcBanBo.state.wanFaStr];
+
+            var numStr ='';
+
+            for (var i=0;i<SixhcBanBo.state.xiazhiArr.length; i++) {
+
+                if (numStr.length) {
+                    numStr +=','+SixhcBanBo.state.xiazhiArr[i]
+                } else {
+                    numStr = SixhcBanBo.state.xiazhiArr[i]
+                }
+                var plKey = SixhcBanBo.state.twoMianXiaZhuPl[i]
+
+                var dateDic = SixhcBanBo.state.lhcRates[plKey];
+                console.log(dateDic)
+
+                var fsate =  {
+
+                };
+
+                fsate['trano'] = this.generateMixed(20);
+                fsate['playtitle'] = dateDic.title;
+
+                fsate['playid'] = dateDic.playid;
+                fsate['number'] = SixhcBanBo.state.xiazhiArr[i];
+                fsate['zhushu'] = '1';
+                fsate['price'] = SixhcBanBo.state.beishu *2;
+                fsate['minxf'] = dateDic.minxf;
+                fsate['totalzs'] = dateDic.totalzs;
+                fsate['maxjj'] = dateDic.maxjj;
+                fsate['minjj'] = dateDic.minjj;
+                fsate['maxzs'] = dateDic.maxzs;
+                fsate['rate'] = dateDic.rate;
+                fsate['yjf' ]="1";
+
+                orderList.push(fsate)
+
+               //zjMoneyNum += this.state.moneyNum *myThis.state.hzXzPlArr[i];
+
+            }
+
+            myThis.setState({
+                orderList:orderList,
+               })
+
+            this.showTanKuan(SixhcBanBo.state.zhushuNum,SixhcBanBo.state.beishu,numStr,
+                SixhcBanBo.state.playList[SixhcBanBo.state.leftbtnSeletIndex]);
+        }
+
+        if (tag == 4) { //生肖
+            
+
+            let SixhcShengXiao = this.refs['SixhcShengXiao']
+
+            let orderList=[];
+
+            var numStr=''
+                for (var i=0;i<SixhcShengXiao.state.xiazhiArr.length; i++) {
+                    if (numStr.length) {
+                        numStr +=','+SixhcShengXiao.state.xiazhiArr[i]
+                    } else {
+                        numStr = SixhcShengXiao.state.xiazhiArr[i]
+                    }
+                }
+
+            if(SixhcShengXiao.state.leftbtnSeletIndex ==0 || SixhcShengXiao.state.leftbtnSeletIndex ==1) {
+                for (var i=0;i<SixhcShengXiao.state.xiazhiArr.length; i++) {
+
+                    var plKey = SixhcShengXiao.state.twoMianXiaZhuPl[i]
+    
+                    var dateDic = SixhcShengXiao.state.lhcRates[plKey];
+
+                    console.log(dateDic)
+    
+                    var fsate =  {
+    
+                    };
+    
+                    fsate['trano'] = this.generateMixed(20);
+                    fsate['playtitle'] = dateDic.title;
+    
+                    fsate['playid'] = dateDic.playid;
+                    fsate['number'] = SixhcShengXiao.state.xiazhiArr[i];
+                    fsate['zhushu'] = '1';
+                    fsate['price'] = SixhcShengXiao.state.beishu *2;
+                    fsate['minxf'] = dateDic.minxf;
+                    fsate['totalzs'] = dateDic.totalzs;
+                    fsate['maxjj'] = dateDic.maxjj;
+                    fsate['minjj'] = dateDic.minjj;
+                    fsate['maxzs'] = dateDic.maxzs;
+                    fsate['rate'] = dateDic.rate;
+                    fsate['yjf' ]="1";
+    
+                    orderList.push(fsate)
+    
+                   //zjMoneyNum += this.state.moneyNum *myThis.state.hzXzPlArr[i];
+                }
+            } else if (SixhcShengXiao.state.leftbtnSeletIndex ==2 || SixhcShengXiao.state.leftbtnSeletIndex ==3 || SixhcShengXiao.state.leftbtnSeletIndex ==4)
+            {
+                
+                 var fsate =  {
+    
+                };
+                var dateDic = SixhcShengXiao.state.lhcRates[SixhcShengXiao.state.wanFaStr];
+                
+
+                fsate['trano'] = this.generateMixed(20);
+                fsate['playtitle'] = dateDic.title;
+
+                fsate['playid'] = dateDic.playid;
+                fsate['number'] = numStr;
+                fsate['zhushu'] = SixhcShengXiao.state.zhushuNum;
+                fsate['price'] = SixhcShengXiao.state.beishu *2 *SixhcShengXiao.state.zhushuNum;
+                fsate['minxf'] = dateDic.minxf;
+                fsate['totalzs'] = dateDic.totalzs;
+                fsate['maxjj'] = dateDic.maxjj;
+                fsate['minjj'] = dateDic.minjj;
+                fsate['maxzs'] = dateDic.maxzs;
+                fsate['rate'] = dateDic.rate;
+                fsate['yjf' ]="1";
+
+                orderList.push(fsate)
+            }
+
+            myThis.setState({
+                orderList:orderList,
+            })
+
+            this.showTanKuan(SixhcShengXiao.state.zhushuNum,SixhcShengXiao.state.beishu,numStr,
+                SixhcShengXiao.state.playList[SixhcShengXiao.state.leftbtnSeletIndex]);
+        }
+
+        if (tag == 5) { //尾数
+            let SixhcWeiShu = this.refs['SixhcWeiShu']
+
+            let orderList=[];
+
+            var numStr=''
+                for (var i=0;i<SixhcWeiShu.state.xiazhiArr.length; i++) {
+                    if (numStr.length) {
+                        numStr +=','+SixhcWeiShu.state.xiazhiArr[i]
+                    } else {
+                        numStr = SixhcWeiShu.state.xiazhiArr[i]
+                    }
+                }
+
+            if(SixhcWeiShu.state.leftbtnSeletIndex ==0 ) {
+                for (var i=0;i<SixhcWeiShu.state.xiazhiArr.length; i++) {
+
+                    var plKey = SixhcWeiShu.state.twoMianXiaZhuPl[i]
+    
+                    var dateDic = SixhcWeiShu.state.lhcRates[plKey];
+
+                    console.log(dateDic)
+    
+                    var fsate =  {
+    
+                    };
+    
+                    fsate['trano'] = this.generateMixed(20);
+                    fsate['playtitle'] = dateDic.title;
+    
+                    fsate['playid'] = dateDic.playid;
+                    fsate['number'] = SixhcWeiShu.state.xiazhiArr[i];
+                    fsate['zhushu'] = '1';
+                    fsate['price'] = SixhcWeiShu.state.beishu *2;
+                    fsate['minxf'] = dateDic.minxf;
+                    fsate['totalzs'] = dateDic.totalzs;
+                    fsate['maxjj'] = dateDic.maxjj;
+                    fsate['minjj'] = dateDic.minjj;
+                    fsate['maxzs'] = dateDic.maxzs;
+                    fsate['rate'] = dateDic.rate;
+                    fsate['yjf' ]="1";
+    
+                    orderList.push(fsate)
+    
+                   //zjMoneyNum += this.state.moneyNum *myThis.state.hzXzPlArr[i];
+                }
+            } else
+            {
+                var fsate =  {
+    
+                };
+                var dateDic = SixhcWeiShu.state.lhcRates[SixhcWeiShu.state.wanFaStr];
+                
+
+                fsate['trano'] = this.generateMixed(20);
+                fsate['playtitle'] = dateDic.title;
+
+                fsate['playid'] = dateDic.playid;
+                fsate['number'] = numStr;
+                fsate['zhushu'] = SixhcWeiShu.state.zhushuNum;
+                fsate['price'] = SixhcWeiShu.state.beishu *2 *SixhcWeiShu.state.zhushuNum;
+                fsate['minxf'] = dateDic.minxf;
+                fsate['totalzs'] = dateDic.totalzs;
+                fsate['maxjj'] = dateDic.maxjj;
+                fsate['minjj'] = dateDic.minjj;
+                fsate['maxzs'] = dateDic.maxzs;
+                fsate['rate'] = dateDic.rate;
+                fsate['yjf' ]="1";
+
+                orderList.push(fsate)
+            }
+
+            myThis.setState({
+                orderList:orderList,
+            })
+            this.showTanKuan(SixhcWeiShu.state.zhushuNum,SixhcWeiShu.state.beishu,numStr,
+                SixhcWeiShu.state.playList[SixhcWeiShu.state.leftbtnSeletIndex]);
+        }
+
+        if (tag == 6) { //不中
+
+            let SixhcBuZhong = this.refs['SixhcBuZhong']
+            let orderList=[];
+            var dateDic = SixhcBuZhong.state.lhcRates[SixhcBuZhong.state.wanFaStr];
+
+
+
+                var fsate =  {
+    
+                };
+
+                var numStr=''
+                for (var i=0;i<SixhcBuZhong.state.xiazhiArr.length; i++) {
+                    if (numStr.length) {
+                        numStr +=','+SixhcBuZhong.state.xiazhiArr[i]
+                    } else {
+                        numStr = SixhcBuZhong.state.xiazhiArr[i]
+                    }
+                }
+
+                fsate['trano'] = this.generateMixed(20);
+                fsate['playtitle'] = dateDic.title;
+
+                fsate['playid'] = dateDic.playid;
+                fsate['number'] = numStr;
+                fsate['zhushu'] = SixhcBuZhong.state.zhushuNum;
+                fsate['price'] = SixhcBuZhong.state.beishu *2 *SixhcBuZhong.state.zhushuNum;
+                fsate['minxf'] = dateDic.minxf;
+                fsate['totalzs'] = dateDic.totalzs;
+                fsate['maxjj'] = dateDic.maxjj;
+                fsate['minjj'] = dateDic.minjj;
+                fsate['maxzs'] = dateDic.maxzs;
+                fsate['rate'] = dateDic.rate;
+                fsate['yjf' ]="1";
+
+                orderList.push(fsate)
+
+                myThis.setState({
+                    orderList:orderList,
+                })
+                this.showTanKuan(SixhcBuZhong.state.zhushuNum,SixhcBuZhong.state.beishu,numStr,
+                    SixhcBuZhong.state.playList[SixhcBuZhong.state.leftbtnSeletIndex]);
+        }
+
+
+    }
+
+
+
+    mashangxiazhu(sure){
+
+
+        if (sure == false) {
+            Pop.hide()
+            return false;
+        }
+
+        var nowTime= (new Date()).getTime();
+        if(Math.abs(nowTime-clickLastTime)<sys.clickIntervalTime){
+            //小于1 秒 点击速度太快导致重复下单 
+         
+            myThis.refs.toast.show('请勿重复提交', DURATION.LENGTH_LONG);
+            Pop.hide()
+            return false;
+        }
+        clickLastTime=nowTime;
+
+        myThis.setState({
+            visible: true
+        })
+
+        let codeurl = sys.host + "/AppApijiekou.cpbuy";
+        // let codeurl = "http://tweb4.tourfun.cn/index/index/test";
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+
+
+
+        let currFullExpect =myThis.state.orderFullExpect;
+        let lotteryname = myThis.state.lotteryname;
+
+
+        formData.append('lotteryname',lotteryname);
+        formData.append('expect',currFullExpect);
+
+
+
+        var fsate = myThis.state.orderList[0]
+
+        fsate['expect']=currFullExpect,
+        fsate['name']=myThis.state.name,
+        fsate['lotteryname']=lotteryname,
+        fsate['typeid']=myThis.state.cptype
+        
+
+        // console.log(myThis.state.orderList);
+
+        var base64Str= new Buffer(JSON.stringify(myThis.state.orderList)).toString('base64');
+        // encrypt
+        formData.append("orderList",base64Str);
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+
+                // console.log('2222224444')
+                
+                
+              
+                if(result['respCode']==1){
+     
+                    Pop.hide() 
+                    // myThis.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+
+                    myThis.tiaoZhuan()
+
+                }else{
+                    Pop.hide()
+                    myThis.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                }
+
+
+            })
+            .catch(error=>{
+
+                Pop.hide()
+                myThis.refs.toast.show(error, DURATION.LENGTH_LONG);
+                
+
+            
+            })
+
+    }
+
+
+    tiaoZhuan(){
+
+        if (myThis.state.clickIndext==0) {
+
+            this.refs['SixhcTeMa'].cleanJiemian(false)
+        } else if (myThis.state.clickIndext==1) {
+            this.refs['SixhcZhengMa'].cleanJiemian(false)
+           
+        } else if (myThis.state.clickIndext==2) {
+            this.refs['SixhcLianMa'].cleanJiemian(false)
+            
+        } else if (myThis.state.clickIndext==3) {
+            this.refs['SixhcBanBo'].cleanJiemian(false)
+            
+        } else if (myThis.state.clickIndext==4) {
+            this.refs['SixhcShengXiao'].cleanJiemian(false)
+            
+        } else if (myThis.state.clickIndext==5) {
+            this.refs['SixhcWeiShu'].cleanJiemian(false)
+            
+        } else if (myThis.state.clickIndext==6) {
+            this.refs['SixhcBuZhong'].cleanJiemian(false)
+        }
+        
+        this.props.navigation.navigate("BetsResult",{"canshu":myThis.state.orderList});
+
+    }
+
+    //生成随机订单号
+    generateMixed(n) {
+
+        var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
+        var res = "";
+        for(var i = 0; i < n ; i ++) {
+            var id = Math.ceil(Math.random()*35);
+            res += chars[id];
+        }
+        return res;
+    }
+    
+
+
+
+}

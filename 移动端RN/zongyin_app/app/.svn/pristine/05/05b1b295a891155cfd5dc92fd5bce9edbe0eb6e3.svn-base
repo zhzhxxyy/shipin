@@ -1,0 +1,147 @@
+
+import React,{Component} from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    Alert,
+} from 'react-native';
+import {sys,NoDataView} from "../../common/Data"
+import {styles} from "./homeStyle"
+import HttpUtils from "../../common/HttpUtil"
+import LotteryRecord from './LotteryRecord'
+import OrderRecord from './OrderRecord'
+
+const host = sys.host;
+var thiz = this;
+var selectedIndex = 0;
+
+
+export default class Record extends React.Component {
+    constructor(props) {
+        super(props);
+        thiz=this;
+        this.state = {
+            leftSelected:true,
+            rightSelected:false,
+            kaijianJlArr:[],
+            lotteryname:'',
+            type:''
+        }
+    }
+
+
+    async componentDidMount() {
+        if(this.props.type != null){
+            this.setState({ type: this.props.type });
+        }
+        selectedIndex = 0;
+        this.getKaijianJuliData(0)
+    }
+
+    getKaijianJuliData(num) {
+        // AppApijiekou.lotteryopencodes 开奖记录
+        let codeurl = host + "/AppApijiekou.lotteryopencodes"
+        let formData = new FormData();
+        formData.append('lotteryname',this.state.lotteryname);
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){
+                    let testData = result['data'];
+                    this.setState({
+                        kaijianJlArr:testData,
+                    })
+
+                }else{
+                    this.setState({
+                        noNetwork:false,
+                    })
+                }
+            }).catch(error=>{
+                if (num <=2) {
+                    this.getKaijianJuliData(num+1)
+                  }else{
+                    Alert.alert(error)
+                  }      
+            })
+    }
+
+
+    segmentClick(tag){
+        if(tag == selectedIndex){
+            return;
+        }
+        selectedIndex = tag;
+        if (tag == 0){
+            this.setState({
+                leftSelected:true,
+                rightSelected:false,
+            })
+        }else {
+            this.setState({
+                leftSelected:false,
+                rightSelected:true,
+            })
+        }
+    }
+
+
+
+    contentView(){
+        if(this.state.leftSelected){
+             return <LotteryRecord ref="LotteryRecord" type={thiz.state.type} kaijianJlArr={thiz.state.kaijianJlArr} style={{width:sys.dwidth*0.9,height:'100%' - 100,top:0}}/>
+        }else {
+            return <OrderRecord ref="OrderRecord" lotteryname={thiz.state.lotteryname} 
+            onPress={thiz.orderDetail.bind()}
+            style={{width:sys.dwidth*0.9,height:'100%' - 100,top:0,backgroundColor:'green'}}/>
+        }
+
+    }
+
+
+    orderDetail(e) {
+        thiz.props.onPress(e)
+    }
+
+
+    render(){
+       
+        const {lotteryname,type} = this.props
+        this.state.lotteryname = lotteryname;
+        this.state.type = type;
+        return <View style={{width:sys.dwidth*0.9}}>
+
+            <View style={styles.segment} >
+
+                {/*<View style={{left:50%-80,height:32,width:160,flexDirection:'row'}}>*/}
+
+                <TouchableOpacity ref="left" index={0} style={thiz.state.leftSelected ? styles.segmentItemSelected : styles.segmentItem}
+                                   onPress={() => {
+                                       thiz.segmentClick(0);
+                                   }}
+                >
+                    <Text style={thiz.state.leftSelected ? styles.segementTextSelected : styles.segementText}>开奖记录</Text>
+                </TouchableOpacity>
+
+
+                <TouchableOpacity ref="right" index={0} style={!thiz.state.rightSelected ? styles.segmentItem1 : styles.segmentItemSelected1 }
+                                   onPress={() => {
+                                       thiz.segmentClick(1);
+                                   }}
+                >
+                    <Text style={!thiz.state.rightSelected ? styles.segementText : styles.segementTextSelected }>下注记录</Text>
+                </TouchableOpacity>
+
+                {/*</View>*/}
+            </View>
+
+            <View style={{top:20,width:'100%',height:sys.dheight - 120}} >
+                {
+                    this.contentView()
+                }
+            </View>
+        </View>
+    }
+
+
+}

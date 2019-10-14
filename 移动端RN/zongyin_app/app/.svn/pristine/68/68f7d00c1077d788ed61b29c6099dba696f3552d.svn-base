@@ -1,0 +1,361 @@
+
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+} from 'react-native';
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import {sys,NoDataView} from "../common/Data"
+const host = sys.host;
+
+import HttpUtils from "../common/HttpUtil"
+
+
+
+
+export default class MyFollowHost extends React.Component {
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:20,
+            isloading:false
+        }
+    }
+
+    onHeaderRefresh = () => {
+
+        this.setState(
+            {
+                currentPage:1,
+                refreshState: RefreshState.HeaderRefreshing,
+            },()=>{
+                this.getDataList(true)
+            })
+
+
+    }
+
+    onFooterRefresh = () => {
+
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        },()=>{
+            this.getDataList(false)
+        })
+    }
+
+
+
+    componentDidMount(){
+
+        this.getDataList();
+    }
+
+
+    getDataList(isReload){
+
+
+        const {params} =this.props;
+        let codeurl = host + '/AppMember.betRecord.a_item.'+params+'.p.'+this.state.currentPage+'.do';
+        let formData = new FormData();
+
+        this.setState({
+            isloading:true
+        })
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                let testData = result['data']['rows'];
+
+                let newList = testData.map((data) => {
+                    return {
+                        Chase: data["Chase"],
+                        amount: data["amount"],
+                        amountafter: data["amountafter"],
+                        amountbefor: data["amountbefor"],
+                        beishu: data["beishu"],
+                        cpname: data["cpname"],
+                        cptitle: data["cptitle"],
+                        expect:  data["expect"],
+                        id: data["id"],
+                        isdraw:  data["isdraw"],
+                        itemcount: data["itemcount"],
+                        mode: data["mode"],
+                        oddtime:  data["oddtime"],
+                        okamount: data["okamount"],
+                        okcount: data["okcount"],
+                        opencode:  data["opencode"],
+                        playid: data["playid"],
+                        playtitle: data["playtitle"],
+                        repoint: data["repoint"],
+                        repointamout:data["repointamout"],
+                        source: data["source"],
+                        stopChase: data["stopChase"],
+                        trano: data["trano"],
+                        typeid: data["typeid"],
+                        tzcode: data["tzcode"],
+                        uid: data["uid"],
+                        username: data["username"],
+                        yjf: data["yjf"],
+                    }
+                });
+
+                let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+                this.state.currentPage = parseInt(dataList.length/this.state.pageSize)+2;
+            
+                this.setState({
+                    dataList: dataList,
+                    isloading:false,
+                    refreshState: (dataList.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                })
+
+            })
+            .catch(error=>{
+                //Alert.alert(error)
+                this.setState({
+                    isloading:false,
+                    refreshState: RefreshState.Idle,
+                })
+
+            })
+
+    }
+
+    render() {
+
+        let showView = this.state.dataList.length?
+            <RefreshListView
+                data={this.state.dataList}
+                keyExtractor={this.keyExtractor}
+                renderItem={this.renderCell}
+                refreshState={this.state.refreshState}
+                onHeaderRefresh={this.onHeaderRefresh}
+                onFooterRefresh={this.onFooterRefresh}
+                numColumns ={1}
+                ListHeaderComponent={this.renderHeadView}
+                // horizontal={false}
+                //ItemSeparatorComponent={this._separator}
+                // 可选
+                footerRefreshingText= '玩命加载中 >.<'
+                footerFailureText = '我擦嘞，居然失败了 =.=!'
+                footerNoMoreDataText= '-我是有底线的-'
+            />
+            :<NoDataView click={()=>this.getDataList(true)}
+            isloading={this.state.isloading}
+                text = {this.state.isloading?"加载中":"暂无注单,点击重新加载"}
+            />
+        return(
+
+            <View style={styles.container}>
+
+                {showView}
+
+            </View>
+
+        )
+
+
+    }
+
+
+    itemView(index){
+
+
+        var follow = this.state.dataList[index];
+        var text = '未开奖'
+        var color = sys.subTitleColor
+       if(follow.isdraw==1){
+           text = '已中奖';
+           color = sys.redColor
+       }else if(follow.isdraw==-1){
+          text = '未中奖';
+          color = sys.blueColor
+       }
+
+
+       return <View>
+           <TouchableOpacity key={index} style={{backgroundColor:sys.backgroundColor,width:sys.dwidth,}} onPress={()=>this.itemClick(follow)}>
+               <View key={index} style={[styles.content,{marginTop:10,height:40, backgroundColor:'white',bottom:0}]}>
+                    <View style={styles.leftStyle}>
+                        <Text style={{marginLeft:10,fontSize:16,marginTop: 8,color:sys.mainColor,fontWeight: 'bold'}}>{follow.cptitle+"("+follow.expect+")"}</Text>
+
+                    </View>
+                    <View style={styles.rightStyle}>
+                        <Text style={{color:color,width:90,textAlign:'right',top:10,fontWeight: 'bold',fontSize:16}}>{text}</Text>
+                    </View>
+               </View>
+
+               <View style={[styles.leftStyle,{width:sys.dwidth,marginTop:0}]}>
+                 <Text numberOfLines={1} style={styles.nametext}>{"玩法:"+follow.playtitle+"（"+follow.mode+"）"}</Text>
+
+
+                 <View style={{flexDirection:'row',width:sys.dwidth}}>
+                        <Text style={styles.nametext}>{"下注情况:"}</Text>
+                        <Text style={styles.nameRighttext}>{follow.tzcode}</Text>
+                </View>
+
+                <View style={{flexDirection:'row',width:sys.dwidth}}>
+                    <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',fontWeight: 'bold'}}>{"开奖结果:"}</Text>
+                    <Text style={{marginLeft:3,fontSize:14,marginTop: 8,color:'#333333',fontWeight: 'bold',flexWrap: 'wrap',width:sys.dwidth-80}}>{follow.opencode}</Text>
+                </View>
+
+
+                <View style={{flexDirection:'row',width:sys.dwidth,paddingBottom:10}}>
+                        <View >
+                            <Text style={[styles.nametext]}>投注金额:<Text style={{color:'green'}}>{follow.amount}</Text></Text>
+                            <Text style={[styles.nametext]}>中奖金额:<Text style={{color:sys.mainColor}}>{follow.okamount}</Text></Text>
+                        </View>
+
+                        <View style={{left:5}}>
+                            <Text style={styles.nametext}>{"投注注数:"+follow.itemcount}</Text>
+                            <Text style={styles.nametext}>{"中奖注数:"+follow.okcount}</Text>
+                        </View>
+                        
+                   </View>
+
+                 {/* <Text style={styles.nametext}>{"下注金额:"+follow.amount+"   下注注数:"+follow.itemcount}</Text>
+                 <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',marginBottom:10}}>{"中奖金额:"+follow.okamount+"   中奖注数:"+follow.okcount}</Text> */}
+                </View>
+
+            </TouchableOpacity>
+
+       </View>
+    //     return <View>
+    //         <TouchableOpacity key={index} style={styles.content} onPress={()=>this.itemClick(follow)}>
+    // <View style={styles.leftStyle}>
+    // <Text style={{marginLeft:10,fontSize:16,marginTop: 8,color:sys.mainColor,fontWeight: 'bold'}}>{follow.cptitle+"("+follow.expect+")"}</Text>
+    // <Text numberOfLines={1} style={styles.nametext}>{"玩法:"+follow.playtitle+"（"+follow.mode+"）"}</Text>
+    // <Text style={styles.nametext}>{"下注情况:"+follow.tzcode}</Text>
+    // <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',fontWeight: 'bold'}}>{"开奖结果:"+follow.opencode}</Text>
+    // <Text style={styles.nametext}>{"下注金额:"+follow.amount+"   下注注数:"+follow.itemcount}</Text>
+    // <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',marginBottom:10}}>{"中奖金额:"+follow.okamount+"   中奖注数:"+follow.okamount}</Text>
+    // </View>
+    //     <View style={styles.rightStyle}>
+    //         <Text style={{color:color,width:90,textAlign:'right',top:10,fontWeight: 'bold',fontSize:16}}>{text}</Text>
+    //     </View>
+    //     </TouchableOpacity>
+
+    // </View>
+
+
+
+
+    }
+
+    itemClick(e){
+
+        const {navigate} = this.props.navigation;
+        navigate('OrderDetail',{item:e})
+    }
+
+    keyExtractor = (item, index) => {
+        return index.toString()
+    }
+
+
+
+    changeGz(gzob,flistD) {
+
+        if (gzob.isgz == 0) {
+            gzob.isgz =1;
+        } else {
+            gzob.isgz =0;
+        }
+
+
+        this.setState({
+
+            flistData:flistD
+        })
+
+    }
+
+    renderCell = (item) => {
+
+        return this.itemView(item.index)
+    }
+
+
+    _separator = () => {
+        return <View style={{height:1,backgroundColor:'#f2f2f2'}}/>;
+    }
+
+}
+
+const styles = StyleSheet.create({
+
+    container: {
+        flex:1,
+        backgroundColor:sys.backgroundColor
+    },
+
+    content:{
+        backgroundColor:sys.backgroundColor,
+        // height:182,
+        width:sys.dwidth,
+        flexDirection: 'row',
+        bottom:10,
+    },
+
+
+
+    leftStyle:{
+        backgroundColor:'white',
+        marginTop:5,
+        width:sys.dwidth - 100 ,
+        // marginBottom:5
+        // height:135
+    },
+    rightStyle:{
+        marginTop:5,
+        width:100,
+        // height:135,
+        backgroundColor:'white'
+    },
+
+    switchStyte:{
+        width:80,
+        height:30,
+        position: 'absolute',
+        bottom: 10,
+        // left: 0,
+        right: 15,
+        resizeMode:'center'
+    },
+    numtext:{
+        fontSize:11,
+        color:'#333333',
+        marginTop:10
+    },
+
+    nametext:{
+        marginLeft:10,
+        fontSize:14,
+        marginTop: 8,
+        color:'#333333',
+        lineHeight:20,
+    },
+
+    nameRighttext:{
+        marginLeft:3,
+        fontSize:14,
+        lineHeight:20,
+       
+        marginTop: 8,
+        color:'#333333',
+        flexWrap: 'wrap',
+        paddingRight:10,
+        width:sys.dwidth - 80,
+     
+    },
+
+
+})

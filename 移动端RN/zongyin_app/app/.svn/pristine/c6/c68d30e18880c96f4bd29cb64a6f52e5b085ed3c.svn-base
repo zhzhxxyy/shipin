@@ -1,0 +1,688 @@
+
+import React,{Component} from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Switch,
+    Button,
+    ImageBackground,
+    Dimensions,
+    ScrollView,
+    Platform,
+    NativeModules
+} from 'react-native';
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import {sys,NoDataView,Date,isIphoneX} from "../../common/Data"
+// import moment from 'moment'
+
+
+import { Header } from 'react-navigation';
+
+const { StatusBarManager } = NativeModules;
+
+import {LeftButton} from "../cqssc/CqsscPublic"
+import {styles} from "./homeStyle"
+
+
+import HttpUtils from "../../common/HttpUtil"
+
+
+const host = sys.host;
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+
+
+var Buffer = require('buffer').Buffer;
+
+
+
+var thiz = this;
+var headthis;
+var thishead_arr = [];
+
+var selectedIndex = 0;
+
+
+let zhongHeight = 40;
+let recordWidth = sys.dwidth*0.9;
+let qisuW = recordWidth/3 + 20;
+let qitaW =  recordWidth/3-10;
+
+
+
+export default class LotteryRecord extends React.Component {
+
+
+
+    constructor() {
+        super();
+        this.state = {
+
+            type:'',
+            kaijianJlArr: []
+
+        }
+    }
+
+
+
+    async componentDidMount() {
+        thiz = this;
+
+        this.setState({
+                kaijianJlArr: this.props.kaijianJlArr,
+                type:this.props.type,
+            });
+    }
+
+
+
+
+    render(){
+        const {kaijianJlArr,type} = this.props;
+        this.state.kaijianJlArr = kaijianJlArr;
+        this.state.type = type;
+
+        //ssc k3  pk10 lhc keno dpc x5
+
+        // dpc 排列3
+
+        // keno 快乐8
+
+        // lhc 六
+
+        var threeStr = '';
+
+        let isXians = true;
+
+        // if (type == 'lhc') {
+        //     threeStr = '特码'
+        // } else 
+        if (type == 'ssc') {
+            threeStr = '龙虎'
+        } else if (type == 'k3') {
+            threeStr = '和值'
+        } else if (type == 'pk10') {
+            threeStr = '冠亚和'
+        } else{
+            isXians = false
+        }
+
+
+        return(
+
+            <View  style={{width:recordWidth, height:sys.dheight - 100 -Header.HEIGHT - (Platform.OS=='ios'?(isIphoneX()?48:0):0)  ,backgroundColor:'white'}}>
+
+
+               <View style={{backgroundColor:sys.silveryColor,height:30,width:sys.dwidth,flexDirection:'row'}}>
+
+               <Text style={{width:recordWidth/6 + 10,height:30,color:sys.titleColor,textAlign:'center',fontSize:12,
+                    textAlignVertical:'center',...Platform.select({ios: { lineHeight: 30},android: {}
+                    })}}>期号</Text>
+
+                    <Text style={{width:recordWidth/2-25,height:30,textAlign:'left',fontSize:12,
+                    color:sys.titleColor,marginLeft:10,textAlignVertical:'center',...Platform.select({ios: { lineHeight:30},android: {}
+                    })}}>开奖号码</Text>
+
+                    {isXians?<Text style={{width:recordWidth/6,height:30,textAlign:'left',fontSize:12,color:sys.titleColor,
+                    textAlignVertical:'center',...Platform.select({ios: { lineHeight: 30},android: {}
+                    })}}>{threeStr}</Text>:null}
+
+                    {isXians?<Text style={{width:recordWidth/6,height:30,textAlign:'left',fontSize:12,color:sys.titleColor,
+                    textAlignVertical:'center',...Platform.select({ios: { lineHeight: 30},android: {}
+                    })}}>大小单双</Text>:null}
+
+
+               </View>
+
+                <ScrollView>
+                        {this.state.kaijianJlArr.map((info, index) => {
+                            return (
+                                <KaijanJlView key={index} type={thiz.state.type} info={info}/>
+                            );
+                        })}
+                </ScrollView>
+            </View>
+        )
+    }
+
+
+
+}
+
+
+
+class KaijanJlView extends Component {
+
+
+    constructor() {
+        super();
+        this.state = {
+            type:''
+        };
+    }
+
+
+    x5View(){
+
+    }
+
+
+    render() {
+
+
+
+        const {info,type} = this.props;
+        this.state.type = type;
+        let expect = info['expect']
+        if(expect.length > 8){
+            expect = info['expect'].substr(8,info['expect'].length - 8);
+        }
+        let opencode = info['opencode'];
+
+        let opencodeArr = opencode.split(',');
+
+        let opentime = info["opentime"].substr(0,info['opentime'].length - 3);
+
+        var publicView = null;
+
+
+        //ssc k3  pk10 lhc keno dpc x5
+
+        // dpc 排列3
+
+        // keno 快乐8
+
+        // lhc 六
+       
+        
+    
+        if(thiz.state.type == 'ssc' || thiz.state.type == 'k3'){
+
+            var hz=0
+
+            for (var i=0;i<opencodeArr.length;i++) {
+                hz = hz + parseInt(opencodeArr[i])
+            }
+
+
+            var hzDescStr = "";
+
+            if (thiz.state.type == 'ssc') {
+                if (opencodeArr.length>2){
+                    if(opencodeArr[0] > opencodeArr[opencodeArr.length - 1]){
+                        hzDescStr="龙";
+                    }else if(opencodeArr[0] < opencodeArr[opencodeArr.length - 1]){
+                        hzDescStr="虎";
+                    }else {
+                        hzDescStr="和";
+                    }
+                }
+
+            }
+
+
+
+
+            if (thiz.state.type == 'ssc') {
+                publicView = this.publicView(expect,50,hz,22,opencodeArr,hzDescStr)
+            } else {
+                publicView = this.publicView(expect,50,hz,10,opencodeArr)
+            }
+            
+            
+            // (
+
+                
+
+
+                // <View>
+
+                //     <View style={{ width:recordWidth,height:40, backgroundColor:'white',flexDirection:'row'}}>
+                //          {opencodeArr.map((info, index) => {
+                //         return (
+                //             <Text key={index} style={styles.openNumer}>{info}</Text>
+                //         );
+                //     })}
+                //     </View>
+
+                //     <View style={{ width:recordWidth,height:40, backgroundColor:'white',flexDirection:'row'}}>
+                //         {hzDescArr.map((info, index) => {
+                //             return (
+                //                  <Text key={index} style={styles.hzNumer}>{info}</Text>
+                //             );
+                //         })}
+                //     </View>
+                // </View>
+
+            // );
+        } else if (thiz.state.type == 'lhc') {
+
+
+            var lhcArr=[];
+
+            for(var i=0;i<opencodeArr.length;i++) {
+                var num = opencodeArr[i];
+                for(var j=0;j<sys.lhc_numData.length;j++) {
+                     var lhOb = sys.lhc_numData[j];
+
+                     if (lhOb['num'] == num) {
+                        lhcArr.push(lhOb)
+                     }
+
+                }
+            }
+
+
+            // var myheight = 45;
+           // var reactid = 0;
+            publicView = this.lhcPublicView(expect,lhcArr)
+            // (
+            //     <View>
+            //     <View style={{ width:recordWidth, backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                    
+            //         {lhcArr.map((info, index) => {
+            //             return (
+
+            //                 <View key={index}>
+            //                 <Text style={[styles.newPK10Numer,{backgroundColor:info['bo']}]}>{info['num']}</Text>
+            //                  <Text style={[styles.newPK10Numer,{backgroundColor:sys.whiteColor,color:sys.titleColor}]}>{info['sx']}</Text>
+            //                  </View>
+
+            //                 // <Text key={index} style={[styles.openPK10Numer,{backgroundColor:info['bo']}]}>{info['num']}</Text>
+            //             );
+            //         })}
+            //     </View>
+
+            //     {/* <View style={{ width:recordWidth,height:myheight, backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+            //         {lhcArr.map((info, index) => {
+            //             return (
+            //                 <Text key={index} style={[styles.openPK10Numer,{backgroundColor:info['bo']}]}>{info['sx']}</Text>
+            //             );
+            //         })}
+            //     </View> */}
+
+            //     </View>
+            // )
+            
+
+        
+
+        } else if (thiz.state.type == 'pk10') {
+
+            let gyh = parseInt(opencodeArr[0])  + parseInt(opencodeArr[1]);
+
+            publicView =  this.publicView(expect,50,gyh,11,opencodeArr)
+
+                // <View style={{flexDirection:'row',width:recordWidth,height:50,backgroundColor:sys.whiteColor,marginTop:5}}>
+
+                // <Text style={{width:recordWidth/6+10,height:50,color:sys.titleColor,textAlign:'center',fontSize:11,
+                //  textAlignVertical:'center',...Platform.select({ios: { lineHeight: 50},android: {}
+                // })}}>{expect+"期"}</Text>
+
+                // <View style={{marginLeft:10,marginTop:0,width:recordWidth/2 - 25,height:50, backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                //     {opencodeArr.map((info, index) => {
+                        
+                     
+                //         let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+                    
+
+                //         return (
+                //             <Text key={index} style={[styles.newPK10Numer,{backgroundColor:yansStr}]}>{info}</Text>
+                //         );
+                //     })}
+                // </View>
+
+                // <View style={{width:recordWidth/3,height:50,flexDirection:'row'}}>
+                //     <Text style={{width:recordWidth/9,height:50,color:sys.titleColor,textAlign:'center',fontSize:12,
+                //     textAlignVertical:'center',...Platform.select({ios: { lineHeight: 50},android: {}
+                //     })}}>{gyh}</Text>
+
+                //     <Text style={{width:20,height:20,backgroundColor:gyh>11?'#FF8533':'#22A7FF',borderRadius:3,
+                //     textAlign:'center',fontSize:11,color:'white',marginLeft:(recordWidth/9-20)/2,marginTop:(50-20)/2,
+                //     textAlignVertical:'center',...Platform.select({ios: { lineHeight: 20},android: {}
+                //     })}}>{gyh>11?'大':'小'}</Text>
+
+                //     <Text style={{width:20,height:20,backgroundColor:gyh%2==0?'#FF8533':'#22A7FF',borderRadius:3,
+                //     textAlign:'center',fontSize:11,color:'white',marginLeft:(recordWidth/9-20),marginTop:(50-20)/2,
+                //     textAlignVertical:'center',...Platform.select({ios: { lineHeight: 20},android: {}
+                //     })}}>{gyh%2==0?'双':'单'}</Text>
+
+
+                // </View>
+
+                // </View>
+             
+
+        }else {
+
+           //pk10 1:#F0CA31 2.#22A7FF 3.#333333 4.#FF8533 5.#3AF9F9
+          // 6.#335CFF 7.#CCCCCC  8.#FF4111 9.#801A1A 10.#17C739  0:9966ff
+
+     
+            publicView = this.otherPublicView(expect,opencodeArr);
+            
+            // (
+
+            //     <View style={{ width:recordWidth,paddingBottom:10, backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+            //         {opencodeArr.map((info, index) => {
+                        
+                     
+            //             let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+                    
+
+            //             return (
+            //                 <Text key={index} style={[styles.openPK10Numer,{backgroundColor:yansStr}]}>{info}</Text>
+            //             );
+            //         })}
+            //     </View>
+            // )
+
+
+        }
+
+
+
+        return (
+
+            <View style={{backgroundColor:sys.whiteColor}}>
+                <TouchableOpacity style={{backgroundColor:sys.whiteColor,width:sys.dwidth}} onPress={()=>{}}>
+                    {/* <View style={{marginTop:10,flexDirection:'row',width:recordWidth,height:30,backgroundColor:'white'}}>
+                        <Text style={{
+                            marginLeft:10,
+                            fontSize:16,
+                            marginTop: 8,
+                            color:'#333333',
+                            textAlign:'left',
+                            width:recordWidth/2-10
+                        }}>{"第"+expect+"期"}</Text>
+                        <Text style={{
+                            marginRight:10,
+                            fontSize:16,
+                            marginTop: 8,
+                            color:'#333333',
+                            textAlign:'right',
+                            width:recordWidth/2-10
+                        }}>{opentime}</Text>
+                    </View> */}
+
+                    {
+                        publicView
+                    }
+
+                    <View style={{backgroundColor:sys.silveryColor,height:1,width:sys.dwidth}}></View>
+
+
+                </TouchableOpacity>
+
+            </View>
+
+        )
+
+
+    }
+
+
+    yanSstr(num) {
+
+        //pk10 1:#F0CA31 2.#22A7FF 3.#333333 4.#FF8533 5.#3AF9F9
+          // 6.#335CFF 7.#CCCCCC  8.#FF4111 9.#801A1A 10.#17C739  0:9966ff
+        let yansStr= sys.mainColor
+        if (num==0) {
+            yansStr = '#9966ff'
+        }
+        if (num==1 || num%10==1) {
+            yansStr = '#F0CA31'
+        }
+        if (num==2 || num%10==2) {
+            yansStr = '#22A7FF'
+        }
+        if (num==3 || num%10==3) {
+            yansStr = '#525252'
+        }
+        if (num==4 || num%10==4) {
+            yansStr = '#FF8533'
+        }
+        if (num==5 || num%10==5) {
+            yansStr = '#3AF9F9'
+        }
+        if (num==6 || num%10==6) {
+            yansStr = '#335CFF'
+        }
+        if (num==7 || num%10==7) {
+            yansStr = '#CCCCCC'
+        }
+        if (num==8 || num%10==8) {
+            yansStr = '#FF4111'
+        }
+        if (num==9 || num%10==9) {
+            yansStr = '#801A1A'
+        }
+        if (num==10 || num%10==0) {
+            yansStr = '#17C739'
+        }
+
+        return yansStr;
+    }
+
+
+
+
+    publicView(expect,kaijiViewHeight,mynum,littleNum,opencodeArr,hzDescStr){
+
+
+        var isSsc = false;
+
+        if (hzDescStr == '龙' || hzDescStr == '虎' || hzDescStr == '和') {
+            isSsc = true; 
+        }
+
+        var kaijTop = (kaijiViewHeight-20)/2
+        if (opencodeArr.length *22>recordWidth/2 - 25) {
+            kaijTop = 2;
+        } 
+
+
+        let changView = null;
+        if (thiz.state.type == 'pk10') {
+
+
+            let pkArrOne = [];
+            let pkArrTwo = [];
+
+            for(var i=0;i<opencodeArr.length;i++) {
+                var info = opencodeArr[i]
+
+                if(i<5) {
+                    pkArrOne.push(info) 
+                } else {
+                    pkArrTwo.push(info) 
+                }
+
+            }
+
+            changView = <View style={{marginLeft:10,marginTop:0,width:recordWidth/2 - 25,
+                height:kaijiViewHeight,backgroundColor:'white'}}>
+
+             <View style={{marginLeft:0,marginTop:0,width:recordWidth/2 - 25,
+                height:kaijiViewHeight/2,backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                {pkArrOne.map((info, index) => {
+                    let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+
+                    return (
+                        <Text key={index} style={[styles.newPK10Numer,{marginTop:kaijTop, backgroundColor:yansStr}]}>{info}</Text>
+                    );
+                })}
+             </View>
+
+             <View style={{marginLeft:0,marginTop:0,width:recordWidth/2 - 25,
+                height:kaijiViewHeight/2,backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                {pkArrTwo.map((info, index) => {
+                    let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+
+                    return (
+                        <Text key={index} style={[styles.newPK10Numer,{marginTop:kaijTop, backgroundColor:yansStr}]}>{info}</Text>
+                    );
+                })}
+             </View>
+  
+            </View>
+        } else {
+            changView = <View style={{marginLeft:10,marginTop:0,width:recordWidth/2 - 25,height:kaijiViewHeight, backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                    {opencodeArr.map((info, index) => {
+                        
+                     
+                        let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+                    
+
+                        return (
+                            <Text key={index} style={[styles.newPK10Numer,{marginTop:kaijTop, backgroundColor:yansStr}]}>{info}</Text>
+                        );
+                    })}
+                </View>
+        }
+        
+
+
+        return <View style={{flexDirection:'row',width:recordWidth,height:(kaijTop==2)?50:50+4,backgroundColor:sys.whiteColor,marginTop:5}}>
+
+                <Text style={{width:recordWidth/6+10,height:50,color:sys.titleColor,textAlign:'center',fontSize:11,
+                 textAlignVertical:'center',...Platform.select({ios: { lineHeight: 50},android: {}
+                })}}>{expect+"期"}</Text>
+
+               {changView}
+
+                <View style={{width:recordWidth/3,height:50,flexDirection:'row'}}>
+                    <Text style={{width:recordWidth/9,height:50,color:sys.titleColor,textAlign:'center',fontSize:12,
+                    textAlignVertical:'center',...Platform.select({ios: { lineHeight: 50},android: {}
+                    })}}>{isSsc?hzDescStr:mynum}</Text>
+
+                    <Text style={{width:20,height:20,backgroundColor:mynum>littleNum?'#FF8533':'#22A7FF',borderRadius:3,
+                    textAlign:'center',fontSize:11,color:'white',marginLeft:(recordWidth/9-20)/2,marginTop:(50-20)/2,
+                    textAlignVertical:'center',...Platform.select({ios: { lineHeight: 20},android: {}
+                    })}}>{mynum>littleNum?'大':'小'}</Text>
+
+                    <Text style={{width:20,height:20,backgroundColor:mynum%2==0?'#FF8533':'#22A7FF',borderRadius:3,
+                    textAlign:'center',fontSize:11,color:'white',marginLeft:(recordWidth/9-20),marginTop:(50-20)/2,
+                    textAlignVertical:'center',...Platform.select({ios: { lineHeight: 20},android: {}
+                    })}}>{mynum%2==0?'双':'单'}</Text>
+
+
+                </View>
+
+                </View>
+
+    }
+
+
+
+
+    otherPublicView(expect,opencodeArr){
+
+
+        let kaijiViewHeight =0;
+        var kaijTop = 0
+        // if (opencodeArr.length *22>recordWidth - (recordWidth/6+10) - 20) {
+        //     kaijTop = 2;
+        // } 
+
+
+        let hanshu = opencodeArr.length *22/(recordWidth - (recordWidth/6+10) - 20)
+
+        hanshu = Math.ceil(hanshu)
+
+        if (hanshu==1) {
+            kaijiViewHeight = 46;
+            kaijTop = (kaijiViewHeight-20)/2
+        } else {
+            kaijiViewHeight = 22 *hanshu;
+            kaijTop = 2
+        }
+
+
+        return <View style={{flexDirection:'row',width:recordWidth,height:kaijiViewHeight+6+4,backgroundColor:sys.whiteColor,marginTop:5}}>
+
+                <Text style={{width:recordWidth/6+10,height:50,color:sys.titleColor,textAlign:'center',fontSize:11,
+                 textAlignVertical:'center',...Platform.select({ios: { lineHeight: 50},android: {}
+                })}}>{expect+"期"}</Text>
+
+                <View style={{marginLeft:10,marginTop:2,width:recordWidth - (recordWidth/6+10) - 20,height:kaijiViewHeight, backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                    {opencodeArr.map((info, index) => {
+                        
+                     
+                        let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+                    
+
+                        return (
+                            <Text key={index} style={[styles.newPK10Numer,{marginTop:kaijTop, backgroundColor:yansStr}]}>{info}</Text>
+                        );
+                    })}
+                </View>
+
+                </View>
+
+    }
+
+
+    lhcPublicView(expect,lhcArr){
+
+
+
+        let kaijiViewHeight =0;
+        var kaijTop = 0
+        // if (opencodeArr.length *22>recordWidth - (recordWidth/6+10) - 20) {
+        //     kaijTop = 2;
+        // } 
+
+
+        let hanshu = lhcArr.length *22/(recordWidth - (recordWidth/6+10) - 20)
+
+        hanshu = Math.ceil(hanshu)
+
+        if (hanshu==1) {
+            kaijiViewHeight = 44;
+          
+        } else {
+            kaijiViewHeight = 44 *hanshu;   
+        }
+
+
+        return <View style={{flexDirection:'row',width:recordWidth,height:kaijiViewHeight+6,backgroundColor:sys.whiteColor,marginTop:5}}>
+
+                <Text style={{width:recordWidth/6+10,height:50,color:sys.titleColor,textAlign:'center',fontSize:11,
+                 textAlignVertical:'center',...Platform.select({ios: { lineHeight: 50},android: {}
+                })}}>{expect+"期"}</Text>
+
+                <View style={{marginLeft:10,marginTop:2,width:recordWidth - (recordWidth/6+10) - 20,height:kaijiViewHeight, 
+                    backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                    
+                    {lhcArr.map((info, index) => {
+                        return (
+
+                            <View key={index}>
+                            <Text style={[styles.newPK10Numer,{backgroundColor:info['bo']}]}>{info['num']}</Text>
+                             <Text style={[styles.newPK10Numer,{backgroundColor:sys.whiteColor,color:sys.titleColor}]}>{info['sx']}</Text>
+                             </View>
+
+                            // <Text key={index} style={[styles.openPK10Numer,{backgroundColor:info['bo']}]}>{info['num']}</Text>
+                        );
+                    })}
+                </View>
+
+             
+
+                </View>
+
+    }
+
+
+}

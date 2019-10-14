@@ -1,0 +1,524 @@
+import React, {Component} from 'react'
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    Animated,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Switch,
+    Button,
+    ImageBackground,
+    Dimensions,
+    Platform,
+    ScrollView,
+    DeviceEventEmitter
+} from 'react-native';
+
+import {sys,NoDataView,isIphoneX} from "../../common/Data"
+
+import {KaijiangHeadView} from "../common/KaijiangHeadView"
+import HttpUtils from "../../common/HttpUtil"
+import {styles} from "../common/homeStyle"
+import LotteryRecord from '../common/LotteryRecord'
+import OrderRecord from '../common/OrderRecord'
+import Record from '../common/Record'
+import Qian3 from './Qian3'
+import Qian2 from './Qian2'
+import RenxuanFusi from './RenxuanFusi'
+import Quwei from './Quwei'
+
+import ScrollableTabView, {DefaultTabBar, } from 'react-native-scrollable-tab-view';
+
+import Pop from 'rn-global-modal'
+import ActionButton from 'react-native-action-button'
+import EZSideMenu from 'react-native-ezsidemenu';
+
+import {BuySureAlert} from "../common/CommonViewButton";
+
+import Toast,{DURATION} from 'react-native-easy-toast';
+
+var Buffer = require('buffer').Buffer;
+
+var numberDict = {'5单0双':'0','4单1双':'1','3单2双':'2','2单3双':'3','1单4双':'4','0单5双':'5'}
+
+var thiz = this;
+
+
+
+
+
+
+export default class ElevenSelectFive extends Component{
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+
+        return {
+            headerTitle: params.item.title?params.item.title:'11选5',
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+                
+            },
+            headerRight: <View />
+
+
+        }
+    };
+
+
+
+    constructor(props) {
+        super(props);
+
+
+        this.state = {
+
+            ///一星复式
+            newlist:[],
+            lotterytimesData:{},
+            currFullExpect:"",
+            kaijianJlArr:[],
+            name:this.props.navigation.state.params.item['title'],
+            typeid:this.props.navigation.state.params.item['typeid'],
+            lotteryname:this.props.navigation.state.params.item['name'],
+
+            isOpen: false,
+            animation: new Animated.Value(0),
+            scroll: true,
+            visible:false,
+
+            number : "",
+            data : {},
+            count : 0,
+            beishu : '1',
+
+        };
+
+        // this.toggle = this._toggle.bind(this)
+    }
+
+
+    componentDidMount() {
+        this.getDataList(0)
+
+    }
+
+    // 获取详情描述数据
+    getDataList(num) {
+        this.setState({
+            visible: true
+        });
+
+        let codeurl = sys.host + "/AppGame.x5.code." + this.state.lotteryname  +".do";
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+        // formData.append('page', this.state.currentPage);
+        // formData.append('page_size',this.state.pageSize);
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                this.setState({
+                    visible: false
+                });
+                if(result['respCode']==1){
+                    let testData = result['data']["rates"]["rates"];
+                    this.setState({
+                        newlist: testData,
+                    },()=>{
+
+                    })
+                }else{
+
+                    this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                 
+                }
+            })
+            .catch(error=>{
+                this.setState({
+                    visible: false
+                });
+               
+                if (num<=0) {
+                    this.getDataList(num+1)
+                }else {
+                    this.refs.toast.show("网络错误", DURATION.LENGTH_LONG);
+             
+                }
+
+            })
+    }
+
+
+    buyClick(tag){
+
+        if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+        }
+
+        if (this.state.visible) {
+            this.refs.toast.show("正在加载中", DURATION.LENGTH_LONG);
+            return;
+        }
+
+        var number = "";
+        var data = {};
+        var count = 0;
+        var beishu = '1';
+
+
+        if(tag == 0){
+            number = this.refs["Quwei"].state.number;
+            data = this.refs["Quwei"].state.data;
+            count = this.refs["Quwei"].state.count;
+            beishu = this.refs["Quwei"].state.beishu;
+        }else if(tag == 1){
+            number = this.refs["Qian3"].state.number;
+            data = this.refs["Qian3"].state.data;
+            count = this.refs["Qian3"].state.count;
+            beishu = this.refs["Qian3"].state.beishu;
+        }else if(tag == 2){
+            number = this.refs["Qian2"].state.number;
+            data = this.refs["Qian2"].state.data;
+            count = this.refs["Qian2"].state.count;
+            beishu = this.refs["Qian2"].state.beishu;
+        }else if(tag == 3){
+            number = this.refs["RenxuanFusi"].state.number;
+            data = this.refs["RenxuanFusi"].state.data;
+            count = this.refs["RenxuanFusi"].state.count;
+            beishu = this.refs["RenxuanFusi"].state.beishu;
+        }
+
+
+        this.state.number = number
+        this.state.data = data
+        this.state.count = count
+        this.state.beishu = beishu
+
+        var amount = Math.round(parseFloat(count*2*parseInt(beishu))*100)/100;
+
+
+        var tipMessage = data.title+":"+number +"  注数:"+count +"  金额:"+amount
+
+        Pop.show(
+
+            <BuySureAlert name={this.state.name} lotteryname={this.state.lotteryname} currFullExpect={this.state.currFullExpect} orderDetailMessage={tipMessage} totalAmount={amount} touzhuList={{}} onPress={this.isBuyNow.bind(tag)}/>
+                ,{animationType: 'slide-up', maskClosable: true, onMaskClose: ()=>{
+
+            }})
+
+    }
+
+
+    isBuyNow(buy){
+
+        if(!buy){
+            Pop.hide();
+            return
+        }
+        thiz.buyNow()
+    }
+
+
+    buyNow(tag){
+        // Pop.hide();
+
+        let number = this.state.number
+        let data = this.state.data
+        let count = this.state.count
+        let beishu = this.state.beishu
+
+
+
+        var numberArr = number.split(',')
+
+        var numArr = [];
+        if(numberDict[numberArr[0]] != null){
+            for(i in numberArr){
+                numArr.push(numberDict[numberArr[i]])
+            }
+            var arrLength=numArr.length;
+            for(var i=0;i<arrLength;i++){
+                if(i==0){
+                    number= numArr[i];
+                }else{
+                    number=number+","+ numArr[i];
+                }
+            }
+        }
+
+        
+
+
+            // if(numberDict[number] != null){
+            //     number = 
+            // }
+
+        
+
+        // this.setState({
+        //     visible: true
+        // });
+
+        let codeurl = sys.host + "/AppApijiekou.cpbuy";
+
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+
+        formData.append('lotteryname',this.state.lotteryname);
+        formData.append('expect',this.state.currFullExpect);
+
+
+
+
+        var orderList = [];
+        var formlist =  {
+
+        };
+        formlist['playtitle'] = data.title;
+        formlist['playid']=data.playid;
+        formlist['minxf']=data.minxf;
+        formlist['totalzs']=data.totalzs;
+        formlist['maxjj']=data.maxjj;
+        formlist['minjj']=data.minjj;
+        formlist['maxzs']=data.maxzs;
+        formlist['rate']=data.rate;
+        formlist['number']=number;
+
+
+
+        formlist['price']= count*parseInt(beishu)*2;
+        formlist['zhushu']=count;
+
+        formlist['beishu']=beishu;
+        formlist['yjf' ]="1";
+
+
+        formlist['trano']= this.generateMixed(20);
+
+
+        orderList.push(formlist);
+
+        // console.log("orderList-----");
+
+        // console.log(orderList);
+
+        var base64Str= new Buffer(JSON.stringify(orderList)).toString('base64');
+        // encrypt
+        formData.append("orderList",base64Str);
+
+
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+
+                if(result['respCode']==1){
+                    Pop.hide()
+                    this.props.navigation.navigate("BetsResult");
+
+
+                    for(key in this.refs){
+                   
+                        if(key == 'Quwei' || key == 'Qian3' || key == 'Qian2' || key == 'RenxuanFusi'){    
+                            this.refs[key].clear();                              
+                        }
+
+                    }
+                
+
+
+
+                }else{
+                    this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                    Pop.hide()
+                }
+
+
+
+                
+                // if(result['respCode']==1){
+                // }
+                // else{
+                // }
+            })
+            .catch(error=>{
+                this.refs.toast.show(error, DURATION.LENGTH_LONG);
+                Pop.hide()             
+            })
+
+
+    }
+
+
+    //生成随机订单号
+    generateMixed(n) {
+
+        var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
+        var res = "";
+        for(var i = 0; i < n ; i ++) {
+            var id = Math.ceil(Math.random()*35);
+            res += chars[id];
+        }
+        return res;
+    }
+
+
+    menu(opacity) {
+
+
+
+        const menu = (
+            <Animated.View style={{ flex: 1, backgroundColor: 'transparent', opacity }}>
+
+
+                <Record ref="Record" type="x5" lotteryname={this.state.lotteryname} kaijianJlArr={this.state.kaijianJlArr} 
+                onPress={thiz.orderDetail.bind()}
+                style={{ flex: 1,  backgroundColor: 'red'} }>
+
+                </Record>
+
+
+            </Animated.View>
+        );
+        return menu
+    }
+
+    orderDetail(e){
+        const {navigate} = thiz.props.navigation;
+        navigate('OrderDetail',{item:e})
+    }
+
+    rightViewClick(){
+        if (this.refs.menu) {
+            this.state.isOpen ? this.refs.menu.close() : this.refs.menu.open();
+
+        }
+    }
+
+
+
+    render(){
+        thiz = this;
+
+        const menuWidth = Dimensions.get('window').width * 0.9;
+        const opacity = this.state.animation.interpolate({
+            inputRange: [0, menuWidth],
+            outputRange: [0, 1],
+        });
+
+        return(
+
+            <EZSideMenu
+                onMenuStateChaned={(isOpen) => { this.setState({ isOpen }) }}
+                onPanMove={(x) => { console.log('onPanMove ' + x) }}
+                onSliding={(x, persent) => { console.log('onSliding x ' + x + ' persent ' + persent) }}
+                onPanStartMove={() => { this.setState({ scroll: false }) }}//adapt android
+                onPanEndMove={() => { this.setState({ scroll: true }) }}//adapt android
+                type={EZSideMenu.type.Default}
+                menuStyle={styles.container}
+                shadowStyle={{ backgroundColor: 'rgba(20,20,20,.7)' }}
+                direction={EZSideMenu.direction.Left}
+                ref="menu"
+                position={this.state.animation}
+                width={menuWidth}
+                menu={this.menu(opacity)}
+                panWidthFromEdge={200}
+                animationFunction={(prop, value) => Animated.spring(prop, {
+                    friction: 10,
+                    toValue: value
+                })}>
+
+
+                <View style={{
+                flex: 1}}>
+
+                    <KaijiangHeadView name={this.state.lotteryname} typeid={this.state.typeid} codeNum={5} KaijiangReturn={(currFullExpect)=>{
+
+                        this.setState({currFullExpect:currFullExpect})
+                    }}/>
+
+                    {/*<KaijiangHedView ref={'KaijiangHedView'}  kaijianResult={thiz.state.kaijianResult} iskaijianResult={this.state.iskaijianResult} lotterytimesData={this.state.lotterytimesData}*/}
+                                 {/*kaijiangReturnZh={(num)=>{*/}
+
+
+                                     {/*if (num==1) {*/}
+
+                                         {/*thiz.refs['KaijiangHedView'].setState({*/}
+                                             {/*iskaijianResult:false,*/}
+                                             {/*kaijianResult:{},*/}
+                                         {/*})*/}
+
+                                         {/*thiz.getKaiJiangData();*/}
+                                     {/*}*/}
+
+                                     {/*if (num==2) {*/}
+                                         {/*thiz.getloadopencode();*/}
+                                     {/*}*/}
+
+
+                                 {/*}}/>*/}
+
+                <ScrollableTabView
+                    style={{marginTop: 0, }}
+                    initialPage={0}
+                    renderTabBar={() => <DefaultTabBar />}
+                    tabBarUnderlineStyle={{backgroundColor:sys.mainColor,height:4,width:(sys.dwidth)/4}}
+                    tabBarBackgroundColor='#FFFFFF'
+                    tabBarActiveTextColor={sys.mainColor}
+                    tabBarInactiveTextColor='#333333'
+                    tabBarTextStyle={{fontSize: 15}}
+                >
+                    <Quwei ref="Quwei" lodaData={()=>this.getDataList(0)} onPress={()=>this.buyClick(0)} datalist={this.state.newlist}
+                    visible={this.state.visible} currFullExpect={this.state.currFullExpect}  params={this.props.navigation.state}   navigation={this.props.navigation} tabLabel='趣味'>yixing</Quwei>
+                    <Qian3 ref="Qian3" lodaData={()=>this.getDataList(0)} onPress={()=>this.buyClick(1)} visible={this.state.visible}
+                    datalist={this.state.newlist}  currFullExpect={this.state.currFullExpect}  params={this.props.navigation.state}  navigation={this.props.navigation} tabLabel='三码'>yixing</Qian3>
+                    <Qian2 ref="Qian2" lodaData={()=>this.getDataList(0)} onPress={()=>this.buyClick(2)} visible={this.state.visible}
+                       datalist={this.state.newlist} currFullExpect={this.state.currFullExpect}  params={this.props.navigation.state}  navigation={this.props.navigation} tabLabel='二码'>yixing</Qian2>
+                    <RenxuanFusi ref="RenxuanFusi" lodaData={()=>this.getDataList(0)} onPress={()=>this.buyClick(3)} visible={this.state.visible}
+                      datalist={this.state.newlist} currFullExpect={this.state.currFullExpect}  params={this.props.navigation.state}   navigation={this.props.navigation} tabLabel='任选复式'>yixing</RenxuanFusi>
+
+                {/*<Qian3 ref="onestart" datalist={this.state.newlist}  onPress={()=>this.buyClick(0)} currFullExpect={this.state.currFullExpect}  params={this.props.navigation.state} navigation={this.props.navigation} tabLabel='一星'>yixing</Qian3>*/}
+                {/*<Qian2 ref="twostart" datalist={this.state.newlist}   onPress={()=>this.buyClick(1)}  currFullExpect={this.state.currFullExpect}   params={this.props.navigation.state} navigation={this.props.navigation} tabLabel='二星'>yixing</Qian2>*/}
+
+
+
+                </ScrollableTabView>
+
+
+                <ActionButton
+                    buttonColor="rgba(231,76,60,1)" offsetY={80} offsetX={10} position='right'
+                    onPress={() => {
+                        thiz.rightViewClick();
+                    }}
+                    renderIcon={() => (<View >
+                        <Text style={{color:'white',lineHeight:18,fontSize:14,textAlign:'center'}}>记录</Text>
+                    </View>)}
+                />
+            </View>
+
+            <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                /> 
+            </EZSideMenu>
+        )
+
+    }
+
+
+
+}

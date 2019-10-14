@@ -1,0 +1,13 @@
+/**
+ * Created by jakie on 2019/1/30.
+ */
+import {Platform, AsyncStorage, Alert, DeviceEventEmitter} from 'react-native'
+export default class GameRule{
+
+
+
+
+
+
+
+}

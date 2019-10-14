@@ -1,0 +1,424 @@
+import React, {Component} from 'react'
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    Animated,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Switch,
+    Button,
+    ImageBackground,
+    Dimensions,
+    ScrollView
+} from 'react-native';
+
+
+
+
+var ballF = 0;
+var ballS = 0;
+var ballT = 0;
+var ballSi = 0;
+var ballWu = 0;
+var selected_f_ball_array = [];
+var selected_s_ball_array = [];
+var selected_t_ball_array = [];
+var selected_si_ball_array = [];
+var selected_wu_ball_array = [];
+
+// export default class pkRule extends Component{
+
+
+
+    //前二
+export function cqeCount(currNumber){
+       ballF = 0;
+       ballS = 0;
+       ballT = 0;
+       ballSi = 0;
+       ballWu = 0;
+       selected_f_ball_array = [];
+       selected_s_ball_array = [];
+       selected_t_ball_array = [];
+       selected_si_ball_array = [];
+       selected_wu_ball_array = [];
+       for(var i = 0; i < currNumber.length; i++){
+           for(var j = 0; j < currNumber[i].length; j++){
+               if(i == 0){
+                   selected_f_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+               }else if(i == 1){
+                   selected_s_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+               }else if(i == 2){
+                   selected_t_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+               }else if(i == 3){
+                   selected_si_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+               }else{
+                   selected_wu_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+               }
+           }
+           if(i == 0){
+               ballF = currNumber[i].length;
+           }else if(i == 1){
+               ballS = currNumber[i].length;
+           }else if(i == 2){
+               ballT = currNumber[i].length;
+           }else if(i == 3){
+               ballSi = currNumber[i].length;
+           }else{
+               ballWu = currNumber[i].length;
+           }
+       }
+        var itemcount = 0;
+        if(ballF>=1&&ballS>=1){
+
+            var opFlag=false;
+
+            for(var i=0;i<selected_f_ball_array.length;i++){
+
+                var current_f_ball=selected_f_ball_array[i];
+
+                if(current_f_ball!=undefined&&current_f_ball!=""){
+
+                    for(var s=0;s<selected_s_ball_array.length;s++){
+
+                        var current_s_ball=selected_s_ball_array[s];
+
+                        if(current_s_ball!=undefined&&current_s_ball!=""){
+
+                            if(eval(current_f_ball)!=eval(current_s_ball)){
+                                itemcount=itemcount+1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return itemcount;
+}
+
+
+    //前三
+export function  cqsanCount(currNumber){
+    ballF = 0;
+    ballS = 0;
+    ballT = 0;
+    ballSi = 0;
+    ballWu = 0;
+    selected_f_ball_array = [];
+    selected_s_ball_array = [];
+    selected_t_ball_array = [];
+    selected_si_ball_array = [];
+    selected_wu_ball_array = [];
+    for(var i = 0; i < currNumber.length; i++){
+        for(var j = 0; j < currNumber[i].length; j++){
+            if(i == 0){
+                selected_f_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else if(i == 1){
+                selected_s_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else if(i == 2){
+                selected_t_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else if(i == 3){
+                selected_si_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else{
+                selected_wu_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }
+        }
+        if(i == 0){
+            ballF = currNumber[i].length;
+        }else if(i == 1){
+            ballS = currNumber[i].length;
+        }else if(i == 2){
+            ballT = currNumber[i].length;
+        }else if(i == 3){
+            ballSi = currNumber[i].length;
+        }else{
+            ballWu = currNumber[i].length;
+        }
+    }
+        var itemcount = 0;
+        if(ballF>=1&&ballS>=1&&ballT>=1){
+
+            var opFlag=false;
+
+            for(var i=0;i<selected_f_ball_array.length;i++){
+
+                var current_f_ball=selected_f_ball_array[i];
+
+                if(current_f_ball!=undefined&&current_f_ball!=""){
+
+                    for(var s=0;s<selected_s_ball_array.length;s++){
+
+                        var current_s_ball=selected_s_ball_array[s];
+
+                        if(current_s_ball!=undefined&&current_s_ball!=""){
+                            console.log(eval(current_f_ball),eval(current_s_ball));
+                            if(eval(current_f_ball)!=eval(current_s_ball)){
+
+                                for(var t=0;t<selected_t_ball_array.length;t++){
+
+                                    var current_t_ball=selected_t_ball_array[t];
+
+                                    if(current_t_ball!=undefined&&current_t_ball!=""){
+
+                                        if(eval(current_t_ball)!=eval(current_s_ball)&&eval(current_t_ball)!=eval(current_f_ball)){
+
+                                            itemcount=itemcount+1;
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        return itemcount;
+}
+
+
+
+    //前四
+export function    cqsCount(currNumber){
+    ballF = 0;
+    ballS = 0;
+    ballT = 0;
+    ballSi = 0;
+    ballWu = 0;
+    selected_f_ball_array = [];
+    selected_s_ball_array = [];
+    selected_t_ball_array = [];
+    selected_si_ball_array = [];
+    selected_wu_ball_array = [];
+    for(var i = 0; i < currNumber.length; i++){
+        for(var j = 0; j < currNumber[i].length; j++){
+            if(i == 0){
+                selected_f_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else if(i == 1){
+                selected_s_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else if(i == 2){
+                selected_t_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else if(i == 3){
+                selected_si_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else{
+                selected_wu_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }
+        }
+        if(i == 0){
+            ballF = currNumber[i].length;
+        }else if(i == 1){
+            ballS = currNumber[i].length;
+        }else if(i == 2){
+            ballT = currNumber[i].length;
+        }else if(i == 3){
+            ballSi = currNumber[i].length;
+        }else{
+            ballWu = currNumber[i].length;
+        }
+    }
+        var itemcount = 0;
+        if(ballF>=1&&ballS>=1&&ballT>=1&&ballSi>=1){
+
+            var opFlag=false;
+
+            for(var i=0;i<selected_f_ball_array.length;i++){
+
+                var current_f_ball=selected_f_ball_array[i];
+
+                if(current_f_ball!=undefined&&current_f_ball!=""){
+
+                    for(var s=0;s<selected_s_ball_array.length;s++){
+
+                        var current_s_ball=selected_s_ball_array[s];
+
+                        if(current_s_ball!=undefined&&current_s_ball!=""){
+
+                            if(eval(current_f_ball)!=eval(current_s_ball)){
+
+                                for(var t=0;t<selected_t_ball_array.length;t++){
+
+                                    var current_t_ball=selected_t_ball_array[t];
+
+                                    if(current_t_ball!=undefined&&current_t_ball!=""){
+
+                                        if(eval(current_t_ball)!=eval(current_s_ball)&&eval(current_t_ball)!=eval(current_f_ball)){
+
+                                            for(var si = 0; si < selected_si_ball_array.length; si++){
+
+                                                var current_si_ball = selected_si_ball_array[si];
+
+                                                if(current_si_ball!=undefined&&current_si_ball!=''){
+
+                                                    if(eval(current_si_ball)!=eval(current_s_ball)&&eval(current_si_ball)!=eval(current_f_ball)&&eval(current_si_ball)!=eval(current_t_ball)){
+
+                                                        itemcount=itemcount+1;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        return itemcount;
+}
+
+
+
+    //前五
+export function    cqwCount(currNumber){
+    ballF = 0;
+    ballS = 0;
+    ballT = 0;
+    ballSi = 0;
+    ballWu = 0;
+    selected_f_ball_array = [];
+    selected_s_ball_array = [];
+    selected_t_ball_array = [];
+    selected_si_ball_array = [];
+    selected_wu_ball_array = [];
+    for(var i = 0; i < currNumber.length; i++){
+        for(var j = 0; j < currNumber[i].length; j++){
+            if(i == 0){
+                selected_f_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else if(i == 1){
+                selected_s_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else if(i == 2){
+                selected_t_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else if(i == 3){
+                selected_si_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }else{
+                selected_wu_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+            }
+        }
+        if(i == 0){
+            ballF = currNumber[i].length;
+        }else if(i == 1){
+            ballS = currNumber[i].length;
+        }else if(i == 2){
+            ballT = currNumber[i].length;
+        }else if(i == 3){
+            ballSi = currNumber[i].length;
+        }else{
+            ballWu = currNumber[i].length;
+        }
+    }
+        var itemcount = 0;
+        if(ballF>=1&&ballS>=1&&ballT>=1&&ballSi>=1&&ballWu>=1){
+
+            var opFlag=false;
+
+            for(var i=0;i<selected_f_ball_array.length;i++){
+
+                var current_f_ball=selected_f_ball_array[i];
+
+                if(current_f_ball!=undefined&&current_f_ball!=""){
+
+                    for(var s=0;s<selected_s_ball_array.length;s++){
+
+                        var current_s_ball=selected_s_ball_array[s];
+
+                        if(current_s_ball!=undefined&&current_s_ball!=""){
+
+                            if(eval(current_f_ball)!=eval(current_s_ball)){
+
+                                for(var t=0;t<selected_t_ball_array.length;t++){
+
+                                    var current_t_ball=selected_t_ball_array[t];
+
+                                    if(current_t_ball!=undefined&&current_t_ball!=""){
+
+                                        if(eval(current_t_ball)!=eval(current_s_ball)&&eval(current_t_ball)!=eval(current_f_ball)){
+
+                                            for(var si = 0; si < selected_si_ball_array.length; si++){
+
+                                                var current_si_ball = selected_si_ball_array[si];
+
+                                                if(current_si_ball!=undefined&&current_si_ball!=''){
+
+                                                    if(eval(current_si_ball)!=eval(current_s_ball)&&eval(current_si_ball)!=eval(current_f_ball)&&eval(current_si_ball)!=eval(current_t_ball)){
+
+                                                        for(var wu = 0; wu < selected_wu_ball_array.length; wu++){
+
+                                                            var current_wu_ball = selected_wu_ball_array[wu];
+
+                                                            if(current_wu_ball!=undefined&&current_wu_ball!=''){
+
+                                                                if(eval(current_wu_ball)!=eval(current_s_ball)&&eval(current_wu_ball)!=eval(current_f_ball)&&eval(current_wu_ball)!=eval(current_t_ball)&&eval(current_wu_ball)!=eval(current_si_ball)){
+
+                                                                    itemcount=itemcount+1;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        return itemcount;
+}
+
+
+
+    // combineArrUpdataWu(currNumber){
+    //     ballF = 0;
+    //     ballS = 0;
+    //     ballT = 0;
+    //     ballSi = 0;
+    //     ballWu = 0;
+    //     selected_f_ball_array = [];
+    //     selected_s_ball_array = [];
+    //     selected_t_ball_array = [];
+    //     selected_si_ball_array = [];
+    //     selected_wu_ball_array = [];
+    //     for(var i = 0; i < currNumber.length; i++){
+    //         for(var j = 0; j < currNumber[i].length; j++){
+    //             if(i == 0){
+    //                 selected_f_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+    //             }else if(i == 1){
+    //                 selected_s_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+    //             }else if(i == 2){
+    //                 selected_t_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+    //             }else if(i == 3){
+    //                 selected_si_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+    //             }else{
+    //                 selected_wu_ball_array[parseInt(currNumber[i][j])] = currNumber[i][j]
+    //             }
+    //         }
+    //         if(i == 0){
+    //             ballF = currNumber[i].length;
+    //         }else if(i == 1){
+    //             ballS = currNumber[i].length;
+    //         }else if(i == 2){
+    //             ballT = currNumber[i].length;
+    //         }else if(i == 3){
+    //             ballSi = currNumber[i].length;
+    //         }else{
+    //             ballWu = currNumber[i].length;
+    //         }
+    //     }
+    // }
+
+
+// }

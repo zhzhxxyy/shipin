@@ -1,0 +1,143 @@
+
+
+import React, { Component,PureComponent} from 'react';
+import {
+    StyleSheet,
+    Text,
+    View,
+    Dimensions,
+    Image,
+    Alert,
+    ScrollView,
+    TouchableOpacity, Picker, Platform
+} from 'react-native';
+import {sys,isIphoneX} from "../common/Data";
+
+
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = sys.dwidth/4;
+
+
+export default class LeftPlayView extends Component {
+
+
+    constructor() {
+        super();
+
+        this.state = {
+            selected: false,
+            dwd:false,
+            dxds:false,
+            leftbtnSeletIndex:0
+        };
+    }
+
+
+    render() {
+
+
+
+        
+
+        var scrollH = sys.dheight-310;
+        if(isIphoneX()){
+            scrollH = sys.dheight-340;
+        }
+
+
+        if (this.props.scrollH) {
+            scrollH = this.props.scrollH;
+        }
+
+        return(
+            // <View  style={{
+            //     marginTop:0,
+            //     //  marginBottom:0,
+            //     backgroundColor:sys.grayColor,
+            //     width:LEFT_WIDTH,
+            //     height:sys.dheight - 150,
+            // }}>
+                <ScrollView style={{
+                    backgroundColor:sys.grayColor,
+                    width:LEFT_WIDTH,
+                    height:scrollH
+                }}>
+
+                    {this.props.playList.map((info, index) => {
+                        return (
+                            <TouchableOpacity key={index} onPress={this.leftViewClick.bind(this, info,index)}  activeOpacity={0.2} focusedOpacity={0.5}>
+                                {/*<View style=  {{justifyContent:'center',alignItems:'center',width:128,height:128,backgroundColor:'#841584'}}>*/}
+                                <View style= {[styles.leftButton,{backgroundColor:(index==this.state.leftbtnSeletIndex?sys.whiteColor:sys.grayColor)}]}>
+                                    {/*<Image source={require('./image/ic_search.png')}>*/}
+                                    {/*</Image>*/}
+
+                                    <Text style={[styles.leftButtonItem,{color:(index==this.state.leftbtnSeletIndex?sys.mainColor:sys.titleColor)}]}>{info}</Text>
+
+                                </View>
+                                <View style = {{backgroundColor:sys.whiteColor,height:1,width:LEFT_WIDTH}}></View>
+                            </TouchableOpacity>
+                        );
+                    })}
+
+                    <View style={{width:LEFT_WIDTH-20,height:10,}}/>
+
+                    {this.props.isBottomPourViewXs?<View style={{width:LEFT_WIDTH-20,height:130,}}/>:null}
+
+                </ScrollView>
+            // </View>
+        )
+
+
+
+    }
+
+    leftViewClick(item,index) {
+
+
+        this.props.leftclickselet(index,this.state.leftbtnSeletIndex);
+
+
+        // if (index != 9) {
+
+            this.setState(
+                {
+                    leftbtnSeletIndex: index,
+
+                }
+            )
+        // }
+
+    }
+
+}
+
+
+const styles = StyleSheet.create(
+    {
+        leftButtonItem: {
+            color:sys.titleColor,
+            textAlign:'center',
+            textAlignVertical:'center',
+            width:LEFT_WIDTH,
+            height:50,
+            fontSize:14,
+            ...Platform.select({
+                ios: { lineHeight: 50},
+                android: {}
+            })
+        },
+        leftButton: {
+            // marginLeft:10,
+            // marginTop:10,
+            width:LEFT_WIDTH,
+            height:50,
+            backgroundColor:sys.backgroundColor,
+            //borderRadius:5,
+            // borderTopLeftRadius: 5,
+            // borderTopRightRadius: 5,
+            // borderBottomRightRadius: 5,
+            // borderBottomLeftRadius: 5,
+
+        },
+    }
+)

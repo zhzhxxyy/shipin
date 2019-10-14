@@ -1,0 +1,771 @@
+
+import React, {Component} from 'react'
+import {
+    Text,
+    View,
+    Dimensions,
+    Image,
+    Animated,
+    Platform, 
+    ActivityIndicator,
+    DeviceEventEmitter,
+    TouchableOpacity
+} from 'react-native';
+
+import ScrollableTabView, {DefaultTabBar, } from 'react-native-scrollable-tab-view';
+
+import OneStart from './one';
+import TwoStart from './twoStart';
+import ThreeStart from './threeStart';
+import FourStart from './fourStart';
+import FiveStart from './fiveStart';
+import {sys,isIphoneX} from "../../common/Data"
+
+import {KaijiangHeadView} from "../common/KaijiangHeadView"
+import HttpUtils from "../../common/HttpUtil"
+
+import Pop from 'rn-global-modal'
+import ActionButton from 'react-native-action-button'
+import EZSideMenu from 'react-native-ezsidemenu';
+import {styles} from "../common/homeStyle"
+
+
+import Record from '../common/Record'
+import {BuySureAlert} from "../common/CommonViewButton";
+
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+
+
+var Buffer = require('buffer').Buffer;
+
+const host = sys.host;
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+var self
+var changeView = null
+export default class Cqssc extends Component{
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+
+        if (Platform.OS=='ios') {
+            var leftView = <TouchableOpacity
+            onPress={() => {
+                navigation.goBack()
+            }}
+
+            style={{width:50}}
+
+            >
+
+           <Image
+            source={require('../../res/images/iosfanhui.png')}
+            style={{marginLeft:10,marginTop:0}}
+            />
+
+            </TouchableOpacity>
+
+            return {
+                    headerTitle: params.item.title?params.item.title:'时时彩',
+                    headerTitleStyle:{
+                        alignSelf:'center',
+                        flex: 1,
+                        textAlign: 'center',
+                        
+                    },
+                    // headerRight: <View />
+                    headerRight: <TouchableOpacity onPress={()=>self.rightButtonClick()}>
+            <Text style={{color:sys.titleColor,marginRight:8}}>聊天室</Text>
+                    </TouchableOpacity>,
+                    headerLeft:leftView
+                }
+
+        }
+
+
+        return {
+            headerTitle: params.item.title?params.item.title:'时时彩',
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',   
+            },
+            headerRight: <TouchableOpacity onPress={()=>self.rightButtonClick()}>
+            <Text style={{color:sys.titleColor,marginRight:8}}>聊天室</Text>
+            </TouchableOpacity>,
+
+        }
+    };
+
+    rightButtonClick(){
+
+        if (self.refs.menu) {
+            self.refs.menu.close()
+                
+        }
+
+        var item={
+            id: 1,
+            typeid: null,
+            title: "聊天室",
+            ftitle: "聊天室",
+            pic:'',
+            name:'聊天室'
+        };
+        item['userInfo']=null;
+        item['token']="";
+        this.props.navigation.navigate("Chat",{item:item});
+    }
+
+
+    constructor(props) {
+        super(props);
+
+        self = this;
+        this.state = {
+
+            ///一星复式
+            newlist:[],
+            lotterytimesData:{},
+            currFullExpect:"",
+            orderFullExpect:"",
+            kaijianJlArr:[],
+            name:this.props.navigation.state.params.item['title'],
+            typeid:this.props.navigation.state.params.item['typeid'],
+            lotteryname:this.props.navigation.state.params.item['name'],
+
+
+            isOpen: false,
+            animation: new Animated.Value(0),
+            scroll: true,
+
+            visible:false,
+            iscommit:false,
+
+            number : "",
+            data : {},
+            count : 0,
+            beishu : '1',
+
+
+        };
+
+        this.toggle = this._toggle.bind(this)
+    }
+
+
+
+
+    rightViewClick(){
+
+        if (this.refs.menu) {
+            this.state.isOpen ? this.refs.menu.close() : this.refs.menu.open();
+        }
+    }
+
+
+
+    buyClick(tag){
+
+
+        if(!this.state.newlist.hasOwnProperty('dweid')) {
+            this.refs.toast.show('加载赔率没成功', DURATION.LENGTH_LONG);
+            return false;
+        }
+
+        if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+        }
+
+        var number = "";
+        var data = {};
+        var count = 0;
+        var beishu = '1';
+
+        if(tag == 0){
+             number = this.refs["onestart"].state.number;
+             data = this.refs["onestart"].state.data;
+             count = this.refs["onestart"].state.count;
+             beishu = this.refs["onestart"].state.beishu;
+
+             if (this.refs["onestart"].state.index == 2) {
+
+                this.state.number = number
+                this.state.data = data
+                this.state.count = count
+                this.state.beishu = beishu
+
+                this.state.orderFullExpect =  this.state.currFullExpect;
+
+
+                // var titStr='';
+                // for(var i=0;i<data.length;i++) {
+
+                //     var indetData = data[i]
+
+                //     if (indetData.plDic.hasOwnProperty('title')) {
+                //         titStr = indetData.plDic['title']
+
+                //         break;
+                //     }
+                // }
+            
+
+                // console.log('dadadada')
+
+                // console.log(data)
+
+                var amount = Math.round(parseFloat(count*sys.priceNum*parseInt(beishu))*100)/100;
+                var tipMessage= number +"  注数:"+count +"  金额:"+amount
+                // changeView = this.state.iscommit?<View style={{width:"50%", height:50,backgroundColor:sys.mainColor}}>
+                //     <Text>提交中：</Text>
+                //         <ActivityIndicator /></View>:
+                //     <BuySureAlert name={this.state.name} lotteryname={this.state.lotteryname}
+                //                   currFullExpect={this.state.currFullExpect}
+                //                   orderDetailMessage={tipMessage} totalAmount={amount} touzhuList={[]}
+
+                //                   onPress={self.isBuyNow.bind()}/>;
+                Pop.show(
+                // changeView
+                <BuySureAlert name={this.state.name} lotteryname={this.state.lotteryname}
+                                currFullExpect={this.state.currFullExpect}
+                                orderDetailMessage={tipMessage} totalAmount={amount} touzhuList={[]}
+
+                                 onPress={self.isBuyLongHuNow.bind()}
+                                />
+                )
+
+                return;
+
+            } 
+
+
+        }else if(tag == 1){
+            number = this.refs["twostart"].state.number;
+            data = this.refs["twostart"].state.data;
+            count = this.refs["twostart"].state.count;
+            beishu = this.refs["twostart"].state.beishu;
+        }else if(tag == 2){
+            number = this.refs["threeStart"].state.number;
+            data = this.refs["threeStart"].state.data;
+            count = this.refs["threeStart"].state.count;
+            beishu = this.refs["threeStart"].state.beishu;
+        }else if(tag == 3){
+            number = this.refs["fourStart"].state.number;
+            data = this.refs["fourStart"].state.data;
+            count = this.refs["fourStart"].state.count;
+            beishu = this.refs["fourStart"].state.beishu;
+        }else if(tag == 4){
+            number = this.refs["fiveStart"].state.number;
+            data = this.refs["fiveStart"].state.data;
+            count = this.refs["fiveStart"].state.count;
+            beishu = this.refs["fiveStart"].state.beishu;
+        }
+
+
+    
+
+        this.state.number = number
+        this.state.data = data
+        this.state.count = count
+        this.state.beishu = beishu
+
+        this.state.orderFullExpect =  this.state.currFullExpect;
+       
+        var amount = Math.round(parseFloat(count*sys.priceNum*parseInt(beishu))*100)/100;
+        var tipMessage= data.title+":"+number +"  注数:"+count +"  金额:"+amount
+        // changeView = this.state.iscommit?<View style={{width:"50%", height:50,backgroundColor:sys.mainColor}}>
+        //     <Text>提交中：</Text>
+        //         <ActivityIndicator /></View>:
+        //     <BuySureAlert name={this.state.name} lotteryname={this.state.lotteryname}
+        //                   currFullExpect={this.state.currFullExpect}
+        //                   orderDetailMessage={tipMessage} totalAmount={amount} touzhuList={[]}
+
+        //                   onPress={self.isBuyNow.bind()}/>;
+        Pop.show(
+           // changeView
+           <BuySureAlert name={this.state.name} lotteryname={this.state.lotteryname}
+                          currFullExpect={this.state.currFullExpect}
+                          orderDetailMessage={tipMessage} totalAmount={amount} touzhuList={[]}
+
+                          onPress={self.isBuyNow.bind()}/>
+        )
+
+    }
+
+
+    isBuyLongHuNow(buy,name,currFullExpect,touzhuList,isSendChat) {
+        if(!buy){
+            Pop.hide();
+            return
+        }
+
+        self.buyNow(isSendChat,true)
+    }
+
+    isBuyNow(buy,name,currFullExpect,touzhuList,isSendChat){
+
+        if(!buy){
+            Pop.hide();
+            return
+        }
+        self.buyNow(isSendChat,false)
+    }
+
+
+
+
+    buyNow(isSendChat,isLongHu){
+
+
+        let number = self.state.number
+        let data = self.state.data
+        let count = self.state.count
+        let beishu = self.state.beishu
+
+        // console.log(number)
+
+        let codeurl = sys.host + "/AppApijiekou.cpbuy";
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+
+
+        formData.append('lotteryname',self.state.lotteryname);
+        formData.append('expect',self.state.orderFullExpect);
+
+
+    
+
+        var orderList = [];
+
+        var fasongData=[]
+
+        if (isLongHu) {
+
+
+            for(var i=0;i<data.length;i++) {
+                 
+                var numData = data[i]
+
+                var xiazhuNum = numData.xiazhuArr.join(',')
+
+                var lhData = numData.plDic
+
+                var formlist =  {
+                    //添加2行
+                    'expect':self.state.orderFullExpect,
+                    'name':self.state.name,
+                    'lotteryname':self.state.lotteryname,
+                    'typeid':self.state.typeid
+                };
+                formlist['playtitle'] = lhData.title;
+                formlist['playid']=lhData.playid;
+                formlist['minxf']=lhData.minxf;
+                formlist['totalzs']=lhData.totalzs;
+                formlist['maxjj']=lhData.maxjj;
+                formlist['minjj']=lhData.minjj;
+                formlist['maxzs']=lhData.maxzs;
+                formlist['rate']=lhData.rate;
+                formlist['number']=xiazhuNum;
+        
+        
+        
+                formlist['price']= numData.xiazhuArr.length*parseInt(beishu)*sys.priceNum;
+                formlist['zhushu']=numData.xiazhuArr.length;
+        
+                formlist['beishu']=beishu;
+                formlist['yjf' ]="1";
+        
+        
+                formlist['trano']= self.generateMixed(20);
+        
+        
+                orderList.push(formlist);
+
+            }
+
+            fasongData.push(orderList[0])
+
+            // console.log('orderList')
+            // console.log(orderList)
+
+        } else {
+            var formlist =  {
+                //添加2行
+                'expect':self.state.orderFullExpect,
+                'name':self.state.name,
+                'lotteryname':self.state.lotteryname,
+                'typeid':self.state.typeid
+            };
+            formlist['playtitle'] = data.title;
+            formlist['playid']=data.playid;
+            formlist['minxf']=data.minxf;
+            formlist['totalzs']=data.totalzs;
+            formlist['maxjj']=data.maxjj;
+            formlist['minjj']=data.minjj;
+            formlist['maxzs']=data.maxzs;
+            formlist['rate']=data.rate;
+            formlist['number']=number;
+    
+    
+    
+            formlist['price']= count*parseInt(beishu)*sys.priceNum;
+            formlist['zhushu']=count;
+    
+            formlist['beishu']=beishu;
+            formlist['yjf' ]="1";
+    
+    
+            formlist['trano']= self.generateMixed(20);
+    
+    
+            orderList.push(formlist);
+
+            fasongData = orderList
+        }
+
+        
+     
+
+        var base64Str= new Buffer(JSON.stringify(orderList)).toString('base64');
+        // encrypt
+        formData.append("orderList",base64Str);
+
+
+        // JSON.encode
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+
+                
+                    if(result['respCode']==1){
+                        Pop.hide()
+
+
+                            // console.log('fasongData')
+
+                            // console.log(fasongData)
+
+                            //添加canshu
+                            this.props.navigation.navigate("BetsResult",{"canshu":fasongData,isSendChat:isSendChat});
+                        
+                         
+
+
+                        for(key in this.refs){
+                       
+                            if(key == 'onestart' || key == 'twostart' || key == 'threeStart' || key == 'fourStart' || key == 'fiveStart' ){    
+                                this.refs[key].clear();                              
+                            }
+    
+                        }
+                    
+
+
+
+                    }else{
+                        this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                        Pop.hide()
+                    }
+
+
+            })
+            .catch(error=>{
+
+                this.refs.toast.show(error, DURATION.LENGTH_LONG);
+                Pop.hide()
+
+            })
+
+
+    }
+
+
+
+
+    //生成随机订单号
+    generateMixed(n) {
+
+        var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
+        var res = "";
+        for(var i = 0; i < n ; i ++) {
+            var id = Math.ceil(Math.random()*35);
+            res += chars[id];
+        }
+        return res;
+    }
+
+
+
+
+
+    _toggle() {
+
+        if (this.refs.menu) {
+            this.state.isOpen ? this.refs.menu.close() : this.refs.menu.open()
+        }
+    }
+
+    componentDidMount() {
+
+
+        storage.load(sys.host + "/AppGame."+this.state.typeid+".code." + this.state.lotteryname  +".do", (dic) => {
+            if (dic != "" && dic != null) {
+               
+                let testData = dic["rates"]["rates"];
+                this.setState({newlist: testData,})
+
+
+            }
+         })
+
+        this.getDataList(0);
+
+        DeviceEventEmitter.addListener('Login',(dic)=>{
+            Pop.hide()
+            const {navigate} = this.props.navigation;
+            this.props.navigation.navigate("Login",dic);
+
+        });
+
+        DeviceEventEmitter.addListener('LoginQuxiao',(dic)=>{
+            Pop.hide()
+
+        });
+
+    }
+
+    // 获取测试数据
+    getDataList(num) {
+
+        
+
+        this.setState({
+            iscommit: true,
+            visible: true,
+        });
+        let codeurl = sys.host + "/AppGame."+this.state.typeid+".code." + this.state.lotteryname  +".do";
+
+
+        let formData = new FormData();
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                this.setState({
+                    visible: false,
+                    iscommit: false
+                });
+                if(result['respCode']==1){
+                    let testData = result['data']["rates"]["rates"];
+                    this.setState({newlist: testData,})
+
+
+                    storage.save(codeurl, result['data'])
+                    
+                }else{
+                
+                    this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                }
+            }).catch(error=>{
+                this.setState({
+                    visible: false,
+                    iscommit: false
+                });
+                if(num<=0){
+                    this.getDataList(num+1);
+                }else{
+                
+                    this.refs.toast.show('网络错误', DURATION.LENGTH_LONG);
+                    
+                }
+            })
+    }
+
+
+    menu(opacity) {
+      
+        const menu = (
+            <Animated.View style={{ flex: 1, backgroundColor: 'transparent', opacity }}>
+                <Record ref="Record" type="ssc" lotteryname={this.state.lotteryname}
+                onPress={self.orderDetail.bind()}
+                style={{ flex: 1,  backgroundColor: 'red'} }>
+                </Record>
+            </Animated.View>
+        );
+        return menu
+    }
+
+    orderDetail(e){
+        const {navigate} = self.props.navigation;
+        navigate('OrderDetail',{item:e})
+    }
+
+    render(){
+
+        self = this
+
+        const menuWidth = Dimensions.get('window').width * 0.9;
+        const opacity = this.state.animation.interpolate({
+            inputRange: [0, menuWidth],
+            outputRange: [0, 1],
+        });
+
+
+
+        return    <EZSideMenu
+            onMenuStateChaned={(isOpen) => { this.setState({ isOpen }) }}
+            onPanMove={(x) => { 
+               // console.log('onPanMove ' + x)
+             }}
+            onSliding={(x, persent) => {
+                // console.log('onSliding x ' + x + ' persent ' + persent)
+                 }}
+            onPanStartMove={() => { this.setState({ scroll: false }) }}//adapt android
+            onPanEndMove={() => { this.setState({ scroll: true }) }}//adapt android
+            type={EZSideMenu.type.Default}
+            // menuStyle={styles.container}
+            // shadowStyle={{ backgroundColor: 'rgba(20,20,20,.7)' }}
+            direction={EZSideMenu.direction.Left}
+            ref="menu"
+            position={this.state.animation}
+            width={menuWidth}
+            menu={this.menu(opacity)}
+            panWidthFromEdge={200}
+            animationFunction={(prop, value) => Animated.spring(prop, {
+                friction: 10,
+                toValue: value
+            })}>
+
+
+
+
+        <View style={{
+            flex: 1}}>
+
+            <KaijiangHeadView name={this.state.lotteryname} typeid={this.state.typeid} codeNum={5}   ReloadRecord={()=>{
+                    self.refs['Record'].getKaijianJuliData(0)
+                }}  KaijiangReturn={(currFullExpect)=>{
+
+                this.setState({currFullExpect:currFullExpect})
+            }}/>
+
+            <ScrollableTabView
+            style={{marginTop: 0, }}
+            initialPage={0}
+            renderTabBar={() => <DefaultTabBar />}
+            tabBarUnderlineStyle={{backgroundColor:sys.mainColor,height:4,width:(sys.dwidth)/5}}
+            tabBarBackgroundColor='#FFFFFF'
+            tabBarActiveTextColor= {sys.mainColor} 
+            tabBarInactiveTextColor='#333333'
+            tabBarTextStyle={{fontSize: 15}}
+        >
+            <OneStart ref="onestart" lodaData={()=>this.getDataList(0)} datalist={this.state.newlist} visible={this.state.visible} onPress={()=>this.buyClick(0)} currFullExpect={this.state.currFullExpect}  params={this.props.navigation.state} navigation={this.props.navigation} tabLabel='一星'>yixing</OneStart>
+            <TwoStart ref="twostart" lodaData={()=>this.getDataList(0)} datalist={this.state.newlist} visible={this.state.visible} onPress={()=>this.buyClick(1)}  currFullExpect={this.state.currFullExpect}   params={this.props.navigation.state} navigation={this.props.navigation} tabLabel='二星'>yixing</TwoStart>
+            <ThreeStart ref="threeStart" lodaData={()=>this.getDataList(0)} datalist={this.state.newlist} visible={this.state.visible} onPress={()=>this.buyClick(2)}  currFullExpect={this.state.currFullExpect}   params={this.props.navigation.state} navigation={this.props.navigation} tabLabel='三星'>yixing</ThreeStart>
+            <FourStart  ref="fourStart" lodaData={()=>this.getDataList(0)} datalist={this.state.newlist} visible={this.state.visible} onPress={()=>this.buyClick(3)}  currFullExpect={this.state.currFullExpect}   params={this.props.navigation.state} navigation={this.props.navigation} tabLabel='四星'>yixing</FourStart>
+            <FiveStart ref="fiveStart" lodaData={()=>this.getDataList(0)} datalist={this.state.newlist} visible={this.state.visible} onPress={()=>this.buyClick(4)}  currFullExpect={this.state.currFullExpect}   params={this.props.navigation.state} navigation={this.props.navigation} tabLabel='五星'>yixing</FiveStart>
+        </ScrollableTabView>
+
+        {/* Platform.OS == 'ios' */}
+
+        </View>
+
+            <ActionButton
+                buttonColor={sys.mainColor} offsetY={Platform.OS == 'ios' ? (sys.dheight > 750 ? 95 :70) : (sys.dheight > 700 ? 95 :80)} offsetX={10} position='right'
+
+                onPress={() => {
+                    self.rightViewClick();
+                }}
+                renderIcon={() => (<View >
+                    <Text style={{color:'white',lineHeight:18,fontSize:14,textAlign:'center'}}>记录</Text>
+                </View>)}
+            />
+        <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.7}
+                    textStyle={{color:'white'}}
+                />  
+            </EZSideMenu>
+
+}
+
+}
+
+
+
+
+class KaijanJlView extends Component {
+
+
+    constructor() {
+        super();
+        this.state = {
+
+        };
+    }
+
+
+    render() {
+
+        let zhongHeight = 40
+        let recordWidth = 320;
+        let qisuW = 120;
+        let qitaW = 100;
+
+
+        const {info} = this.props;
+
+        let expect = info['expect'];
+
+        let opencode = info['opencode'];
+
+        let opentime = info["opentime"];
+
+
+        let kjArr = opencode.split(',');
+
+        var hz=0
+
+        for (var i=0;i<kjArr.length;i++) {
+            hz = hz + parseInt(kjArr[i])
+        }
+
+
+        return (
+            <View style={{marginTop:1,flexDirection:'row',width:recordWidth,height:zhongHeight,backgroundColor:'white'}}>
+
+                <Text style={{marginLeft:0,textAlignVertical:'center',height:zhongHeight,width:qisuW,fontSize: 15,color:sys.titleColor,backgroundColor:sys.backgroundColor,textAlign:'center',
+                    ...Platform.select({
+                        ios: { lineHeight: zhongHeight},
+                        android: {}
+                    })
+
+                }}>{expect}</Text>
+                <Text style={{marginLeft:1,textAlignVertical:'center',height:zhongHeight,width:qitaW,fontSize: 15,color:sys.titleColor,backgroundColor:sys.backgroundColor,textAlign:'center',
+
+                    ...Platform.select({
+                        ios: { lineHeight: zhongHeight},
+                        android: {}
+                    })
+
+                }}>{opencode}</Text>
+                <Text style={{marginLeft:1,textAlignVertical:'center',height:zhongHeight,width:qitaW,fontSize: 15,color:sys.titleColor,backgroundColor:sys.backgroundColor,textAlign:'center',
+                    ...Platform.select({
+                        ios: { lineHeight: zhongHeight},
+                        android: {}
+                    })
+                }}>{opentime}</Text>
+
+
+            </View>
+        )
+
+    }
+}

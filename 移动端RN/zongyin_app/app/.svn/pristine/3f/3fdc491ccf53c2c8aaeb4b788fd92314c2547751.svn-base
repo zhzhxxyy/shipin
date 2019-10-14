@@ -1,0 +1,85 @@
+/**
+ * Created by 卓原 on 2017/10/31.
+ * zhuoyuan93@gmail.com
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Button,
+    DeviceEventEmitter
+} from 'react-native';
+
+
+import {sys} from "../common/Data"
+const host = sys.host;
+
+
+export default class Aboutus extends React.Component {
+
+    static  navigationOptions = ({navigation}) => ({
+        headerTitle:"关于我们",
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            
+        },
+        headerRight: <View />
+    });
+
+    render(){
+        return <View style={styles.container}>
+            <Image style={styles.image} source={require('./images/icon_homescreen.png')}></Image>
+            <Text style={styles.text}>宗隐1.0</Text>
+
+
+              <Text style={styles.content}>“宗隐”是一款以佛学文化直播为主体的手机端直播APP，平台将遵照改善精神文化生活、传播正能量的原则，
+                  在严格管理引导下进行积极向善的佛学文化直播，以期达到弘扬佛法、抚慰人心、劝诫人性的目的。
+              </Text>
+
+
+        </View>
+    }
+
+}
+
+const styles = StyleSheet.create({
+
+    container: {
+        flex:1,
+        alignItems:'center',
+        backgroundColor:sys.grayColor
+    },
+    image:{
+        marginTop:70,
+        width:70,
+        height:70,
+        borderRadius:12,
+    },
+    text:{
+        fontSize:18,
+        color:"#666666",
+        textAlign: 'center',
+        marginTop:5,
+        width:150
+    },
+    content:{
+        marginTop:55,
+        alignSelf:'center',
+        fontSize:16,
+        color:"#333333",
+        marginRight:14,
+        marginLeft:14,
+        width:sys.dwidth - 28,
+        height:200
+    },
+
+})
+

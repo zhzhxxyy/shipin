@@ -1,0 +1,472 @@
+//
+//  Created by Liu Jinyong on 17/4/5.
+//  Copyright © 2016年 Liu Jinyong. All rights reserved.
+//
+//  @flow
+//  Github:
+//  https://github.com/huanxsd/react-native-refresh-list-view
+
+import React, {Component} from 'react'
+import {View, StyleSheet, Text, Platform,Alert,TouchableOpacity,Image,PixelRatio,DeviceEventEmitter,Keyboard,
+TextInput,ActivityIndicator} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import Cell from './Cell'
+import {sys,NoDataView} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+import FcusImage from './HeadView';
+import RNLogin from "../common/RNLoginModule"
+import DialogSelected from '../common/AlertSelect';
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+import Pop from 'rn-global-modal'
+
+var clickLastTime=0;
+
+export default class MyHongbao extends Component {
+
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+
+        if (Platform.OS=='ios') {
+            var leftView = <TouchableOpacity
+            onPress={() => {
+                 navigation.goBack()
+            }}
+
+            style={{width:50}}
+
+            >
+
+           <Image
+            source={require('../res/images/iosfanhui.png')}
+            style={{marginLeft:10,marginTop:0}}
+            />
+
+            </TouchableOpacity>
+
+            return {
+                headerTitle:"发红包",
+                headerTitleStyle:{
+                    alignSelf:'center',
+                    flex: 1,
+                    textAlign: 'center',
+                    
+                },
+                headerRight: <View />,
+                headerLeft:leftView
+            }
+
+        }
+
+        return {
+            headerTitle:"发红包",
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+                
+            },
+            headerRight: <View />
+
+        }
+    };
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:20,
+            isFaSong:false,
+            noData:true,
+            hongbaoPrice:'',
+            hongbaoNum:'',
+            beizhuStr:'恭喜发财，大吉大利',
+            balance:'0',
+        }
+    }
+
+ 
+
+
+    componentDidMount(){
+
+
+        storage.load('islogin', (dic) => {
+            if (dic != "" && dic != null) {
+          
+                this.setState({
+                    balance:dic['balance'],
+                })
+
+            }
+        })
+
+        this.getPersonInfo(0)
+
+    }
+
+
+
+    getPersonInfo(num){
+        let codeurl = host + '/AppMember.index.do';
+        let formData = new FormData();
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){  
+                    let dic = result['data'];
+                  
+                    this.setState({
+                        balance:dic['balance'],
+                    })
+
+                    storage.save('islogin',dic)
+                      
+                }else{
+                    
+                }
+            })
+            .catch(error=>{
+              
+                if(num<=0){
+                    this.getPersonInfo(++num);
+                }
+            })
+    }
+
+
+    render() {
+
+
+        return(
+           <View style={{backgroundColor:sys.whiteColor,height:sys.dheight,width:sys.dwidth}}>
+
+                <View style={{marginTop:1,flexDirection:'row',backgroundColor:sys.whiteColor,height:50,
+                    width:sys.dwidth}}>
+                    <Text style={{marginLeft:20,marginTop:17,width:200,backgroundColor:sys.whiteColor,
+                    fontSize:16,}}>{'账户余额:'+this.state.balance+'元'}</Text>
+                </View>
+
+                <View style={{marginLeft:0,marginTop:5,backgroundColor:sys.grayColor,height:1,width:sys.dwidth}}></View>
+
+         <View style={{marginTop:0,flexDirection:'row',backgroundColor:sys.whiteColor,height:50,
+             width:sys.dwidth}}>
+             <Text style={{marginLeft:10,marginTop:14,width:90,backgroundColor:sys.whiteColor,
+              fontSize:16,textAlign:'center'}}>发送金额:</Text>
+
+             <TextInput style={{width:sys.dwidth/2,color:sys.subTitleColor,
+   textAlign:'left',backgroundColor:sys.whiteColor,fontSize:16}}
+                       keyboardType='numeric'
+                       //  ref='hongbao'
+                        underlineColorAndroid='transparent'
+                        placeholder={"输入金额"}
+                        value={this.state.hongbaoPrice}
+                        onChangeText={(text) =>{
+
+
+                            text = text.replace(/[^\d^\.]+/g,'').replace('.','$#$').replace(/\./g,'').replace('$#$','.')
+
+                            // text = text.replace(/[^\d]+/, '');
+
+                            this.setState({hongbaoPrice:text})
+                          }}
+             >
+             </TextInput>
+         </View>
+
+         <View style={{marginLeft:0,marginTop:5,backgroundColor:sys.grayColor,height:1,width:sys.dwidth}}></View>
+
+         <View style={{marginTop:0,flexDirection:'row',backgroundColor:sys.whiteColor,height:50,
+             width:sys.dwidth}}>
+             <Text style={{marginLeft:10,marginTop:14,width:90,backgroundColor:sys.whiteColor,
+              fontSize:16,textAlign:'center'}}>红包个数:</Text>
+
+             <TextInput style={{width:sys.dwidth/2,color:sys.subTitleColor,
+   textAlign:'left',backgroundColor:sys.whiteColor,fontSize:16}}
+                       keyboardType='numeric'
+                       //  ref='hongbao' 
+                         underlineColorAndroid='transparent'
+                        placeholder={"输入个数"}
+                        value={this.state.hongbaoNum}
+                        onChangeText={(text) =>{
+                            text = text.replace(/[^\d]+/, '');
+                            this.setState({hongbaoNum:text})
+                         }
+                    }
+             >
+             </TextInput>
+         </View>
+
+         <View style={{marginLeft:0,marginTop:5,backgroundColor:sys.grayColor,height:1,width:sys.dwidth}}></View>
+
+
+           <View style={{marginTop:0,flexDirection:'row',backgroundColor:sys.whiteColor,height:50,
+               width:sys.dwidth}}>
+               <Text style={{marginLeft:10,marginTop:14,width:90,backgroundColor:sys.whiteColor,
+               fontSize:16,textAlign:'center'}}>备注:</Text>
+
+               <TextInput style={{width:sys.dwidth/2,color:sys.subTitleColor,
+           textAlign:'left',backgroundColor:sys.whiteColor,fontSize:16}}
+                       //  ref='hongbao'
+                       underlineColorAndroid='transparent'
+                       placeholder={"输入备注"}
+                        value={this.state.beizhuStr}
+                       onChangeText={(text) => this.setState({beizhuStr:text})}
+               >
+               </TextInput>
+           </View>
+
+           <View style={{marginLeft:0,marginTop:5,backgroundColor:sys.grayColor,height:1,width:sys.dwidth}}></View>
+
+
+           <View style={{marginTop:10,marginLeft:0,width:sys.dwidth,height:42,
+            textAlign:'left',flexDirection:'row'}}>
+
+                <TouchableOpacity disabled={this.state.isChaXun} style={{width:(sys.dwidth-30)/2,
+                    marginLeft:10, marginTop:0,height:40,backgroundColor:sys.mainColor,
+                    borderRadius:5,flexDirection:'row',}} onPress={()=>this.myHongbao()}>
+                    <Text style={[{color:'#ffffff',textAlign:'center',fontSize:18,
+                    height:40, textAlignVertical:'center',...Platform.select({
+                    ios: { lineHeight: 40}, android: {}})
+                    },{width:100,marginLeft:this.state.isChaXun?10:((sys.dwidth-30)/2-100)/2}]}>我的红包</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity disabled={this.state.isFaSong} style={{width:(sys.dwidth-30)/2,
+                    marginLeft:10, marginTop:0,height:40,backgroundColor:sys.mainColor,
+                    borderRadius:5,flexDirection:'row',}} onPress={()=>this.fasong()}>
+                    {this.state.isFaSong?<ActivityIndicator style={{marginLeft:((sys.dwidth-30)/2-100)/2 - 10 - 20,width:20
+                        ,height:20,marginTop:10}} />:null}
+                    <Text style={[{color:'#ffffff',textAlign:'center',fontSize:18,
+                    height:40, textAlignVertical:'center',...Platform.select({
+                    ios: { lineHeight: 40}, android: {}})
+                    },{width:100,marginLeft:this.state.isFaSong?10:((sys.dwidth-30)/2-100)/2}]}>{this.state.isFaSong?'发送中..':'发送'}</Text>
+                </TouchableOpacity>
+
+            </View>
+
+            <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                />   
+
+
+           </View>
+        )
+
+    }
+
+    myHongbao(){
+        Keyboard.dismiss()
+
+        Pop.show(
+
+            <View style={{width:sys.dwidth,height:122,backgroundColor:sys.grayColor}}>
+                <TouchableOpacity style={{width:sys.dwidth,
+                    marginTop:0,height:40,backgroundColor:sys.whiteColor}} onPress={()=>{
+                        Pop.hide()
+
+                        const {navigate} = this.props.navigation;
+                        navigate("HongbaoDetail",{dataArr:'',hongbaoNum:3}); 
+
+                    }}>
+                    <Text style={{color:sys.titleColor,textAlign:'center',fontSize:15,
+                    height:40, textAlignVertical:'center',...Platform.select({
+                    ios: { lineHeight: 40}, android: {}})
+                    }}>收到的红包</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{width:sys.dwidth,
+                    marginTop:1,height:40,backgroundColor:sys.whiteColor}} onPress={()=>{
+                        Pop.hide()
+                        const {navigate} = this.props.navigation;
+                        navigate("HongbaoDetail",{dataArr:'',hongbaoNum:4}); 
+                    }}>
+                    <Text style={{color:sys.titleColor,textAlign:'center',fontSize:15,
+                    height:40, textAlignVertical:'center',...Platform.select({
+                    ios: { lineHeight: 40}, android: {}})
+                    }}>我发的红包</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{width:sys.dwidth,
+                    marginTop:1,height:40,backgroundColor:sys.whiteColor}} onPress={()=>{
+
+                        Pop.hide()
+
+                    }}>
+                    <Text style={{color:sys.titleColor,textAlign:'center',fontSize:15,
+                    height:40, textAlignVertical:'center',...Platform.select({
+                    ios: { lineHeight: 40}, android: {}})
+                    }}>取消</Text>
+                </TouchableOpacity>
+               
+
+            </View>
+
+        )
+    
+
+    }
+   
+
+    fasong(){
+
+
+        Keyboard.dismiss()
+
+        if (!this.state.hongbaoPrice.length) {
+            this.refs.toast.show('请输入金额', DURATION.LENGTH_LONG);
+            return;
+        }
+
+        if (!this.state.hongbaoNum.length) {
+            this.refs.toast.show('请输入个数', DURATION.LENGTH_LONG);
+            return;
+        }
+
+        if (!this.state.beizhuStr.length) {
+            this.refs.toast.show('请输入备注', DURATION.LENGTH_LONG);
+            return;
+        }
+
+
+        let codeurl = host + '/AppChat.fahongbao.do';
+       
+         let formData = new FormData();
+
+         formData.append('money',this.state.hongbaoPrice);
+         formData.append('comment',this.state.beizhuStr);
+         formData.append('num',this.state.hongbaoNum);
+
+         this.setState({
+            isFaSong:true
+         })
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                this.setState({
+                    isFaSong:false
+                 })
+
+                if(result['respCode']==1){  
+                   
+                    
+                     console.log('result')
+
+                     console.log(result)
+
+                    // result['respMsg']
+
+                    // this.hongbaoMes(result['data']['msg'])
+
+
+                    // var item=[];
+                    // item["id"]=result['data']['id'];
+                    // item['comment']=result['data']['comment'];
+
+
+
+                    var item =  {
+                        //添加2行
+                        'id':result['data']['id'],
+                        'comment':result['data']['comment'],
+                    };
+
+                    // console.log('JSON.stringify(item)')
+
+                    // console.log(JSON.stringify(item))
+
+                    
+
+                    this.hongbaoMes(JSON.stringify(item))
+
+                      
+                }else{
+                    this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                }
+            })
+            .catch(error=>{
+              
+                this.setState({
+                    isFaSong:false
+                 })
+
+                this.refs.toast.show(error, DURATION.LENGTH_LONG);
+                
+            })
+    }
+
+
+
+    hongbaoMes(respMsg){
+        storage.load('islogin',(user)=>{
+               
+            const {params} = this.props.navigation.state;
+            var arr = {}  //等同于 arr=new Array();
+            arr['token'] = user.token,
+            arr['userInfo'] = user
+            let dic = {
+                data:{'logined':JSON.stringify(arr),'room':'common','text':respMsg,'type':'hongbao'},
+                url:'Chat.sendToAll'
+            }
+
+
+            if(global.lianjiestate!=2){
+                global.ws = new WebSocket(sys.webSocketUrl);
+                ws.onopen = () => {
+
+                    // Alert.alert('00000')
+                     global.lianjiestate =  2;
+                   
+
+           
+                    let dic1 = {
+                        data:{'logined':JSON.stringify(arr)},
+                        url:'User.bind'
+                    }
+                    ws.send(JSON.stringify(dic1));
+
+                     ws.send(JSON.stringify(dic))
+                  
+                     this.props.navigation.goBack();
+
+                  };
+                
+                
+            } else {
+                // Alert.alert('11111')
+                ws.send(JSON.stringify(dic))
+
+                this.props.navigation.goBack();
+            }
+       
+         
+         })
+    }
+
+
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:sys.grayColor,
+
+    },
+    headView:{
+       width:sys.dwidth,
+       height:sys.dwidth/3
+    }
+})
+
+

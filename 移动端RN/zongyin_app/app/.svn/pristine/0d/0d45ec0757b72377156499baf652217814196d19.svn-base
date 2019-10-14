@@ -1,0 +1,479 @@
+/**
+ * Created by jakie on 2019/1/30.
+ */
+import React, {Component} from 'react'
+import {
+    Text,
+    View,
+    Dimensions,
+    Alert,
+    Animated,
+    DeviceEventEmitter
+} from 'react-native';
+
+import ScrollableTabView, {DefaultTabBar, } from 'react-native-scrollable-tab-view';
+import WanFa from './WanFa';
+import {sys} from "../../common/Data"
+import {KaijiangHeadView} from "../common/KaijiangHeadView"
+import HttpUtils from "../../common/HttpUtil"
+
+import Pop from 'rn-global-modal'
+import ActionButton from 'react-native-action-button'
+import EZSideMenu from 'react-native-ezsidemenu';
+
+import {BuySureAlert} from "../common/CommonViewButton"
+import {styles} from "../common/CommonStyle"
+import Record from '../common/Record'
+import Toast,{DURATION} from 'react-native-easy-toast';
+
+var Buffer = require('buffer').Buffer;
+const host = sys.host;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+var clickLastTime=0;
+//初始玩法的数据
+const wanfa_array=[
+    {
+        'title':'三星',
+        'list':[
+            {"playid":'pl3zxfs',
+             'title':'直选复式',
+              "remark":'从百、十、个位各选1个号码组成一注，所选号与开奖号相同，且顺序一致，即为中奖。',
+              "type":0,//0表示选择
+              "list":[
+                {"title":"百位","list":[[0,1,2,3,4],[5,6,7,8,9]]},
+                {"title":"十位","list":[[0,1,2,3,4],[5,6,7,8,9]]},
+                {"title":"个位","list":[[0,1,2,3,4],[5,6,7,8,9]]},
+              ]
+            },
+            // {"playid":'pl3zxds',
+            //  'title':'直选单式',
+            //  "remark":'从百、十、个位各选1个号码组成一注，所选号与开奖号相同，且顺序一致，即为中奖。',
+            //   "type":1,//1 表示输入 输入之后需要验证
+            //   "list":[]
+            // },
+            
+            {"playid":'pl3hzzx','title':'直选和值',"type":0,"remark":'至少选择一个和值，竞猜开奖号码数字之和。',
+             "list":[
+                {"title":"和值","list":[[0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18,19],[20,21,22,23,24],[25,26,27]]}
+            ]},
+            {"playid":'pl3kd','title':'跨度',"type":0,"remark":'所选数值等于开奖号码的最大与最小数字相减之差，即为中奖。',
+             "list":[
+                {"title":"跨度","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+            ]},
+            {"playid":'pl3zuxhz','title':'组选和值',"type":0,"remark":'至少选择一个和值，竞猜开奖号码后三位数字之和(不含豹子号)。',
+             "list":[
+                {"title":"和值","list":[[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15],[16,17,18,19,20],[21,22,23,24,25],[26]]}
+            ]},
+            {"playid":'pl3zux3','title':'组三',"type":0,"remark":'从0-9中选择2个数字组成两注，所选号码与开奖号码相同（必须含对子），且顺序不限。',
+            "list":[
+               {"title":"组三","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+            {"playid":'pl3zux6','title':'组六',"type":0,"remark":'从0-9中任意选择3个号码组成一注，所选号码与开奖号码相同（不含对子），顺序不限。',
+            "list":[
+               {"title":"组六","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+            // {"playid":'pl3zuxhh','title':'混合组选',"type":1,"remark":'手动输入号码，3个数字为一注，所选号码与开奖号码相同，顺序不限（不含豹子），即为中奖。',
+            // "list":[]
+            // },
+            {"playid":'pl3zuxbd','title':'组选包胆',"type":0,"remark":'从0-9中任意选择1个包胆号码，开奖号码的后三位中任意1位与所选包胆号码相同(不含豹子号)。',
+            "list":[
+               {"title":"包胆","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+            // {"playid":'pl3zsds','title':'组三单式',"type":1,"remark":'手动输入号码，3个数字为一注，所选号码与开奖号码相同（必须含对子），顺序不限。',
+            // "list":[]
+            // },
+            // {"playid":'pl3zlds','title':'组六单式',"type":1,"remark":'手动输入号码，3个数字为一注，所选号码与开奖号码相同（不含对子），顺序不限。',
+            // "list":[]
+            // },
+            {"playid":'pl3ymbdw','title':'一码不定位',"type":0,"remark":'从0-9中至少选择1个号码投注，竞猜开奖号码中包含这个号码，包含即中奖。',
+            "list":[
+               {"title":"不定位","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+            {"playid":'pl3rmbdw','title':'二码不定位',"type":0,"remark":'从0-9中至少选择2个号码投注，竞猜开奖号码中包含这2个号码，包含即中奖。',
+            "list":[
+               {"title":"不定位","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+        ] 
+    },
+    {
+        'title':'前二',
+        'list':[
+            {"playid":'pl3qx2fs','title':'直选复式',"type":0,"remark":'每位至少选择一个号码，竞猜开奖号码的前二位，号码和位置都对应即中奖。',
+            "list":[
+               {"title":"百位","list":[[0,1,2,3,4],[5,6,7,8,9]]},
+               {"title":"十位","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+            // {"playid":'pl3qx2ds','title':'直选单式',"type":1,"remark":'每位至少选择一个号码，竞猜开奖号码的前二位，号码和位置都对应即中奖。',
+            // "list":[]
+            // },
+            {"playid":'pl3q2zxhz','title':'直选和值',"type":0,"remark":'至少选择一个和值，竞猜开奖号码前二位数字之和。',
+            "list":[
+               {"title":"和值","list":[[0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18]]}
+           ]},
+            {"playid":'pl3q2kd','title':'跨度',"type":0,"remark":'所选数值等于开奖号码的前二位最大与最小数字相减之差，即为中奖。',
+            "list":[
+               {"title":"跨度","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+            {"playid":'pl3q2zxfs','title':'组选复式',"type":0,"remark":'从0-9中选择2个数字组成一注，所选号码与开奖号码的前二位相同，顺序不限（不含对子）。',
+            "list":[
+               {"title":"组选","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+            // {"playid":'pl3q2zxds','title':'组选单式',"type":1,"remark":'从0-9中选择2个数字组成一注，所选号码与开奖号码的前二位相同，顺序不限（不含对子）。',
+            // "list":[]
+            // },
+            {"playid":'pl3q2zuxhz','title':'组选和值',"type":0,"remark":'所选数值等于开奖号码的前二位数字相加之和（不含对子）。',
+            "list":[
+               {"title":"和值","list":[[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15],[16,17]]}
+           ]},
+            {"playid":'pl3q2zxbd','title':'组选包胆',"type":0,"remark":'从0-9中任意选择1个号码，开奖号码的前二位中任意1位包含所选的包胆号码相同。',
+            "list":[
+               {"title":"包胆","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+        ] 
+    },
+    {
+        'title':'后二',
+        'list':[
+            {"playid":'pl3hx2fs','title':'直选复式',"type":0,"remark":'每位至少选择一个号码，竞猜开奖号码的后二位，号码和位置都对应即中奖。',
+            "list":[
+               {"title":"十位","list":[[0,1,2,3,4],[5,6,7,8,9]]},
+               {"title":"个位","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+        //     {"playid":'pl3hx2ds','title':'直选单式',"type":1,"remark":'每位至少选择一个号码，竞猜开奖号码的后二位，号码和位置都对应即中奖。',
+        //     "list":[]
+        // },
+            {"playid":'pl3h2zxhz','title':'直选和值',"type":0,"remark":'至少选择一个和值，竞猜开奖号码后二位数字之和。',
+            "list":[
+               {"title":"和值","list":[[0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18]]}
+           ]},
+            {"playid":'pl3h2kd','title':'跨度',"type":0,"remark":'所选数值等于开奖号码的后二位最大与最小数字相减之差，即为中奖。',
+            "list":[
+               {"title":"跨度","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+            {"playid":'pl3h2zxfs','title':'组选复式',"type":0,"remark":'从0-9中选择2个数字组成一注，所选号码与开奖号码的后二位相同，顺序不限（不含对子）。',
+            "list":[
+               {"title":"组选","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]},
+        //     {"playid":'pl3h2zxds','title':'组选单式',"type":1,"remark":'从0-9中选择2个数字组成一注，所选号码与开奖号码的后二位相同，顺序不限（不含对子）。',
+        //     "list":[]
+        //    },
+            {"playid":'pl3h2zuxhz','title':'组选和值',"type":0,"remark":'所选数值等于开奖号码的后二位数字相加之和（不含对子）。',
+            "list":[
+               {"title":"和值","list":[[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15],[16,17]]}
+           ]
+        },
+            {"playid":'pl3h2zxbd','title':'组选包胆',"type":0,"remark":'从0-9中任意选择1个号码，开奖号码的后二位中任意1位包含所选的包胆号码相同。',
+            "list":[
+               {"title":"包胆","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+           ]
+        },
+        ] 
+    },
+    {
+        'title':'一星',
+        'list':[
+            {"playid":'pl3dwdfs','title':'复式',"type":0,"remark":'从百位、十位、个位任意位置上至少选择1个号码，选号与相同位置上的开奖号码一致。',
+             "list":[
+                {"title":"百位","list":[[0,1,2,3,4],[5,6,7,8,9]]},
+                {"title":"十位","list":[[0,1,2,3,4],[5,6,7,8,9]]},
+                {"title":"个位","list":[[0,1,2,3,4],[5,6,7,8,9]]}
+            ]}
+        ] 
+    },
+    {
+        'title':'大小单双',
+        'list':[
+            {"playid":'dxdsq2','title':'前二',"type":2,"remark":'从百位、十位中的“大、小、单、双”中至少各选一个组成一注。',
+            "list":[
+               {"title":"百位","list":[{"title":"大","value":0},{"title":"小","value":1},{"title":"单","value":2},{"title":"双","value":3}]},
+               {"title":"十位","list":[{"title":"大","value":0},{"title":"小","value":1},{"title":"单","value":2},{"title":"双","value":3}]},
+           ]},
+            {"playid":'dxdsh2','title':'后二',"type":2,"remark":'从十位、个位中的“大、小、单、双”中至少各选一个组成一注。',
+            "list":[
+               {"title":"十位","list":[{"title":"大","value":0},{"title":"小","value":1},{"title":"单","value":2},{"title":"双","value":3}]},
+               {"title":"个位","list":[{"title":"大","value":0},{"title":"小","value":1},{"title":"单","value":2},{"title":"双","value":3}]}
+           ]},
+        ] 
+    },
+];
+
+
+var self
+export default class Dpc extends Component{
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+        return {
+            headerTitle: params.item.title?params.item.title:'3D',
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+                
+            },
+            headerRight: <View />
+
+        }
+    };
+
+
+    rightViewClick(){
+        if (this.refs.menu) {
+            this.state.isOpen ? this.refs.menu.close() : this.refs.menu.open();
+        }
+    }
+
+    
+
+    buyClick(tag){
+       
+        if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+        }
+
+        if (this.state.visible) {
+           
+            this.refs.toast.show('正在加载中', DURATION.LENGTH_LONG);
+            return;
+        }
+
+        var touzhuList = this.refs[tag].state.touzhuList;
+        var touzhuListSize=touzhuList.length;
+        var amount=0;//总金额
+        var tipMessage="";//提示信息
+        for(var i=0;i<touzhuListSize;i++){
+            touzhuList[i]['trano']=this.generateMixed(20);//生成订单hao
+            amount=amount+touzhuList[i]['price'];
+            if(i!=0){
+                tipMessage=tipMessage+"  "
+            }
+            tipMessage=tipMessage+touzhuList[i]['playtitle']+":"+touzhuList[i]['numberMessage'] +"  注数:"+touzhuList[i]['zhushu'] +"  金额:"+amount
+        }
+
+        Pop.show(
+            <BuySureAlert name={this.state.name} lotteryname={this.state.lotteryname} currFullExpect={this.state.currFullExpect} orderDetailMessage={tipMessage} totalAmount={amount} touzhuList={touzhuList} onPress={this.clickBuySureAlert.bind()}/>
+           
+            ,{animationType: 'slide-up', maskClosable: true, onMaskClose: ()=>{
+
+            }})
+
+    }
+
+    clickBuySureAlert(sure,name,currFullExpect,touzhuList){
+
+        if(!sure){
+            Pop.hide();
+            return false;
+        }
+        var nowTime= (new Date()).getTime();
+        if(Math.abs(nowTime-clickLastTime)<sys.clickIntervalTime){
+            //小于1 秒 点击速度太快导致重复下单 
+     
+            this.refs.toast.show("操作太快，请稍后继续", DURATION.LENGTH_LONG);
+            return false;
+        }
+        clickLastTime=nowTime;
+        self.buyNow(name,currFullExpect,touzhuList,0);
+    }
+
+
+    buyNow(name,currFullExpect,touzhuList,num){
+        // this.setState({visible: true,visibleMessage:'正在购买...'});
+        let codeurl = sys.host + "/AppApijiekou.cpbuy";
+        let formData = new FormData();
+        formData.append('lotteryname',name);
+        formData.append('expect',currFullExpect);
+        var base64Str= new Buffer(JSON.stringify(touzhuList)).toString('base64');
+        formData.append("orderList",base64Str);
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                Pop.hide()
+                // if(result['respCode']==1){
+ 
+                // }else{
+    
+                // }
+            })
+            .catch(error=>{
+
+                this.refs.toast.show(error, DURATION.LENGTH_LONG);
+                Pop.hide()
+     
+            })
+
+    }
+
+
+    //生成随机订单号
+    generateMixed(n) {
+        var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+        var res = "";
+        for(var i = 0; i < n ; i ++) {
+            var id = Math.ceil(Math.random()*35);
+            res += chars[id];
+        }
+        return res;
+    }
+
+
+
+    constructor(props) {
+        super(props);
+        self = this;
+        this.state = {
+            newlist:[],
+            lotterytimesData:{},
+            currFullExpect:"",
+            kaijianJlArr:[],
+            name:this.props.navigation.state.params.item['title'],
+            lotteryname:this.props.navigation.state.params.item['name'],
+            typeid:this.props.navigation.state.params.item['typeid'],
+            isOpen: false,
+            animation: new Animated.Value(0),
+            scroll: true,
+            visible:false,
+            visibleMessage:"加载中...",
+        };
+
+        this.toggle = this._toggle.bind(this)
+    }
+
+    _toggle() {
+        if (this.refs.menu) {
+            this.state.isOpen ? this.refs.menu.close() : this.refs.menu.open()
+        }
+    }
+
+    componentDidMount() {//当前页面初始化时候执行
+        this.getRateList(0);
+    }
+    
+    getRateList(num) {
+        this.setState({visible: true,visibleMessage:'正在加载数据...'});
+        let codeurl = sys.host + "/AppGame."+this.state.typeid+".code." + this.state.lotteryname  +".do";
+        let formData = new FormData();
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                this.setState({visible: false});
+                if(result['respCode']==1){
+                    let testData = result['data']["rates"]["rates"];
+                    this.setState({newlist: testData,})
+                }else{
+                    this.refs.toast.show("请求错误"+result['respMsg'], DURATION.LENGTH_LONG);
+                    Pop.hide()
+                   
+                }
+            })
+            .catch(error=>{
+                this.setState({visible: false});
+                if(num<=0){
+                    this.getRateList(num+1)
+                }else{
+                    
+                this.refs.toast.show("获取数据失败", DURATION.LENGTH_LONG);
+                Pop.hide()
+                
+                }
+            })
+    }
+ 
+
+    menu(opacity) {
+        const menu = (
+            <Animated.View style={{ flex: 1, backgroundColor: 'transparent', opacity }}>
+                <Record ref="Record" navigationRecord={this.props.navigation} type={this.state.typeid} lotteryname={this.state.lotteryname} 
+                onPress={self.orderDetail.bind()}
+                style={{ flex: 1,  backgroundColor: 'red'} }>
+                </Record>
+            </Animated.View>
+        );
+        return menu
+    }
+
+    orderDetail(e){
+        const {navigate} = self.props.navigation;
+        navigate('OrderDetail',{item:e})
+    }
+
+    render(){
+        const menuWidth = Dimensions.get('window').width * 0.9;
+        const opacity = this.state.animation.interpolate({
+            inputRange: [0, menuWidth],
+            outputRange: [0, 1],
+        });
+
+        return    <EZSideMenu
+            onMenuStateChaned={(isOpen) => { this.setState({ isOpen }) }}
+            onPanMove={(x) => { console.log('onPanMove ' + x) }}
+            onSliding={(x, persent) => { console.log('onSliding x ' + x + ' persent ' + persent) }}
+            onPanStartMove={() => { this.setState({ scroll: false }) }}//adapt android
+            onPanEndMove={() => { this.setState({ scroll: true }) }}//adapt android
+            type={EZSideMenu.type.Default}
+            menuStyle={styles.container}
+            shadowStyle={{ backgroundColor: 'rgba(20,20,20,.7)' }}
+            direction={EZSideMenu.direction.Left}
+            ref="menu"
+            position={this.state.animation}
+            width={menuWidth}
+            menu={this.menu(opacity)}
+            panWidthFromEdge={200}
+            animationFunction={(prop, value) => Animated.spring(prop, {
+                friction: 10,
+                toValue: value
+            })}>
+
+
+
+              
+        <View style={{
+            flex: 1}}>
+
+               <KaijiangHeadView name={this.state.lotteryname} typeid={this.state.typeid} codeNum={3} KaijiangReturn={(currFullExpect)=>{
+                       
+                       this.setState({currFullExpect:currFullExpect})
+                }}/> 
+            <ScrollableTabView
+    style={{marginTop: 0, }}
+    initialPage={0}
+    renderTabBar={() => <DefaultTabBar />}
+    tabBarUnderlineStyle={{backgroundColor:sys.mainColor,height:4,width:(sys.dwidth)/5,marginLeft:0}}
+    tabBarBackgroundColor='#FFFFFF'
+    tabBarActiveTextColor= {sys.mainColor} 
+    tabBarInactiveTextColor='#333333'
+    tabBarTextStyle={{fontSize: 15}}
+>
+            {wanfa_array.map((info, index) => {
+                   return (<WanFa lodaData={()=>this.getRateList(0)} key={index} visible={this.state.visible} ref={index} datalist={this.state.newlist} itemlist={info.list}  onPress={()=>this.buyClick(index)} currFullExpect={this.state.currFullExpect}  params={this.props.navigation.state} navigation={this.props.navigation} tabLabel={info.title}>{info.title}</WanFa>);
+            })}
+        </ScrollableTabView>
+         <ActionButton
+                buttonColor="rgba(231,76,60,1)"   offsetY={80} offsetX={10} position='right'
+                onPress={() => {
+                    this.rightViewClick();
+                }}
+                renderIcon={() => (<View >
+                    <Text style={{color:'white',lineHeight:18,fontSize:14,textAlign:'center'}}>记录</Text>
+                </View>)}
+            />
+        </View>
+        <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                /> 
+            </EZSideMenu>
+
+}
+}
+
+
+
+
+
+

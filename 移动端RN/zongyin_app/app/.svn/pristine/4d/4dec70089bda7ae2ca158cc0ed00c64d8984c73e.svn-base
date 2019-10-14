@@ -1,0 +1,254 @@
+//
+//  Created by Liu Jinyong on 17/4/5.
+//  Copyright © 2016年 Liu Jinyong. All rights reserved.
+//
+//  @flow
+//  Github:
+//  https://github.com/huanxsd/react-native-refresh-list-view
+
+import React, {Component} from 'react'
+import {View, StyleSheet,Text, DeviceEventEmitter,Platform,Alert,TouchableOpacity,Image,PixelRatio
+    ,ScrollView,NativeModules,AppState} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import Cell from './Cell'
+
+import {NoDataView, sys,TitleHeadView, isIphoneX} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+
+import codePush from "react-native-code-push";
+
+const { StatusBarManager } = NativeModules;
+
+
+var clickLastTime=0;
+
+export default class CaipiaoFenLei extends Component {
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            islogin:0,
+            dataList:[],
+            refreshState: false,
+            currentPage:1,
+            pageSize:10,
+            noNetwork:false,
+            noData:false,
+            // caipiaoTypeList:this.props.navigation.state.params.caipiaoTypeList,
+            headViewIndext:0,
+            newList:[],
+        }
+    }
+
+
+    componentDidMount() {
+    
+        
+    }
+
+    componentWillUnmount() {
+      
+     }
+
+    onHeaderRefresh = () => {
+        // this.state.currentPage = 1;
+        // this.setState(
+        //     {
+        //         refreshState: this.props.isloading,
+        //     })
+            //获取测试数据
+        // if(this.state.refreshState == RefreshState.Idle){
+            // this.getDataList(true)
+
+             this.props.lodaData()
+        // }
+
+    }
+
+
+    keyExtractor = (item, index) => {
+        return index.toString()
+    }
+
+    renderCell = (info) => {
+        return <Cell info={info.item}  onPress={this.itemClick.bind(this, info)}/>
+    }
+
+    renderAllCell = (info) => {
+        return <Cell type='all' info={info.item} onPress={this.itemClick.bind(this, info)}/>
+    }
+
+
+    itemClick(e){
+        var nowTime= (new Date()).getTime();
+        if(Math.abs(nowTime-clickLastTime)<sys.clickIntervalTime){
+            //小于0.5秒
+            return false;
+        }
+        clickLastTime=nowTime;
+
+        // if(this.state.islogin != 1){
+        //     DeviceEventEmitter.emit('Login', {}); 
+        // }else{
+            const {navigate} = this.props.navigation;
+            switch(e.item.typeid){
+                
+                case 'ssc':
+                    navigate('Cqssc',{item:e.item})
+                    break;
+                case 'k3':
+                    navigate('KuaiThreeAction',{item:e.item})
+                    break;
+
+                case 'pk10':
+
+                    navigate('Pkten',{item:e.item});
+                    break;
+
+                case 'lhc':
+                    navigate('Sixhc',{item:e.item});
+                    break;
+
+                case 'keno':
+                    navigate('Keno',{item:e.item});
+                    break;
+                case 'dpc':
+                    navigate('Dpc',{item:e.item});
+                    break;
+
+                case 'x5':
+                    navigate('ElevenSelectFive',{item:e.item});
+                    break;
+
+                case 'pcdd':                  
+                navigate('PcDanDan',{item:e.item});
+
+
+                default:
+                    // navigate('Cqssc',{item:e.item})
+                    break;
+            }
+        // }
+
+
+
+    }
+
+    renderHeadView(){
+        // return this.state.dataList.length?null:<NoDataView text={"暂无修行"}/>
+        return null;
+    }
+
+    renderFooterView(){
+        return null;
+    }
+
+
+
+    render() {
+
+                    return (
+                        (!this.props.newArr.length)?<NoDataView click={()=>this.props.lodaData()}
+                         isloading = {this.props.isloading}
+                                text = {this.props.isloading?"正在加载中":"暂无内容，点击重新加载"}
+                            />:<RefreshListView
+                    style={{width:sys.dwidth}}
+                    data={this.props.newArr}
+                    keyExtractor={this.keyExtractor}
+                    renderItem={this.props.type=='0'?this.renderAllCell:this.renderCell}
+                    refreshState={this.state.refreshState}
+                    onHeaderRefresh={this.onHeaderRefresh}
+                    //onFooterRefresh={this.onFooterRefresh}
+                    numColumns ={this.props.type=='0'?3:1}
+                    ListHeaderComponent={this.renderHeadView}
+                    ListFooterComponent={this.renderFooterView}
+                    // horizontal={false}
+                    ItemSeparatorComponent={this._separator}
+                    // 可选
+                    footerRefreshingText= '玩命加载中 >.<'
+                    footerFailureText = '我擦嘞，居然失败了 =.=!'
+                    footerNoMoreDataText= '-我是有底线的-'
+                />
+
+          
+                       
+                    );
+             
+
+
+        // return(
+
+
+
+
+
+        //      <View>
+
+        //       {headChangView}
+        //       <View style={{width:sys.dwidth,height:2,backgroundColor:sys.silveryColor}}></View>
+        //       {contentView}
+        //     </View>
+
+
+    //         <View>
+    //         <Image source={require('./images/image_xiuxing_color.png')} style={{flex:1,
+    // alignItems:'center',
+    // justifyContent:'center',
+    // width:100,
+    // height:100,
+    // //不加这句，就是按照屏幕高度自适应
+    // //加上这几，就是按照屏幕自适应
+    // //resizeMode:Image.resizeMode.contain,
+    // //祛除内部元素的白色背景
+    // backgroundColor:'rgba(0,0,0,0)',}} />
+    //          <View>
+    //           {headChangView}
+    //           <View style={{width:sys.dwidth,height:2,backgroundColor:sys.silveryColor}}></View>
+    //           {contentView}
+    //           </View>
+    //           </View>
+            // (this.state.noNetwork || this.state.noData)?<NoDataView click={()=>this.getDataList(true)}
+            //         noNet = {this.state.noNetwork}
+            //         text = {this.state.noNetwork?"暂无网络，点击可重新加载":"暂无内容"}
+            //     />:
+            // <View style={styles.container}>
+
+            //     <RefreshListView
+            //         data={this.state.dataList}
+            //         keyExtractor={this.keyExtractor}
+            //         renderItem={this.renderCell}
+            //         refreshState={this.state.refreshState}
+            //         onHeaderRefresh={this.onHeaderRefresh}
+            //         //onFooterRefresh={this.onFooterRefresh}
+            //         numColumns ={4}
+            //         ListHeaderComponent={this.renderHeadView}
+            //         ListFooterComponent={this.renderFooterView}
+            //         // horizontal={false}
+            //         ItemSeparatorComponent={this._separator}
+            //         // 可选
+            //         footerRefreshingText= '玩命加载中 >.<'
+            //         footerFailureText = '我擦嘞，居然失败了 =.=!'
+            //         footerNoMoreDataText= '-我是有底线的-'
+            //     />
+
+            // </View>
+
+            
+        // )
+    }
+
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+         marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:sys.whiteColor
+        
+    }
+})
+
+

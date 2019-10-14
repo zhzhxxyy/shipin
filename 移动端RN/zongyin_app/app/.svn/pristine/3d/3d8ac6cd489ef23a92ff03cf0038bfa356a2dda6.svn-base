@@ -1,0 +1,705 @@
+import React, { Component } from 'react';
+import {
+    Platform,
+    StyleSheet,
+    Alert,
+    View,
+    StatusBar,
+    Image,
+    PermissionsAndroid
+} from 'react-native';
+
+// import {AudioRecorder, AudioUtils} from 'react-native-audio'
+// import RNFS from 'react-native-fs'
+// import Sound from 'react-native-sound'
+import { ChatScreen } from 'react-native-easy-chat-ui'
+import {sys,NoDataView,TitleHeadView,isIphoneX} from "../common/Data"
+import HttpUtils from "../common/HttpUtil"
+var ImagePicker = require('react-native-image-picker');
+const webSocketUrl = sys.webSocketUrl;
+var ws = null;
+
+export default class ChatView extends Component {
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+        return {
+            title: params.item.title?params.item.title:'聊天室',
+            headerRight:React.createElement(View, null, null),
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+            },
+        }
+    };
+
+    
+
+    constructor(props) {
+        super(props);
+        const { params } = this.props.navigation.state;
+        this.state = {
+            title:params.item.title,
+            id:params.item.id,
+            code:params.item.typeid,
+            userInfo:params.item.userInfo,//用户信息
+            token:params.item.token,
+            msg: {
+                friend_12345678: {
+                    messages: [
+                        // {
+                        //     id: `${new Date().getTime()}`,
+                        //     per: {
+                        //         type: 'text',
+                        //         content: 'hello world'
+                        //     } ,
+                        //     targetId: '12345678',
+                        //     chatInfo: {
+                        //         avatar: require('./images/avatar.png'),
+                        //         id: '12345678'
+                        //     },
+                        //     renderTime: true,
+                        //     sendStatus: 0,
+                        //     time: '1542006036549'
+                        // },
+                        // {
+                        //     id: `${new Date().getTime()}`,
+                        //     per: {
+                        //         type: 'text',
+                        //         content: 'hi/{se}'
+                        //     } ,
+                        //     targetId: '12345678',
+                        //     chatInfo: {
+                        //         avatar: require('./images/avatar.png'),
+                        //         id: '12345678'
+                        //     },
+                        //     renderTime: true,
+                        //     sendStatus: 0,
+                        //     time: '1542106036549'
+                        // },
+                        // {
+                        //     id: `${new Date().getTime()}`,
+                        //     per: {
+                        //         type: 'image',
+                        //         content: {
+                        //             //uri: 'https://upload-images.jianshu.io/upload_images/11942126-044bd33212dcbfb8.jpg?imageMogr2/auto-orient/strip|imageView2/1/w/300/h/240',
+                        //             uri:'https://img.gsdlcn.com/uploads/190309/1-1Z3091F0259A.jpg',
+                        //             width: 100,
+                        //             height: 80,
+                        //         }
+                        //     } ,
+                        //     targetId: '12345678',
+                        //     chatInfo: {
+                        //         avatar: require('./images/avatar.png'),
+                        //         id: '12345678'
+                        //     },
+                        //     renderTime: false,
+                        //     sendStatus: 0,
+                        //     time: '1542106037000'
+                        // },
+                        // {
+                        //     id: `${new Date().getTime()}`,
+                        //     per: {
+                        //         type: 'text',
+                        //         content: '你好/{weixiao}'
+                        //     } ,
+                        //     targetId: '88886666',
+                        //     chatInfo: {
+                        //         avatar: require('./images/avatar.png'),
+                        //         id: '12345678'
+                        //     },
+                        //     renderTime: true,
+                        //     sendStatus: -2,
+                        //     time: '1542177036549'
+                        // },
+                        // {
+                        //     id: `${new Date().getTime()}`,
+                        //     per: {
+                        //         type: 'voice',
+                        //         content: {
+                        //             uri: '',
+                        //             length: 10
+                        //         }
+                        //     } ,
+                        //     targetId: '88886666',
+                        //     chatInfo: {
+                        //         avatar: require('./images/avatar.png'),
+                        //         id: '12345678'
+                        //     },
+                        //     renderTime: true,
+                        //     sendStatus: 1,
+                        //     time: '1542260667161'
+                        // },
+                        // {
+                        //     id: `${new Date().getTime()}`,
+                        //     per: {
+                        //         type: 'voice',
+                        //         content: {
+                        //             uri: '',
+                        //             length: 30
+                        //         }
+                        //     } ,
+                        //     targetId: '12345678',
+                        //     chatInfo: {
+                        //         avatar: require('./images/avatar.png'),
+                        //         id: '123'
+                        //     },
+                        //     renderTime: true,
+                        //     sendStatus: 0,
+                        //     time: '1542264667161'
+                        // },
+                    ],
+                    inverted: false  // require
+                }
+            },
+            voiceHandle: true,
+            currentTime: 0,
+            recording: false,
+            paused: false,
+            stoppedRecording: false,
+            finished: false,
+            audioPath: '',
+        }
+        //alert(this.state.code);
+    }
+
+
+    componentDidMount() {
+        this.publicMsgLog(0);
+        ws = new WebSocket(webSocketUrl);
+        ws.onopen = () => {
+            // 打开一个连接
+                // storage.load('islogin',(userInfo)=>{
+                //     var newUserInfo={};
+                //     newUserInfo['id']=userInfo.id;
+                //     newUserInfo['username']=userInfo.username;
+                //     newUserInfo['face']=userInfo.face;
+                //     this.publicMsgLog(0);
+                //     this.state.userInfo=newUserInfo;
+                //     this.state.token=userInfo.token;
+                //     var arr = {}  //等同于 arr=new Array();
+                //     arr['token'] = userInfo.token,
+                //     arr['userInfo']= newUserInfo;
+                //     let dic = {
+                //         data:{'logined':JSON.stringify(arr)},
+                //         url:'User.bind'
+                //     }
+                //     ws.send(JSON.stringify(dic));
+                //     //加入房间
+                //     let dicRoom = {
+                //         data:{'room':this.state.code,'logined':JSON.stringify(arr)},
+                //         url:'Room.join'
+                //     }
+                //     ws.send(JSON.stringify(dicRoom))
+                // })
+
+
+                // var newUserInfo={};
+                // newUserInfo['id']=userInfo.id;
+                // newUserInfo['username']=userInfo.username;
+                // newUserInfo['face']=userInfo.face;
+                // this.state.userInfo=newUserInfo;
+                // this.state.token=userInfo.token;
+                var arr = {}  //等同于 arr=new Array();
+                arr['token'] = this.state.token,
+                arr['userInfo']= this.state.userInfo;
+                let dic = {
+                    data:{'logined':JSON.stringify(arr)},
+                    url:'User.bind'
+                }
+                ws.send(JSON.stringify(dic));
+                //加入房间
+                let dicRoom = {
+                    data:{'room':this.state.code,'logined':JSON.stringify(arr)},
+                    url:'Room.join'
+                }
+                ws.send(JSON.stringify(dicRoom))
+        };
+        ws.onmessage = (evt) => {
+                var userInfo = this.state.userInfo;
+                var data = JSON.parse(evt.data);
+                console.log("===============");
+                console.log(data);
+                switch (data.code) {
+                //群聊消息
+                case 'publicMsg':
+                  if(data.data.room!=this.state.code){
+                      //不是该房间号的话
+                      return false;
+                  }
+                  if(userInfo==null){
+                      return false;
+                  }
+                  var msg=this.getMsgItemData(data.data,userInfo.id);
+
+                //   if(data.data.sendUid==userInfo.id){
+                //     var targetId="88886666";//表示自己
+                //   }else{
+                //     var targetId="member"+data.data.sendUid;
+                //   }
+                //   var content=data.data.text;
+                //   var msg = {
+                //     id: `${new Date().getTime()}`,
+                //     per: {
+                //         type: 'text',
+                //         content: content
+                //     } ,
+                //     targetId: targetId,
+                //     chatInfo: {
+                //         avatar: require('./images/avatar.png'),
+                //         id: data.data.sendUid,
+                //         username:data.data.sendUsername
+                //     },
+                //     renderTime: false,
+                //     sendStatus: 1,
+                //     time: new Date().getTime()
+                // }
+                  this.state.msg.friend_12345678.messages.push(msg)
+                  this.setState({msg : this.state.msg})
+                    break;
+                //计划消息
+                case 'publicMsg_plan':
+                    Alert.alert("计划消息")
+                    break;
+                //群聊弹幕消息
+                case 'tanmuPublicMsg':
+                    Alert.alert("弹幕消息")
+                    break;
+                //被封禁
+                case 'close':
+                    Alert.alert("聊天室已关闭")
+                    break;
+                //会员加入
+                case 'join':
+                    // Alert.alert("会员加入")
+                    break;
+                //ping服务端，防断开
+                case 'ping':
+                    send("Ping.ping", {});
+                    break;
+                //通用失败弹窗消息
+                case 'fail':
+                    Alert.alert(data.data.msg)
+                    break;
+                //领取红包结果通知
+                case 'hongbaoPull':
+                    if (data.data.isPull == 1) {
+                        Alert.alert("已领到红包")
+
+                    } else if (data.data.isPull == 0) {
+                        Alert.alert("查看红包")
+                    }
+                    break;
+                //收到在线人数变化通知
+                case 'onlineNotify':
+                    // Alert.alert("在线人数变化")
+                    break;
+                //收到房间不存在
+                case 'roomNotExists':
+                    Alert.alert("聊天室不存在")
+                    break;
+                case 'oneMsg':
+                    var msg = {
+                        id: `${new Date().getTime()}`,
+                        per: {
+                            type: 'text',
+                            content: data.data.text
+                        } ,
+                        targetId: '12345678',
+                        chatInfo: {
+                            avatar: require('./images/avatar.png'),
+                            id: '12345678'
+                        },
+                        renderTime: true,
+                        sendStatus: -2,
+                        time: new Date().getTime()
+                    }
+
+                    this.state.msg.friend_12345678.messages.push(msg)
+
+                    this.setState({
+                        msg : this.state.msg
+                    })
+                    break
+            }
+        };
+
+        ws.onerror = (e) => {
+            // 发生了一个错误
+            console.log(e.message);
+            Alert.alert("error"+e.message)
+        };
+
+        ws.onclose = (e) => {
+            // 连接被关闭了
+            console.log(e.code, e.reason);
+            Alert.alert("close"+e.message)
+        };
+    
+    }
+
+ 
+
+    audioProgress = () => {
+        AudioRecorder.onProgress = (data) => {
+            if (data.currentTime === 0) {
+                this.setState((prevState) => ({ currentTime: Math.floor(prevState.currentTime + 0.25) }))
+            } else {
+                this.setState({ currentTime: Math.floor(data.currentTime) })
+            }
+            this._setVoiceHandel(false)
+            this.setState({volume: Math.floor(data.currentMetering) })
+        }
+    }
+
+    audioFinish = () => {
+        AudioRecorder.onFinished = (data) => this._finishRecording(data.status === 'OK', data.audioFileURL)
+    }
+
+
+
+    checkDir = async() => {
+        if (!await RNFS.exists(`${AudioUtils.DocumentDirectoryPath}/voice/`)) {
+            RNFS.mkdir(`${AudioUtils.DocumentDirectoryPath}/voice/`)
+        }
+    }
+
+    initPath = async() => {
+        await this.checkDir()
+        const nowPath = `${AudioUtils.DocumentDirectoryPath}/voice/voice${Date.now()}.aac`
+        this.setState({ audioPath: nowPath, currentTime: 0 })
+        this.prepareRecordingPath(nowPath)
+    }
+
+    prepareRecordingPath (audioPath) {
+        AudioRecorder.prepareRecordingAtPath(audioPath, {
+            SampleRate: 22050,
+            Channels: 1,
+            AudioQuality: 'High',
+            AudioEncoding: 'aac',
+            OutputFormat: 'aac_adts',
+            AudioEncodingBitRate: 32000,
+            MeteringEnabled: true,
+        })
+    }
+
+    _record = async() => {
+        try {
+            await AudioRecorder.startRecording()
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    _stop = async() => {
+        try {
+            await AudioRecorder.stopRecording()
+            if (Platform.OS === 'android') {
+                this._finishRecording(true, filePath)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    _setVoiceHandel = (status) => {
+        this.setState({voiceHandle: status})
+    }
+
+    _pause = async() => {
+        try{
+            await AudioRecorder.pauseRecording() // Android 由于API问题无法使用此方法
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
+    _resume = async() => {
+        try{
+            await AudioRecorder.resumeRecording() // Android 由于API问题无法使用此方法
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
+    _finishRecording (didSucceed, filePath) {
+        console.log(filePath)
+        this.setState({ finished: didSucceed })
+    }
+
+    _checkAndroidPermission = async() => {
+        try {
+            const rationale = {
+                'title': '麦克风权限',
+                'message': '需要权限录制语音.'
+            }
+            const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, rationale)
+            this.setState({ hasPermission: granted === PermissionsAndroid.RESULTS.GRANTED })
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    sendMessage = (type, content) => {
+
+
+        // if (type === 'voice') {
+        //     this.chat.messageItem.changeLoading(true)
+        // }
+        // var msg = {
+        //                 id: `${new Date().getTime()}`,
+        //                 per: {
+        //                     type: 'text',
+        //                     content: content
+        //                 } ,
+        //                 targetId: '88886666',
+        //                 chatInfo: {
+        //                     avatar: require('./images/avatar.png'),
+        //                     id: '12345678'
+        //                 },
+        //                 renderTime: false,
+        //                 sendStatus: 1,
+        //                 time: new Date().getTime()
+        //             }
+
+        // this.state.msg.friend_12345678.messages.push(msg)
+        // this.setState({
+        //     msg : this.state.msg
+        // })
+        // storage.load('islogin',(userInfo)=>{
+        //     var arr = {}  //等同于 arr=new Array();
+        //     arr['token'] = userInfo.token,
+        //         arr['userInfo'] = userInfo
+        //     let dic = {
+        //         data:{'logined':JSON.stringify(arr),'toid':146,'text':content},
+        //         url:'Chat.sendToOne'
+        //     }
+        //     ws.send(JSON.stringify(dic))
+        // })
+        if (type === 'voice') {
+            this.chat.messageItem.changeLoading(true)
+        }
+        var arr = {}  //等同于 arr=new Array();
+        arr['token'] = this.state.token,
+        arr['userInfo'] = this.state.userInfo
+        let dic = {
+            data:{'logined':JSON.stringify(arr),'room':this.state.code,'text':content},
+            url:'Chat.sendToAll'
+        }
+        ws.send(JSON.stringify(dic))
+
+    }
+
+    onMessagePress = (type, index, content, message) =>
+    {
+ 
+          //Alert.alert(JSON.stringify(message.per.content.uri));
+          var arr = []
+          arr.push({url:message.per.content.uri});
+      
+        if(type == "image"){
+            const {navigate} = this.props.navigation;
+            this.props.navigation.navigate("ShowImageViewer",arr);  
+        }
+
+    }
+
+    publicMsgLog(num){
+        let codeurl = sys.host + "/AppChat.publicMsgLog.do";
+        let formData = new FormData();
+        formData.append('room',this.state.code);
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                
+                if(result['respCode']==1){
+                    if(result['data']['rows']!=null&&result['data']['rows'].length>0){
+                        var userInfo=this.state.userInfo;
+                        result['data']['rows'].forEach(element => {
+                            var msg=this.getMsgItemData(element,userInfo.id);
+                        
+                            this.state.msg.friend_12345678.messages.push(msg)
+                          
+                        });
+                        this.setState({msg : this.state.msg})
+                      
+                    }
+                }
+            }).catch(error=>{
+                if(num==0){
+                    this.publicMsgLog(num++);
+                }   
+            })
+    }
+
+
+     //對聊天信息數據進行轉化
+    getMsgItemData(element,userInfoId){
+        var id=element.id? element.id:new Date().getTime()+Math.random();
+        if(element.sendUid==userInfoId){
+            var targetId="88886666";//表示自己
+          }else{
+            var targetId="member"+element.sendUid;
+          }
+    
+          if(element.face.slice(0,4)!="http"){
+            element.face= sys.host+element.face;
+          }
+          if(element.sendUid.slice(0,3)=="sys"){
+            element.sendUsername= "客服";
+          }
+          var content=element.text+"";
+          var msg = {
+            id: id,
+            per: {
+                type: 'text',
+                content: content
+            } ,
+            targetId: targetId,
+            chatInfo: {
+                avatar: {uri:element.face},//本地图片就直接是地址就可以
+                id: element.sendUid,
+                username:element.sendUsername
+            },
+            renderTime: false,
+            sendStatus: 1,
+            time: element.time?element.time:element.sendTime
+        }
+        if(element.type==1){
+            //是否包含 http
+            if(content!=null&&content!=""){
+                // if(content.)
+                if(content.slice(0,4)!="http"){
+                    content= sys.host+content;
+                }
+                
+            }
+           msg.per.type="image";
+           msg.per.content={};
+           msg.per.content.uri=content;
+           msg.per.content.width=100;
+           msg.per.content.height=80;
+        }
+       return msg;
+    }
+
+    takePhoto(){
+        let options = {
+            title: 'Select Avatar',
+            customButtons: [
+                {name: 'fb', title: 'Choose Photo from Facebook'},
+            ],
+            storageOptions: {
+                skipBackup: true,
+                path: 'images'
+            }
+        };
+        ImagePicker.launchImageLibrary(options, (response) => {
+
+
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            }
+            else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            }
+            else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            }
+            else {
+                // let source = { uri: response.uri };
+                // You can also display the image using data:
+                // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+                this.uploadImage(response.uri)
+
+            }
+        });
+    }
+    takeCamera(){
+        let options = {
+            title: 'Select Avatar',
+            customButtons: [
+                {name: 'fb', title: 'Choose Photo from Facebook'},
+            ],
+            storageOptions: {
+                skipBackup: true,
+                path: 'images'
+            }
+        };
+        ImagePicker.launchCamera(options, (response)  => {
+            // Same code as in above section!
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            }
+            else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            }
+            else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            }
+            else {
+                // let source = { uri: response.uri };
+                // You can also display the image using data:
+                // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+                this.uploadImage(response.uri)
+            }
+        });
+    }
+    uploadImage(picpath){
+        let codeurl = sys.host + '/AppUpload.uploadImage.do';
+        let imageArr = [picpath];
+        // 请求参数 ('key',value)
+        HttpUtils.uploadImage(codeurl, imageArr)
+            .then(result => {
+                if (result['respCode'] == 1) {
+                    var path=result['data'];
+                    var arr = {}  //等同于 arr=new Array();
+                    arr['token'] = this.state.token,
+                    arr['userInfo'] = this.state.userInfo
+                    let dic = {
+                        data:{'logined':JSON.stringify(arr),'room':this.state.code,'text':path,'type':1},
+                        url:'Chat.sendToAll'
+                    }
+                    ws.send(JSON.stringify(dic))
+                } else {
+                     Alert.alert("发送图片失败", result['respMsg'])
+                }
+            }).catch(error => {
+                 Alert.alert("发送图片失败" + JSON.stringify(error));
+            })
+    }
+
+    render() {
+        let statusHeight = StatusBar.currentHeight || 0
+        let androidHeaderHeight = statusHeight + 55
+
+        return (
+                <ChatScreen
+                    userProfile={{
+                        id: '88886666',
+                        avatar:{uri:this.state.userInfo.face}
+                    }}
+                    useVoice={false}
+                    ref={(e) => this.chat = e}
+                    messageList={this.state.msg}
+                    isIphoneX={isIphoneX()}
+                    androidHeaderHeight={androidHeaderHeight}
+                    sendMessage={this.sendMessage}
+                    onMessagePress={this.onMessagePress}
+                    panelSource={[
+                        {
+                          icon: <Image source={require('./images/photo.png')} style={{ width: 30, height: 30 }} />,
+                          title: '照片',
+                          onPress: () => { this.takePhoto() }
+                        }, {
+                          icon: <Image source={require('./images/camera.png')} style={{ width: 30, height: 30 }} />,
+                          title: '拍照',
+                          onPress: () => { this.takeCamera() }
+                        }
+                      ]} 
+                />
+
+        );
+    }
+}
+
+

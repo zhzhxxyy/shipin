@@ -1,0 +1,584 @@
+import React, {Component} from 'react'
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Switch,
+    Button,
+    ImageBackground,
+    Dimensions,
+    ScrollView,
+    Platform
+} from 'react-native';
+
+import ScrollableTabView, {DefaultTabBar, } from 'react-native-scrollable-tab-view';
+
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import {sys,NoDataView} from "../common/Data"
+
+
+import {styles} from "../home/common/homeStyle"
+import HttpUtils from "../common/HttpUtil"
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+const host = sys.host;
+
+
+let zhongHeight = 40;
+let recordWidth = sys.dwidth;
+let qisuW = recordWidth/3 + 20;
+let qitaW =  recordWidth/3-10;
+
+
+var threeStr='';
+
+var isXians=true;
+
+var thiz = this;
+export default class KYZhuDanList extends Component{
+
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+
+        if (Platform.OS=='ios') {
+            var leftView = <TouchableOpacity
+            onPress={() => {
+                 navigation.goBack()
+            }}
+
+            style={{width:50}}
+
+            >
+
+           <Image
+            source={require('../res/images/iosfanhui.png')}
+            style={{marginLeft:10,marginTop:0}}
+            />
+
+            </TouchableOpacity>
+
+            return {
+                headerTitle:"棋牌注单",
+                headerTitleStyle:{
+                    alignSelf:'center',
+                    flex: 1,
+                    textAlign: 'center',
+                    
+                },
+                headerRight: <View />,
+                headerLeft:leftView
+            }
+
+        }
+
+        return {
+            headerTitle:"棋牌注单",
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+                
+            },
+            headerRight: <View />
+
+        }
+    };
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:10,
+            isloading:false,
+            detail:this.props.navigation.state.params.item,
+
+            // cptype:this.props.navigation.state.params.item['typeid'],
+
+
+        }
+    }
+
+
+    onHeaderRefresh = () => {
+        this.state.currentPage = 1;
+        this.setState(
+            {
+                refreshState: RefreshState.HeaderRefreshing,
+            },()=>{
+                this.getDataList(true)
+            })
+    }
+
+    onFooterRefresh = () => {
+        this.state.currentPage = this.state.currentPage+1;
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        },()=>{
+            this.getDataList(false)
+        })
+    }
+
+
+
+    componentDidMount(){
+
+        this.setState({
+            detail:this.props.navigation.state.params.item
+
+        },()=>{
+            this.getDataList(true);
+        });
+
+
+    }
+
+
+    getDataList(isReload){
+
+
+
+        let codeurl = host + "/AppKy.zhudanRecord.do"
+        let formData = new FormData();
+
+
+        formData.append('page ',this.state.currentPage);
+
+        formData.append('pagesize ',10);
+
+        thiz.setState({
+            isloading:true,
+        })
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                thiz.setState({
+                    isloading:d=false,
+                })
+
+                if(result['respCode']==1){
+
+
+                    let testData = result['data']['rows'];
+
+
+
+                     let newList = testData.map((data) => {
+                         return {
+                            GameEndTime: data["GameEndTime"],
+
+                            KindIDName: data["KindIDName"],
+                            Profit: data["Profit"],
+
+                            ServerIDName: data["ServerIDName"],
+
+                            username: data['username']
+                             
+                         }});
+
+
+                    let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+
+                    let state = dataList.length >= result['data']['total'] ? RefreshState.NoMoreData : RefreshState.Idle;
+
+                    if(isReload){
+                        state = RefreshState.Idle;
+                    }
+
+
+                    this.setState({
+                        dataList: dataList,
+                        refreshState: state,
+                    })
+
+
+
+
+                }else{
+
+                
+                    this.setState({
+                        refreshState: RefreshState.Idle,
+                    })
+                }
+
+            })
+            .catch(error=>{
+             
+                this.refs.toast.show(error, DURATION.LENGTH_LONG);
+
+                this.setState({
+
+                    refreshState: RefreshState.Failure,
+                    isloading:false,
+
+                })
+
+
+            });
+
+
+
+    }
+
+
+
+
+
+    render(){
+
+
+        thiz = this;
+
+    
+
+        let showView = this.state.dataList.length?
+            <RefreshListView
+                data={this.state.dataList}
+                keyExtractor={this.keyExtractor}
+                renderItem={this.renderCell}
+                refreshState={this.state.refreshState}
+                onHeaderRefresh={this.onHeaderRefresh}
+                onFooterRefresh={this.onFooterRefresh}
+                numColumns ={1}
+                // ListHeaderComponent={this.renderHeadView}
+                // horizontal={false}
+                //ItemSeparatorComponent={this._separator}
+                // 可选
+                footerRefreshingText= '玩命加载中 >.<'
+                footerFailureText = '我擦嘞，居然失败了 点击重新加载!'
+                footerNoMoreDataText= '-我是有底线的-'
+            />
+            :<NoDataView click={()=>this.getDataList(true)}
+                         isloading = {thiz.state.isloading}
+                         text = {"暂无内容，点击重新加载"}
+        />
+        return(
+
+            <View style={{marginTop:1,width:recordWidth,height:'100%',backgroundColor:'white'}}>
+
+                {/* {this.renderHeadView()} */}
+                {showView}
+
+                <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                />   
+            </View>
+
+        )
+
+
+    }
+
+
+
+    itemView(index){
+
+        var follow = this.state.dataList[index];
+       // console.log(this.state.cptype)
+
+        var publicView = this.publicView(follow)
+        return publicView
+    }
+
+ 
+
+    keyExtractor = (item, index) => {
+        return index.toString()
+    }
+
+
+
+    changeGz(gzob,flistD) {
+
+        if (gzob.isgz == 0) {
+            gzob.isgz =1;
+        } else {
+            gzob.isgz =0;
+        }
+
+
+        this.setState({
+
+            flistData:flistD
+        })
+
+    }
+
+
+
+    renderCell = (item) => {
+
+        return this.itemView(item.index)
+    }
+
+
+    
+
+
+    renderHeadView(){
+
+        return<View>
+        <View style={{width:sys.dwidth,backgroundColor:'white',flexDirection:'row'}}>
+            <View style={{marginLeft:0,width:90,height:100,backgroundColor:'white'}}>
+                <Image style={{marginLeft:20,marginTop:15,width:70,height:70,backgroundColor:'white'}}
+                       source={{uri:this.props.navigation.state.params.item.pic}}></Image>
+            </View>
+            <View style={{marginLeft:10,width:sys.dwidth-170,height:100,backgroundColor:'white'}}>
+
+
+                <Text style={{
+                    marginLeft:0,
+                    fontSize:16,
+                    marginTop: 25,
+                    color:'#333333',
+                    textAlign:'left',
+                    fontWeight: 'bold',
+                    width:recordWidth-80
+                }}>{this.props.navigation.state.params.item.title}</Text>
+
+
+
+                <Text style={{
+                    marginRight:10,
+                    fontSize:16,
+                    marginTop: 8,
+                    color:'#333333',
+                    textAlign:'left',
+                    width:recordWidth-80
+                }}>{this.props.navigation.state.params.item.ftitle}</Text>
+
+            </View>
+
+
+
+            <TouchableOpacity style={{
+                   top:30,
+                    backgroundColor:sys.mainColor,
+                    height:35,
+                    width:60,
+                    borderRadius:5,
+                }} onPress={()=>{
+
+                    this.buynow();
+            }}>
+                <Text  style={{
+                  
+                    fontSize:14,
+               
+                    color:'white',
+                    textAlign:'center',
+                    lineHeight:35,
+                    width:60
+                }} >去下注</Text>
+            </TouchableOpacity>
+
+        </View>
+
+
+        <View style={{backgroundColor:sys.backgroundColor,height:40,width:sys.dwidth,flexDirection:'row'}}>
+
+           <Text style={{width:recordWidth/6 + 10,height:40,color:sys.titleColor,textAlign:'center',fontSize:12,
+                textAlignVertical:'center',...Platform.select({ios: { lineHeight: 40},android: {}
+                })}}>期号</Text>
+
+                <Text style={{width:recordWidth/2-25,height:40,textAlign:'left',fontSize:12,
+                color:sys.titleColor,marginLeft:10,textAlignVertical:'center',...Platform.select({ios: { lineHeight:40},android: {}
+                })}}>开奖号码</Text>
+
+                {isXians?<Text style={{width:recordWidth/6,height:40,textAlign:'left',fontSize:12,color:sys.titleColor,
+                textAlignVertical:'center',...Platform.select({ios: { lineHeight: 40},android: {}
+                })}}>{threeStr}</Text>:null}
+
+                {isXians?<Text style={{width:recordWidth/6,height:40,textAlign:'left',fontSize:12,color:sys.titleColor,
+                textAlignVertical:'center',...Platform.select({ios: { lineHeight: 40},android: {}
+                })}}>大小单双</Text>:null}
+
+
+           </View>
+
+
+            {/* <View style={{height:2,backgroundColor:'#f2f2f2'}}/> */}
+         </View>
+    }
+
+        
+
+    buynow(){
+        const {navigate} = this.props.navigation;
+
+        // console.log('更多.typeid')
+
+        switch(this.state.cptype){
+            
+            case 'ssc':
+                navigate('Cqssc',{item:this.state.detail})
+                break;
+            case 'k3':
+                navigate('KuaiThreeAction',{item:this.state.detail})
+                break;
+
+            case 'pk10':
+
+                navigate('Pkten',{item:this.state.detail});
+                break;
+
+            case 'lhc':
+                navigate('Sixhc',{item:this.state.detail});
+                break;
+
+            case 'keno':
+                navigate('Keno',{item:this.state.detail});
+                break;
+            case 'dpc':
+                navigate('Dpc',{item:this.state.detail});
+                break;
+
+            case 'x5':
+                navigate('ElevenSelectFive',{item:this.state.detail});
+                break;
+
+            case 'pcdd':                  
+                navigate('PcDanDan',{item:this.state.detail});
+
+           
+                break;
+
+        }
+    // }
+
+
+
+    }
+    
+
+    _separator = () => {
+        return <View style={{height:1,backgroundColor:'#f2f2f2'}}/>;
+    }
+
+
+
+
+    yanSstr(num) {
+
+        //pk10 1:#F0CA31 2.#22A7FF 3.#333333 4.#FF8533 5.#3AF9F9
+          // 6.#335CFF 7.#CCCCCC  8.#FF4111 9.#801A1A 10.#17C739  0:9966ff
+        let yansStr= sys.mainColor
+        if (num==0) {
+            yansStr = '#9966ff'
+        }
+        if (num==1 || num%10==1) {
+            yansStr = '#F0CA31'
+        }
+        if (num==2 || num%10==2) {
+            yansStr = '#22A7FF'
+        }
+        if (num==3 || num%10==3) {
+            yansStr = '#525252'
+        }
+        if (num==4 || num%10==4) {
+            yansStr = '#FF8533'
+        }
+        if (num==5 || num%10==5) {
+            yansStr = '#3AF9F9'
+        }
+        if (num==6 || num%10==6) {
+            yansStr = '#335CFF'
+        }
+        if (num==7 || num%10==7) {
+            yansStr = '#CCCCCC'
+        }
+        if (num==8 || num%10==8) {
+            yansStr = '#FF4111'
+        }
+        if (num==9 || num%10==9) {
+            yansStr = '#801A1A'
+        }
+        if (num==10 || num%10==0) {
+            yansStr = '#17C739'
+        }
+
+        return yansStr;
+    }
+
+
+
+
+    publicView(follow){
+
+        let lineH = 60
+     
+
+        let Profit = follow['Profit']
+
+        var colorStr = sys.mainColor;
+
+        if (Profit<=0) {
+            colorStr = sys.greenColor;
+        }
+
+        return <View>
+              <View style={{height:10,width:recordWidth,backgroundColor:sys.backgroundColor}}></View>
+              <View style={{flexDirection:'row',width:recordWidth,height:lineH+5,backgroundColor:sys.whiteColor,marginBottom:0}}>
+
+
+                    <View style={{width:recordWidth/2,height:lineH,marginLeft:0,marginTop:5}}>
+                        
+                        <Text style={{width:recordWidth/2-10,height:lineH/2,color:sys.titleColor,textAlign:'left',fontWeight: 'bold',fontSize:16,marginLeft:10,
+                            textAlignVertical:'center',...Platform.select({ios: { lineHeight: lineH/2},android: {}
+                            })}}>{'游戏:'+follow['KindIDName']}</Text>
+
+                        <Text style={{width:recordWidth/2-10,height:lineH/2,color:sys.titleColor,textAlign:'left',fontSize:16,marginLeft:10,
+                            textAlignVertical:'center',...Platform.select({ios: { lineHeight: lineH/2},android: {}
+                            })}}>{'房间:'+follow['ServerIDName']}</Text>
+
+                       
+                    </View>
+                
+
+                    <View style={{width:recordWidth/2,height:lineH,marginLeft:0,marginTop:5}}>
+                        
+                        <Text style={{width:recordWidth/2-20,height:lineH/2,color:sys.titleColor,textAlign:'right',color:colorStr,fontWeight: 'bold',fontSize:16,marginLeft:10,
+                            textAlignVertical:'center',...Platform.select({ios: { lineHeight: lineH/2},android: {}
+                            })}}>盈利:<Text style={{color:colorStr}}>{Profit}</Text></Text>
+
+                        
+
+                    </View>
+               
+
+                </View>
+
+                <Text style={{width:recordWidth-20,height:lineH/2,color:sys.titleColor,textAlign:'left',fontSize:16,marginLeft:10,
+                            textAlignVertical:'center',...Platform.select({ios: { lineHeight: lineH/2},android: {}
+                            })}}>{'时间:'+follow['GameEndTime']}</Text>
+
+                <View style={{height:5}}></View>
+                
+
+                </View>
+
+    }
+
+
+
+
+
+
+}

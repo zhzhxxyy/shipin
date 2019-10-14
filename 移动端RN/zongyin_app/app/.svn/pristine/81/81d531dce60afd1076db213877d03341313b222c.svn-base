@@ -1,0 +1,317 @@
+/**
+ * Created by 卓原 on 2017/10/31.
+ * zhuoyuan93@gmail.com
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Button,
+    DeviceEventEmitter,
+    ImageBackground,
+    Platform,
+    ScrollView
+} from 'react-native';
+
+
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import {sys,NoDataView} from "../../common/Data"
+const host = sys.host;
+
+
+
+
+import RNLogin from "../../common/RNLoginModule"
+import HttpUtils from "../../common/HttpUtil";
+
+
+let zhongHeight = 40;
+let recordWidth = sys.dwidth;
+let qisuW = recordWidth/3 + 20;
+let qitaW =  recordWidth/3-10;
+
+
+export default class DelegateManger extends React.Component {
+    static  navigationOptions = ({navigation}) => ({
+        headerTitle:"下级管理",
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            
+        },
+        headerRight: <View />
+    });
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:10,
+            visible : false,
+           
+        }
+    }
+
+
+    componentDidMount(){
+
+        this.getDataList();
+
+
+    }
+
+    onHeaderRefresh = () => {
+        this.state.currentPage = 1;
+        this.setState(
+            {
+                refreshState: RefreshState.HeaderRefreshing,
+            },()=>{
+                this.getDataList(true)
+            })
+    }
+
+
+
+    onFooterRefresh = () => {
+        this.state.currentPage = this.state.currentPage+1;
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        },()=>{
+            this.getDataList(false)
+        })
+    }
+
+
+
+    getDataList(isReload){
+
+        const {params} =this.props;
+        let codeurl = host + '/AppApijiekou.memberList';
+        let formData = new FormData();
+
+        formData.append("page", this.state.currentPage)
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                this.setState({
+                    visible: false
+                });
+         
+                if(result['respCode']==1){
+
+                    let testData = result['data']['rows'];
+
+                    let totalpage = result['data']['totalPage'];
+
+                    let newList = testData.map((data) => {
+                        return {
+                            balance: data["balance"],
+                            isonline: data["isonline"],
+                            id: data["id"],
+                            logintime: data["logintime"],
+                            nickname: data["nickname"],
+                            onlinetime: data["onlinetime"],
+                            title: data["title"],
+                            parentid:  data["parentid"],
+                            parentname:data['parentname'],
+                            point:data['point'],
+                            proxy:data['proxy'],
+                            qq:data['qq'],
+                            regtime:data['regtime'],
+                            userbankname:data['userbankname'],
+                            username:data['username'],
+                            xima:data['xima'],
+
+                        }});
+
+
+                    let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+                  
+                    this.setState({
+                        dataList: dataList,
+                        refreshState: (this.state.currentPage >= totalpage) ? RefreshState.NoMoreData : RefreshState.Idle,
+                    })
+
+                }
+
+
+
+            })
+            .catch(error=>{
+
+                this.setState({
+                    refreshState: RefreshState.Idle,
+                    visible: false
+                })
+
+            })
+
+
+    }
+
+
+
+
+    render(){
+
+        let showView = this.state.dataList.length?
+            <RefreshListView
+                data={this.state.dataList}
+                keyExtractor={this.keyExtractor}
+                renderItem={this.renderCell}
+                refreshState={this.state.refreshState}
+                onHeaderRefresh={this.onHeaderRefresh}
+                onFooterRefresh={this.onFooterRefresh}
+                numColumns ={1}
+                ListHeaderComponent={this.renderHeadView}
+                // horizontal={false}
+                //ItemSeparatorComponent={this._separator}
+                // 可选
+                footerRefreshingText= '玩命加载中 >.<'
+                footerFailureText = '我擦嘞，居然失败了 =.=!'
+                footerNoMoreDataText= '-我是有底线的-'
+            />
+            :<NoDataView click={()=>this.getDataList(true)}
+
+                         text = {"暂无下级"}
+        />
+        return(
+
+            <View style={{marginTop:1,width:recordWidth,height:'100%',backgroundColor:'white'}}>
+
+                {showView}
+
+            </View>
+
+        )
+    }
+
+    // itemView(index){}
+
+    itemView(index){
+
+        var follow = this.state.dataList[index];
+
+     
+        var status = follow.isonline ? '在线' : '离线'
+
+
+        return <View style={{backgroundColor:sys.backgroundColor}}>
+            <TouchableOpacity key={index} style={styles.content} onPress={()=>this.itemClick(follow)}>
+               <View style={{marginTop:10,width:sys.dwidth,backgroundColor:'white'}}>
+                    
+                    <View style={{marginTop:10,marginBottom:10,flexDirection:'row',width:sys.dwidth,backgroundColor:'white'}}>
+                        
+                        <Text style={{width:sys.dwidth - 40,left:10}}>{"用户名："+follow.username}</Text>
+                        <Text>{status}</Text>
+                    </View>
+                
+                    <Text style={styles.contengtext}>{"积分："+follow.point}</Text>
+                    <Text style={styles.contengtext}>{"余额："+follow.balance}</Text>
+                    <Text style={styles.contengtext}>{"QQ："+follow.qq}</Text>
+                    <Text style={styles.contengtext}>{"最近登录："+follow.logintime}</Text>
+
+
+               </View>
+
+
+            </TouchableOpacity>
+
+        </View>
+
+
+
+    }
+
+    itemClick(e){
+
+
+        const {navigate} = this.props.navigation;
+        navigate('LotteryDetail',{item:e})
+    }
+
+    keyExtractor = (item, index) => {
+        return index.toString()
+    }
+
+
+
+    changeGz(gzob,flistD) {
+
+        if (gzob.isgz == 0) {
+            gzob.isgz =1;
+        } else {
+            gzob.isgz =0;
+        }
+
+
+        this.setState({
+
+            flistData:flistD
+        })
+
+    }
+
+    renderCell = (item) => {
+
+        return this.itemView(item.index)
+    }
+
+
+    _separator = () => {
+        return <View style={{height:1,backgroundColor:'#f2f2f2'}}/>;
+    }
+
+
+}
+
+
+const styles = StyleSheet.create({
+
+    content:{
+        backgroundColor:sys.backgroundColor,
+
+        width:sys.dwidth,
+
+        bottom:10,
+    },
+
+
+    contengtext:{
+        // marginTop:5,
+        marginBottom:10,
+        left:10,
+        fontSize:14,
+    
+  
+    },
+    button:{
+        width:sys.dwidth/3,
+        marginTop:10,
+        backgroundColor:'white'
+    },
+    bimage:{
+        marginLeft:sys.dwidth/6-14.5,
+        marginTop:7.5,
+        width:29,
+        height:29,
+
+    },
+
+    
+
+
+})

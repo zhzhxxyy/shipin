@@ -1,0 +1,127 @@
+/**
+ * Copyright (c) 2017-present, Liu Jinyong
+ * All rights reserved.
+ *
+ * https://github.com/huanxsd/MeiTuan
+ * @flow
+ */
+
+import React, {PureComponent} from 'react'
+import {View, Text, StyleSheet, Platform,TouchableOpacity, Image, PixelRatio,ImageBackground} from 'react-native'
+import {sys} from "../common/Data"
+
+
+// import {
+//
+//     ListItem
+// } from 'react-native-elements';
+
+
+class Cell extends PureComponent {
+
+    constructor(props) {
+        super(props)
+    }
+
+    _onPress = () => {
+        this.props.onPressItem(this.props.id);
+    };
+
+
+    render() {
+        let {info} = this.props
+        return (
+            <TouchableOpacity activeOpacity={1}  onPress={this.props.onPress}>
+                <View style={[styles.mengban,{flexDirection:'row'}]}>
+                    <Image
+                    source={{
+                    uri: info.pic
+                    }}
+                    style={[styles.front_cover,{width:sys.dwidth/4 - 30}]}
+                    />
+
+                    <View style={styles.title}>
+                        <Text style={styles.username} numberOfLines={1}>{info.title+' 聊天室'}</Text>
+                        <Text style={styles.livetext} numberOfLines={1}>{info.ftitle}</Text>
+                    </View>
+
+
+                </View>
+
+
+            </TouchableOpacity>
+        )
+    }
+}
+
+const styles = StyleSheet.create({
+
+    front_cover: {
+
+        top:10,
+        left:10,
+        width: sys.dwidth - 30,
+        height: sys.dwidth/4 - 30,
+        alignItems:'center',
+        backgroundColor:sys.grayColor
+    },
+
+    title:{
+        left:10,top:10,width:sys.dwidth,height:sys.dwidth/4 - 30
+    },
+
+    mengban:{
+
+        // top:-28,
+        width:sys.dwidth,
+        height:sys.dwidth/4 -10,
+        marginLeft:0,
+        backgroundColor:sys.whiteColor
+    },
+    username:
+    {
+        //top:10,
+        marginLeft:10,
+        fontSize:14,
+        fontWeight: 'bold',
+        color: '#555555',
+        // alignItems:'center'
+        textAlign:'left',
+        textAlignVertical:'center',
+        height:(sys.dwidth/4 - 30)/2,
+        ...Platform.select({
+            ios: {lineHeight: (sys.dwidth/4 - 30)/2},
+             android: {}
+        })
+    },
+    userid:{
+        marginLeft:10,
+        color: '#FFFFFF',
+        fontSize:12
+    },
+
+    livetext: {
+      //  top:23,
+        marginLeft:10,
+        fontSize: 13,
+        color: '#999999',
+        // marginLeft:10,
+         textAlign:'left',
+         height:(sys.dwidth/4 - 30)/2,
+         textAlignVertical:'center',
+         ...Platform.select({
+            ios: {lineHeight: (sys.dwidth/4 - 30)/2},
+             android: {}
+        })
+    },
+
+    liveInfo:{
+      flexDirection:'row',
+        justifyContent: 'flex-start',
+        marginLeft:70,
+        marginTop:-20,
+
+    }
+})
+
+export default Cell

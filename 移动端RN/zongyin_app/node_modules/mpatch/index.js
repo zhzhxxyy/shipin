@@ -1,0 +1,62 @@
+const fs = require('fs')
+const glob = require('glob')
+
+const debug = console.log
+
+function checkPatch (text, patch) {
+  return [text, patch]
+    .map(x => x.replace(/\s+/g, ' '))
+    .reduce((t, p) => t.includes(p))
+}
+
+/**
+ * @param {string} text
+ * @param {Recipe} recipe
+ * @return {?string}
+ */
+function applyRecipe (text, recipe) {
+  if (!text) {
+    return text
+  }
+
+  if (checkPatch(text, recipe.patch)) {
+    debug('already patched, skipped')
+    return null
+  }
+
+  const matched = text.match(recipe.pattern)
+
+  if (!matched) {
+    debug(`not found ${recipe.pattern}`)
+    return text
+  }
+
+  return text.replace(matched[0], `${matched[0]}${recipe.patch}`)
+}
+
+/**
+ * @typedef {object} Recipe
+ * @param {string} pattern
+ * @param {string} patch
+ */
+
+/**
+ * Patch file
+ *
+ * @param {string} file - file path
+ * @param {Recipe[]} recipes - patching recipes
+ */
+module.exports = function patch (file, recipes) {
+  debug(`patching ${file}...`)
+
+  const path = glob.sync(file, {
+    ignore: ['node_modules/**', '**/build/**']
+  })[0]
+
+  const init = fs.readFileSync(path, 'utf8')
+  const text = recipes.reduce(applyRecipe, init)
+
+  if (text != null) {
+    fs.writeFileSync(path, text)
+  }
+}

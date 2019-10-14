@@ -1,0 +1,228 @@
+//
+//  Created by Liu Jinyong on 17/4/5.
+//  Copyright © 2016年 Liu Jinyong. All rights reserved.
+//
+//  @flow
+//  Github:
+//  https://github.com/huanxsd/react-native-refresh-list-view
+
+import React, {Component} from 'react'
+import {View, StyleSheet,Text, DeviceEventEmitter,Platform,Alert,
+    TouchableOpacity,Image,PixelRatio,TouchableWithoutFeedback
+    ,ScrollView,NativeModules,Animated} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import Cell from './Cell'
+
+import {NoDataView, sys,TitleHeadView, isIphoneX} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+
+import codePush from "react-native-code-push";
+const { StatusBarManager } = NativeModules;
+
+import FcusImage from "../hot/HeadView"
+let screenWidth = sys.dwidth
+
+var isQidong=false
+
+var isGuanBi=false
+
+export default class LunBoImage extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            images:[],// 使用颜色代替图片
+            selectedImageIndex: 0,
+            isNeedRun: true,
+        };
+
+        this._index = 0;// 当前正在显示的图片
+        this._max = this.state.images.length;// 图片总数
+       
+    }
+
+
+    _showLog(num)
+    {
+        let img = this.state.images[num]
+        if(img.type == 1){
+            this.props.onPress(img.extra);
+        }
+        
+    }
+
+    render(){
+        
+        // 图片列表
+
+       //extra
+
+        this._max = this.state.images.length
+
+        if (this._max>1) {
+            if (!isQidong) {
+                this._runFocusImage();
+            }
+        }
+
+        let images = this.state.images.map((value,i) => {
+            return (
+                <TouchableWithoutFeedback onPress={()=>this._showLog(i)} key={i}> 
+                     {/* <View style={{width:screenWidth,height:screenWidth/3,backgroundColor:value}}> */}
+                    <Image source={{ uri: value.pic }}
+                       resizeMode='cover'
+                       style={{height:screenWidth/3, width: screenWidth}}
+                       key={i}></Image>
+                      {/* </View> */}
+                </TouchableWithoutFeedback>);
+        });
+
+        // 小圆点指示器
+        let circles = this.state.images.map((value,i) => {
+            return (<View key={i} style={ (i == this.state.selectedImageIndex) ? styles.circleSelected : styles.circle}/>);
+        });
+
+        // 小圆点位置居中显示
+        let imageLength = this.state.images.length;
+        let circleLength = 6 * imageLength + 5 * 2 * imageLength;
+        let center = (screenWidth - circleLength) / 2;
+
+        return (
+            <View style={styles.container}>
+                <ScrollView horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                    pagingEnabled={true}
+                    onTouchStart={()=>this._onTouchStart()}
+                    onTouchMove={()=>console.log('onTouchMove')}
+                    // onTouchEnd={()=>this._onTouchEnd()}
+                    onMomentumScrollEnd={(event)=>this._onTouchEnd(event)}
+                    // onScroll={(event)=>this._onScroll(event)}
+                    ref={(scrollView) => { this._scrollView = scrollView;}}>
+
+                <Animated.View style={{flexDirection:'row'}}>{images}</Animated.View>
+                </ScrollView>
+                <View style={{flexDirection:'row',position:'absolute',top:screenWidth/3- 15,left:center}}>{circles}</View>
+            </View>
+        );
+    }
+
+    _onTouchStart(){
+        // 当手指按到scrollview时停止定时任务
+        clearInterval(this._timer);
+        isGuanBi = true;
+    }
+
+    _onTouchEnd(event){
+        // 先滑动到指定index位置，再开启定时任务
+
+        let offSetX = event.nativeEvent.contentOffset.x;
+                // 通过偏移量和屏幕宽度计算第几页
+        this._index = Math.floor(offSetX/sys.dwidth);
+        //  this._scrollView.scrollTo({x:this._index * screenWidth},true);
+        // 重置小圆点指示器
+        // console.log(this._index)
+        if (isGuanBi) {
+            this._refreshFocusIndicator();
+            this._runFocusImage();
+        }
+         
+    }
+
+    _onScroll(event){
+
+         
+
+        let _contentOffsetX = event.nativeEvent.contentOffset.x;
+        this._index = Math.round(_contentOffsetX/ screenWidth);
+
+        // console.log(_contentOffsetX)
+
+        // if (this._index>this._max-1) {
+        //     this._index = 0;
+        // }
+
+    }
+
+    _runFocusImage(){
+        if(this._max <= 1){ // 只有一个则不启动定时任务
+            return;
+        }
+
+        isQidong = true
+
+        isGuanBi = false
+
+        this._timer = setInterval(function () {
+            this._index++;
+            if(this._index >= this._max){
+                this._index = 0;
+            }
+            this._scrollView.scrollTo({x:this._index * screenWidth},true);
+            // 重置小圆点指示器
+            this._refreshFocusIndicator();
+        }.bind(this), 2000);
+    }
+
+    _stopFocusImage(){
+        clearInterval(this._timer);
+    }
+
+    _refreshFocusIndicator(){
+        this.setState({selectedImageIndex:this._index});
+    }
+
+    _showToast(i) {
+        //显示的内容
+        var message = '点击: ' + i;
+        // console.log(message);
+    }
+
+    // 组件装载完成
+    componentDidMount(){
+        this._runFocusImage();
+    }
+
+    // 组件即将卸载
+    componentWillUnmount(){
+        clearInterval(this._timer);
+    }
+
+    // 组件接收到新属性
+    componentWillReceiveProps(nextProps) {
+    }
+}
+
+
+const styles = {
+    container: {
+        flex:1,
+        flexDirection:'row',
+    },
+    circleContainer: {
+        position:'absolute',
+        left:0,
+        top:120,
+    },
+    circle: {
+        width:6,
+        height:6,
+        borderRadius:6,
+        backgroundColor:'#f4797e',
+        marginHorizontal:5,
+    },
+    circleSelected: {
+        width:6,
+        height:6,
+        borderRadius:6,
+        backgroundColor:'#ffffff',
+        marginHorizontal:5,
+    }
+};
+
+
+
+
+
+

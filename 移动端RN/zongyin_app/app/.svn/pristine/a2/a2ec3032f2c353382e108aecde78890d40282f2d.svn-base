@@ -1,0 +1,462 @@
+import React, {Component} from 'react';
+import {
+    View, Text, StyleSheet, ScrollView, Alert,Platform,
+    Image, TouchableOpacity, NativeModules, Dimensions,AsyncStorage,DeviceEventEmitter,TextInput
+} from 'react-native';
+
+import {sys,isIphoneX} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+
+
+import { Header } from 'react-navigation';
+
+const { StatusBarManager } = NativeModules;
+
+var self = this;
+export default class TodayLoss extends Component {
+
+
+
+    static  navigationOptions = ({navigation}) => {
+       
+        return {
+        title:'今日盈亏',
+      
+        headerStyle:{
+            backgroundColor:sys.whiteColor
+        },
+        headerTintColor:sys.titleColor,
+        headerRight:React.createElement(View, null, null),
+
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            tintColor:sys.titleColor,
+        },
+        // headerRight: <View />
+    }
+    };
+    
+
+    constructor() {
+        super();
+        this.state = {
+            image: null,
+            head_pic:'http://baidu.com',
+            fubi:0,
+            identifier:'',
+            id:0,
+            describe:'暂无签名',
+            change_pic:'',
+            visible:false,
+            drawcash:'',
+            user:{},
+            bank_card_number:"",
+            bank_name:"123",
+             banklist:false,
+            balanceNum:"0",
+            tikuanPsw:"",
+            bankId:"",
+            accountname:"",
+
+            dataList:{},
+
+            yanliStr:'0',
+
+            contentList:[],
+
+        };
+
+
+    }
+
+   
+
+    componentDidMount(){
+
+
+        this.getData()
+
+    }
+
+    getData(){
+
+        //let codeurl = host + '/member/index/getMemberInfoById';
+
+        let codeurl = host + '/AppAccount.todayLoss.do';
+
+        let formData = new FormData();
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+        newList =[]
+
+
+        this.state.dataList = result['data']
+
+        let touzhucountStr = this.state.dataList.hasOwnProperty('touzhucount')?this.state.dataList['touzhucount']:'0.00'
+        newList.push({'tit':'投注金额','content':touzhucountStr})
+
+        let tikuancountStr = this.state.dataList.hasOwnProperty('tikuancount')?this.state.dataList['tikuancount']:'0.00'
+        newList.push({'tit':'提现金额','content':tikuancountStr})
+
+        let zhongjiangcountStr = this.state.dataList.hasOwnProperty('zhongjiangcount')?this.state.dataList['zhongjiangcount']:'0.00'
+
+        newList.push({'tit':'中奖金额','content':zhongjiangcountStr})
+
+        let chuzhicountStr = this.state.dataList.hasOwnProperty('chuzhicount')?this.state.dataList['chuzhicount']:'0.00'
+        newList.push({'tit':'充值金额','content':chuzhicountStr})
+
+        let fandiancountStr = this.state.dataList.hasOwnProperty('fandian')?this.state.dataList['fandian']:'0.00'
+        newList.push({'tit':'返点金额','content':fandiancountStr})
+
+        let fanshui = this.state.dataList.hasOwnProperty('fanshui')?this.state.dataList['fanshui']:'0.00'
+        newList.push({'tit':'返水金额','content':fanshui})
+
+        let huodong = this.state.dataList.hasOwnProperty('huodong')?this.state.dataList['huodong']:'0.00'
+        newList.push({'tit':'活动金额','content':huodong})
+        
+
+        this.setState({
+            dataList:result['data'],
+            yanliStr:this.state.dataList.hasOwnProperty('yingli')?this.state.dataList['yingli']:'0',
+            contentList:newList,
+        })
+
+            })
+            .catch(error=>{
+                //Alert.alert('提示：'+error+'')
+            })
+
+    }
+
+
+
+    render() {
+
+
+ //  chuzhicount: "0.00"
+                //  fandian: "0.00"
+                //  tikuancount: "0.00"
+                //  touzhucount: "60.00"
+                //  yingli: -56.08
+                //  zhongjiangcount: "3.92"
+
+        
+
+        return (<ScrollView style={[styles.container,{width:sys.dwidth,
+        height:sys.dheight -Header.HEIGHT-(Platform.OS=='ios'?(isIphoneX()?48:0):StatusBarManager.HEIGHT+10)}]}>
+ 
+            
+            
+             <View style={styles.topView}>
+             <Text style={{marginLeft:0,marginTop:20,textAlignVertical:'center',height:25,width:sys.dwidth,fontSize: 16,
+             color:sys.whiteColor,backgroundColor:sys.mainColor,textAlign:'center',
+                                        ...Platform.select({
+                                            ios: { lineHeight: 25},
+                                            android: {}
+                                        })
+
+                                    }}>盈利金额</Text>
+
+            <Text style={{marginLeft:0,marginTop:5,textAlignVertical:'center',height:40,width:sys.dwidth,fontSize: 30,
+            color:sys.whiteColor,backgroundColor:sys.mainColor,textAlign:'center',
+                                        ...Platform.select({
+                                            ios: { lineHeight: 40},
+                                            android: {}
+                                        })
+
+                                    }}>{this.state.yanliStr}元</Text>
+
+            <Text style={{marginLeft:10,marginTop:10,textAlignVertical:'center',height:30,width:sys.dwidth-20,fontSize: 14,
+            color:sys.whiteColor,backgroundColor:sys.mainColor,textAlign:'left',
+                                        ...Platform.select({
+                                            ios: { lineHeight: 25},
+                                            android: {}
+                                        })
+
+                                    }}>盈亏计算公式：中奖+活动+佣金-投注-手续费</Text>
+
+
+
+             </View>
+
+
+
+             <View style={{// 主轴方向
+                
+                width:sys.dwidth,
+
+                height:50 *this.state.contentList.length,
+
+                 alignItems:'center',
+
+                 flexDirection:'row',flexWrap:'wrap'
+            }}>
+
+                {this.state.contentList.map((info, index) => {
+                    return (
+
+                        <CustomButton key={index} info={info}/>
+
+                    );
+                })}
+
+
+
+
+            </View>
+
+
+
+
+
+            </ScrollView>);
+    }
+
+ 
+}
+
+
+
+
+
+class CustomButton extends Component {
+
+
+    constructor() {
+        super();
+        this.state = {
+            selected: false,
+            dwd:false,
+            dxds:false,
+
+        };
+    }
+
+
+
+    render() {
+
+        const { selected } = this.state;
+
+        const {info} = this.props;
+        // console.log(',,,,,,,,,,,,,');
+        // console.log(this.props);
+
+        let colorStr=sys.titleColor
+
+        if (info['tit'] == '投注金额')  {
+            colorStr = sys.greenColor
+        }
+        if (info['tit'] == '中奖金额' || info['tit'] == '返点金额')  {
+            colorStr = sys.mainColor
+        }
+
+
+
+        return (
+
+        // <TouchableOpacity ref={this.props.info['num']} title={this.props.info['num']} activeOpacity={0.2} focusedOpacity={0.5}>
+            // {/*<View style=  {{justifyContent:'center',alignItems:'center',width:128,height:128,backgroundColor:'#841584'}}>*/}
+            <View style= {[styles.customButton,{backgroundColor:sys.whiteColor}]}>
+                {/*<Image source={require('./image/ic_search.png')}>*/}
+                {/*</Image>*/}
+
+                <Text style={[styles.customBottomItem,{color:sys.titleColor}]}>{info['tit']+':'}</Text>
+                <Text style={[styles.customTopItem,{color:sys.titleColor}]}><Text style={{color:colorStr}}>{info['content']+"元"}</Text></Text>
+                
+            </View>
+        // </TouchableOpacity>
+        )
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        // justifyContent:'space-between',
+        backgroundColor:sys.whiteColor
+    },
+
+
+    topView:{
+        width:sys.dwidth,
+        backgroundColor:sys.mainColor,
+    },
+
+    oneView:{
+        marginTop:10,
+        flexDirection:'row',
+        height:50,
+    },
+
+    head_pic:{
+        width: 30,
+        height: 30,
+        resizeMode: 'cover',
+        borderRadius:15,
+        marginTop:10,
+        marginLeft:10,
+    },
+    leftText:{
+        marginLeft:10,
+        marginTop:17,
+        color:sys.subTitleColor,
+        width:120,
+        fontSize:16,
+    },
+
+    newLeftText:{
+        marginLeft:10,
+        marginTop:0,
+        color:sys.subTitleColor,
+        width:sys.width - 10,
+        fontSize:16,
+    },
+
+    drawCash:{
+      color:sys.mainColor,
+
+
+        fontSize:12
+    },
+    drawCashView:{
+        marginLeft:sys.dwidth-70,
+        marginTop:-30,
+        height:30,
+    },
+
+    inputText:{
+
+        marginLeft:6,
+        marginTop:14,
+        width:sys.dwidth-100,
+        color:"#999999",
+        textAlign:'left',
+        fontSize:26,
+        height:50,
+
+    },
+
+
+    rightimage:{
+        marginTop:12.5,
+        marginRight:25,
+        width:12,
+        height:19,
+     //   marginLeft:sys.dwidth-160-32
+
+        marginLeft:sys.dwidth-160-2
+
+    },
+    button:{
+        backgroundColor:sys.mainColor,
+        height:50,
+        marginLeft:20,
+        alignItems:'center',
+        width:sys.dwidth-40,
+        justifyContent:'center',
+    },
+    buttontext:{
+        color:'#ffffff',
+        textAlign:'center',
+        fontSize:18,
+    },
+    lineView:{
+        height:1,//TODO这里小于0.8没显示出来
+        backgroundColor:'#cccccc',
+        marginTop:0,
+        marginLeft:12,
+        width:sys.dwidth-24,
+    },
+
+    lineView2:{
+        height:1,//TODO这里小于0.8没显示出来
+        backgroundColor:'#cccccc',
+        marginTop:20,
+        marginLeft:12,
+        width:sys.dwidth-24,
+    },
+
+    thirdView: {
+
+        height: 180,
+        width: sys.dwidth,
+    },
+    tipText:{
+        marginTop:15,
+        color:sys.subTitleColor,
+        marginLeft:10,
+        width:sys.dwidth-20
+    
+    },
+
+
+    textIp:{
+        marginTop:0,
+        marginLeft:12,
+        width:sys.dwidth-40,
+        height:40
+        },
+
+        customButton: {
+            marginLeft:0,
+            marginTop:0,
+            // marginBottom:1,
+            width:sys.dwidth/2,
+            height:40,
+            backgroundColor:sys.grayColor,
+            flexDirection:'row',
+           // borderRadius:5,
+            // borderTopLeftRadius: 5,
+            // borderTopRightRadius: 5,
+            // borderBottomRightRadius: 5,
+            // borderBottomLeftRadius: 5,
+        },
+        customTopItem: {
+           // width:sys.dwidth/4,
+           marginLeft:10,
+            height:50,
+            color:sys.mainColor,
+            textAlign:'left',
+            textAlignVertical:'center',
+            fontSize:17,
+            ...Platform.select({
+                ios: { lineHeight:50},
+                android: {}
+            })
+        },
+        customBottomItem: {
+         //   width:sys.dwidth/4,
+            marginLeft:10,
+            height:50,
+            color:sys.titleColor,
+            textAlign:'left',
+            textAlignVertical:'center',
+            fontSize:14,
+            ...Platform.select({
+                ios: { lineHeight:50},
+                android: {}
+            })
+        },
+
+
+});

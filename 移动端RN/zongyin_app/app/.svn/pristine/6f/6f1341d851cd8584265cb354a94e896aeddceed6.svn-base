@@ -1,0 +1,171 @@
+/**
+ * Copyright (c) 2017-present, Liu Jinyong
+ * All rights reserved.
+ *
+ * https://github.com/huanxsd/MeiTuan
+ * @flow
+ */
+
+import React, {PureComponent} from 'react'
+import {View, Text, StyleSheet, Platform,TouchableOpacity, Image, PixelRatio,ImageBackground} from 'react-native'
+import {sys} from "../common/Data"
+import {KaijiangHeadView} from "./common/KaijiangHeadView"
+
+
+
+
+class HomeCell extends PureComponent {
+
+    constructor(props) {
+        super(props)
+    }
+
+    _onPress = () => {
+        this.props.onPressItem(this.props.id);
+    };
+
+
+    render() {
+        // console.log('render cell')
+        let {info,type,index} = this.props
+
+
+        // "./images/caipiao_more"
+
+        // requireStr = require('./images/caipiao_more.png')
+
+        var imgView = null;
+
+        if (info.title == '更多彩种') {
+            imgView=<Image
+            source={require('./images/caipiao_more.png')}
+            style={[styles.front_cover,{height:60,width:60}]}
+            />
+        } else {
+            imgView=<Image
+                    source={{
+                    uri: info.pic
+                    }}
+                    style={[styles.front_cover,{height:60,width:60}]}
+                    />
+        }
+
+
+         let changView=null;
+
+             changView=(<TouchableOpacity activeOpacity={1}  onPress={this.props.onPress}>
+               <View style={{width:sys.dwidth/2,height:80,marginLeft:0,
+borderRightWidth:(index+1)%2==0?0:1,borderBottomWidth:1,borderColor:sys.backgroundColor
+                }}>
+
+                <View style={[styles.mengban,{flexDirection:'row'}]}>
+                    {/* <Image
+                    source={{
+                    uri: info.pic
+                    }}
+                    style={[styles.front_cover,{height:70,width:70}]}
+                    /> */}
+                   {imgView}
+
+                    <View style={[styles.title,{marginLeft:5,marginTop:35/2,width:sys.dwidth/2 - 85,height:45}]}>
+
+                        <Text style={[styles.username,{color:sys.heiColor,paddingTop:0,height:18,marginTop:2
+                            ,textAlign:'left',marginLeft:0,
+                           }]} numberOfLines={1}>{info.title}</Text>
+
+
+                    <Text style={[styles.livetext,{marginTop:10,marginLeft:0,height:15,fontSize:13,textAlign:'left',}]}
+                    numberOfLines={1}>{info.ftitle}</Text>
+
+                    </View>
+
+                    {/* <Image style={{marginTop:(80 - 14.5)/2,marginLeft:10,
+                  width:9,height:14.25}} source={require('../my/images/icon_path.png')}></Image> */}
+
+                </View>
+
+
+                </View>
+                {/* <View style={{backgroundColor:sys.backgroundColor,width:sys.dwidth/2,height:1}}></View> */}
+     
+
+            </TouchableOpacity>
+             
+            )
+        
+
+
+        return (
+            changView
+        )
+    }
+}
+
+const styles = StyleSheet.create({
+    
+    front_cover: {
+
+        marginLeft:10,
+        marginTop:10,
+        // width: sys.dwidth/4 - 20,
+        // height: sys.dwidth/4 - 20,
+        borderRadius:0,
+        // borderWidth:2,
+        // borderColor:'white',
+        // alignItems:'center',
+
+        // backgroundColor:sys.yellowColor
+
+    },
+
+
+    mengban:{
+
+        // top:-28,
+        width:sys.dwidth/2,
+        marginLeft:0,
+
+        // backgroundColor:sys.whiteColor
+    },
+
+    username:{
+        paddingTop:30,
+        marginLeft:10,
+        fontSize:16,
+       //  fontWeight: 'bold',
+        // color: '#FFFFFF',
+       
+        textAlign:'left',
+
+      
+    },
+    userid:{
+        marginLeft:10,
+        color: '#FFFFFF',
+        fontSize:12
+    },
+
+    livetext: {
+
+        marginTop:10,
+        marginLeft:10,
+        fontSize: 13,
+        color: sys.subTitleColor,
+        textAlign:'left',
+
+      
+    },
+
+    liveInfo:{
+      flexDirection:'row',
+        justifyContent: 'flex-start',
+        marginLeft:70,
+        marginTop:-20,
+
+    },
+    title:{
+        marginLeft:5,marginTop:0,width:sys.dwidth/2,height:sys.dwidth/4
+    },
+})
+
+export default HomeCell

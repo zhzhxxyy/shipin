@@ -1,0 +1,180 @@
+/**
+ * Copyright (c) 2017-present, Liu Jinyong
+ * All rights reserved.
+ *
+ * https://github.com/huanxsd/MeiTuan
+ * @flow
+ */
+
+import React, {PureComponent} from 'react'
+import {View, Text, StyleSheet, Platform,TouchableOpacity, Image, PixelRatio,ImageBackground} from 'react-native'
+import {sys} from "../common/Data"
+
+
+class Cell extends PureComponent {
+
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+
+        let {info} = this.props
+
+        let zhiboimage = require('../hot/images/icon_zhibo.png');
+        let huifangimage =  require('../hot/images/icon_huifang.png');
+        let defaulthot =  require('../hot/images/image_remen_color.png');
+        if(info.title=='4.05')info.status=1;
+        return (
+            <TouchableOpacity style={styles.container} activeOpacity={0.8}  onPress={this.props.onPress}>
+
+                {/*<ImageBackground style={styles.front_cover} source={defaulthot}>*/}
+                <ImageBackground
+                    source={{
+                        uri: info.front_cover
+                    }}
+                    style={styles.front_cover}
+                ></ImageBackground>
+                {/*</ImageBackground>*/}
+                <View style={styles.mengban}>
+                    <Text style={styles.username} numberOfLines={1}>{info.title}</Text>
+                    <Text style={styles.livetext} numberOfLines={1}>{info.viewer_count}人观看</Text>
+                </View>
+
+                <View style={styles.descView}>
+                    {/*<Image style={styles.locate} source={require('./images/icon_dingwei.png')}></Image>*/}
+                    <Text
+                        numberOfLines={1}
+                        style={styles.desc}>{parseInt(info.fubi)==0?"免费":info.fubi+'福币'}</Text>
+                </View>
+
+                <View style={info.type == 0 ? styles.zhibo : styles.huifang}>
+                    <Image  source={
+                        info.type == 0 == 1 ? zhiboimage : huifangimage
+                    }>
+                    </Image>
+                    <Text style={info.type == 0 ? styles.zhiboT : styles.huifangT}>{ info.type == 0 ? "直播" : "回放"}</Text>
+                </View>
+
+            </TouchableOpacity>
+        )
+    }
+}
+
+const styles = StyleSheet.create({
+    container: {
+        padding:10,
+        paddingBottom:0,
+        width:sys.dwidth/2,
+        height:(sys.dwidth)/2 + 50,
+        backgroundColor:"white",
+
+    },
+    front_cover: {
+        marginTop:0,
+        width: (sys.dwidth-40)/2,
+        height: (sys.dwidth-40)/2,
+        borderRadius: 4,
+        overflow:'hidden',
+        backgroundColor:sys.mainColor
+
+    },
+    mengban:{
+        top:7,
+        width: (sys.dwidth-30)/2,
+        height:28,
+        flexDirection:'row',
+        marginLeft:0,
+        alignItems:'center'
+
+    },
+    username:
+        {
+            fontSize:15,
+
+            color: '#333333',
+            flex:1
+        },
+    viewer_count:{
+        marginLeft:15,
+        color: '#FFFFFF',
+        fontSize:12,
+        flex:1
+    }
+    ,
+    rightContainer: {
+        flex: 1,
+        paddingLeft: 20,
+        paddingRight: 10,
+    },
+    price: {
+        color: 'white'
+    },
+
+    livetext: {
+        fontSize: 13,
+        color: '#333333',
+        marginLeft:10
+    },
+
+    liveInfo:{
+        flexDirection:'row',
+        justifyContent: 'flex-start',
+        marginTop:-19,
+        marginLeft:70
+    },
+
+    locate:{
+        marginTop:3,
+        marginLeft:10,
+        height:12,
+        width:12
+    },
+    descView:{
+        marginTop:10,
+        flexDirection:'row',
+        left:-10,
+    },
+    desc:{
+        fontSize:13,
+        left:10,
+        color: sys.mainColor,
+        width:sys.dwidth/2-10,
+        fontWeight: 'bold',
+        // backgroundColor:'red'
+    },
+    zhibo:{
+        height:23,
+        top:-(sys.dwidth-40)/2-45,
+        left:5,
+        flexDirection:'row',
+        backgroundColor:'#ffffff',
+        width:60,
+        justifyContent:'center',
+        alignItems:'center',
+        borderRadius: 5
+    },
+    huifang:{
+        height:23,
+        top:-(sys.dwidth-40)/2-45,
+        left:5,
+        flexDirection:'row',
+        backgroundColor:'rgba(1, 1, 1, 0.5)',
+        width:60,
+        justifyContent:'center',
+        alignItems:'center',
+        borderRadius: 5
+    },
+    zhiboT:{
+        color:'#333333',
+        fontSize:13,
+        left:5
+    },
+    huifangT:{
+        color:'#cccccc',
+        fontSize:13,
+        left:5
+    }
+})
+
+export default Cell

@@ -1,0 +1,239 @@
+import React,{Component} from 'react';
+import {
+    Text,
+    View,
+    TouchableOpacity,
+    Dimensions,
+    ActivityIndicator,
+    Modal
+} from 'react-native';
+import {sys,NoDataView} from "../../common/Data"
+import {styles} from "./CommonStyle"
+
+// import { Header } from 'react-navigation';
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+//左边的按钮
+export  class LeftButton extends Component {
+    constructor() {
+        super();
+        this.state = {
+            selected: false,
+            index:0,
+            defaultIndex:"-1",
+        };
+    }
+
+    render() {
+        var { title,index,selected} = this.props;
+        this.state.selected=selected;
+        this.state.index=index;
+        var style = this.state.selected?styles.leftBtnSelected : styles.leftBtn;
+        var  textstyle = this.state.selected?styles.leftTextSelected : styles.leftText;
+        return(
+            <TouchableOpacity  style={style }
+                               onPress={() => {
+                                   this.props.onPress(this.state.index);
+                               }}>
+               <Text style={textstyle}>{title}</Text>
+            </TouchableOpacity>
+        )
+    }
+}
+
+//原点 点击选中或不选中
+export class CustomButton extends Component {
+    constructor() {
+        super();
+        this.state = {
+            selected: false,
+        };
+    }
+    render() {
+        var { title,xuanzo,type  } = this.props;
+        if(xuanzo==1)this.state.selected=true;
+        const { selected } = this.state;
+
+        
+        let myStyle={};
+
+        if (type == 'quwei') {
+            if (title.length>=2) {
+                myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-160)/5,marginTop:2,width:40,height:40,borderRadius:20};
+            } else {
+                myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-90)/4,marginTop:2};
+            }
+        }
+
+        if (type == 'renxuan') {
+            myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-150)/6,marginTop:(RIGHT_WIDTH-150)/12};
+        }
+
+
+        if(type=='WanFa') {
+            if (title == "大" || title == "小" || title == "单" || title == "双") {
+                myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-120)/5,marginTop:(RIGHT_WIDTH-150)/10};
+            } else {
+                myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-150)/6,marginTop:(RIGHT_WIDTH-150)/12};
+            }
+        }
+        
+
+
+            return (
+                <TouchableOpacity  style={[selected?styles.stouchButton : styles.touchButton,myStyle]}
+                                   onPress={() => {
+                                       this.setState({ selected: !selected } ,() => {
+                                           this.props.onPress();
+                                       })
+                                   }}>
+                    <Text style={selected?styles.stouchButtonText: styles.touchButtonText}>{title}</Text>
+                </TouchableOpacity>
+            );
+    }
+}
+
+//列表的标题 用法展示
+// var buttonList=["大","小","单","双"];
+//  <CustomHeader title={info.title} buttonList={buttonList} selectedNum={1} biaoshi="标志啊" onPress={this.clickCustomHeader.bind()}/>     
+export class CustomHeader extends Component {
+    constructor() {
+        super();
+        this.state = {
+            biaoshi:"",//整个控件的标识
+            buttonList:null,//是否有 大小单双
+            title:'',//控件的标题
+            selectedNum:"-2",//-2表示初始值 -1
+        };
+    }
+    render() {
+        
+        const {title,buttonList,selectedNum,biaoshi} = this.props;
+        if(this.state.selectedNum=="-2"){
+            this.state.selectedNum=selectedNum;
+            this.state.buttonList=buttonList;
+            this.state.biaoshi=biaoshi;
+            this.state.title=title;
+        }
+        var textChangeView=null;
+        if(title!=""&&title!=null){
+            var tempTitle=title;
+            if(tempTitle.length<=2){
+                var widthSize=RIGHT_WIDTH/5;
+            }else if(tempTitle.length<=3){
+                var widthSize=RIGHT_WIDTH/4;
+            }else{
+                var widthSize=RIGHT_WIDTH/3;
+            }
+            textChangeView=<Text style={{
+                color:sys.greenColor,
+                lineHeight:30,
+                width:widthSize,
+                height:RIGHT_WIDTH/7,
+                fontSize:18,
+                paddingLeft: 4,
+                marginBottom:0,
+                textAlign: 'center'
+            }}>{title}</Text>
+        }
+        var listChangeView=null;
+        if(buttonList!=""&&buttonList!=null){
+            listChangeView=buttonList.map((info, index)=> {
+                return (
+                    <TouchableOpacity  style={index==this.state.selectedNum?styles.stouchButton : styles.touchButton}
+                    onPress={() => {
+                        var selectedNumTemp="-1";
+                        if(this.state.selectedNum!=index){
+                            selectedNumTemp=index;
+                        }
+                        this.setState({selectedNum:selectedNumTemp} ,() => {
+                            //点击返回的四个参数 （控件的标识，选中第几个，点击控件的第几个，点击的控件的名称）
+                            //如果选中第几个和点击控件第几个 相等 表示选中状态
+                            this.props.onPress(this.state.biaoshi, selectedNumTemp,index,info);
+                        })
+                    }}>
+                       <Text style={index==this.state.selectedNum?styles.stouchButtonText: styles.touchButtonText}>{info}</Text>
+                   </TouchableOpacity>
+                );
+            })
+        }
+        return (
+            <View style={{flexDirection:'row',marginTop:5}}>
+                {textChangeView}
+                {listChangeView}
+            </View>
+        );
+    }
+}
+
+
+//点击确认购买弹框
+export  class BuySureAlert extends Component {
+    constructor() {
+        super();
+        this.state = {
+            name:"",//彩种名称
+            lotteryname:'',//彩种
+            currFullExpect:'',//期号
+            orderDetailMessage:"",//订单详情信息  
+            totalAmount:"",//付款总金额
+            touzhuList:[],//投注的信息
+
+            iscommit:false
+        };
+    }
+    render() {
+        const {name,currFullExpect,orderDetailMessage,totalAmount,touzhuList,lotteryname} = this.props;
+        this.state.name=name;
+        this.state.lotteryname=lotteryname;
+        this.state.currFullExpect=currFullExpect;
+        this.state.orderDetailMessage=orderDetailMessage;
+        this.state.totalAmount=totalAmount;
+        this.state.touzhuList=touzhuList;
+
+        return (
+            this.state.iscommit?
+                <TouchableOpacity>
+                    <View transparent={true}  style={{flex:1,marginTop: 100,alignItems: 'center',justifyContent: 'center',width:sys.dwidth}}>
+                    <Text style={{color:sys.whiteColor}}>提交中：</Text>
+                    <ActivityIndicator />
+                    </View>
+                </TouchableOpacity>
+                :
+            <View  style={{width:"90%",backgroundColor:sys.grayColor}}>
+            <View  style={{width:"100%", height:50,backgroundColor:sys.mainColor}}>
+                <Text  style={{left:10,width:"100%", height:50,lineHeight:50,color:"white",textAlign:'center',fontWeight:'bold',fontSize:16}}>投注详情</Text>
+            </View>
+            <View  style={{width:"100%",backgroundColor:'white',paddingBottom:10}}>
+                <Text  style={{left:10,width:"80%",top:5, height:30,fontSize:14,lineHeight:30}}>{'彩种:'+this.state.name}</Text>
+                <Text  style={{left:10,width:"80%", height:25,fontSize:14,lineHeight:25}}>{"期号:"+this.state.currFullExpect+"期"}</Text>
+                <Text  style={{left:10,width:"80%", height:25,fontSize:14,lineHeight:25}}>详情:</Text>
+                <Text  style={{left:10,width:"93%",fontSize:14,padding:5,lineHeight:20,borderWidth:1,borderColor:sys.grayColor,flexWrap:'wrap',flexDirection:'row'}}>{this.state.orderDetailMessage}</Text>
+                <Text  style={{left:10,width:"60%", height:30,fontSize:14,lineHeight:30}}>付款总金额:<Text style={{color:'red'}}>{this.state.totalAmount+'元'}</Text></Text>
+                <Text  style={{left:10,width:"60%", height:25,fontSize:14,lineHeight:25}}>{"付款账号:"}</Text>
+            </View>
+            <View  style={{width:"100%", height:50,flexDirection:'row'}}>
+                <TouchableOpacity  style={{width:"50%", height:50,backgroundColor:sys.grayColor}}
+                                   onPress={() => {
+                                       
+                                       this.props.onPress(false,this.state.lotteryname,this.state.currFullExpect,this.state.touzhuList);
+                                   }}>
+                    <Text  style={styles.buySureAlertCancelButton}>取消</Text>
+                </TouchableOpacity>
+                <TouchableOpacity  style={{width:"50%", height:50,backgroundColor:sys.mainColor}}
+                                   onPress={() => {
+                                       this.setState({
+                                           iscommit:true
+                                       })
+                                       this.props.onPress(true,this.state.lotteryname,this.state.currFullExpect,this.state.touzhuList);
+                                   }}>
+                    <Text  style={styles.buySureAlertSureButton}>确定</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+        );
+    }
+}
+

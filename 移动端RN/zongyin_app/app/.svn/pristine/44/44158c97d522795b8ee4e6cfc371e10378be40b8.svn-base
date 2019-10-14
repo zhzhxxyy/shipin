@@ -1,0 +1,357 @@
+import React, {Component} from 'react'
+import {
+    Text,
+    View,
+    Dimensions,
+    Alert,
+    Animated,
+    DeviceEventEmitter
+} from 'react-native';
+
+import ScrollableTabView, {DefaultTabBar, } from 'react-native-scrollable-tab-view';
+import RenXuan from './RenXuan';
+import QuWei from './QuWei';
+import {sys} from "../../common/Data"
+import {KaijiangHeadView} from "../common/KaijiangHeadView"
+import HttpUtils from "../../common/HttpUtil"
+
+import Pop from 'rn-global-modal'
+import ActionButton from 'react-native-action-button'
+import EZSideMenu from 'react-native-ezsidemenu';
+import {styles} from "../common/CommonStyle"
+import {BuySureAlert} from "../common/CommonViewButton"
+import Record from '../common/Record'
+
+
+import Toast,{DURATION} from 'react-native-easy-toast';
+
+
+var Buffer = require('buffer').Buffer;
+const host = sys.host;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+var clickLastTime=0;
+
+
+var self
+export default class Keno extends Component{
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+        return {
+            headerTitle: params.item.title?params.item.title:'快乐8',
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+                
+            },
+            headerRight: <View />
+
+        }
+    };
+
+
+    contentView(){
+
+    }
+
+    rightViewClick(){
+        if (this.refs.menu) {
+            this.state.isOpen ? this.refs.menu.close() : this.refs.menu.open();
+        }
+    }
+
+
+
+    buyClick(tag){
+
+        if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+        }
+
+
+        var touzhuList=[];
+        if(tag == 0){
+            touzhuList = this.refs["QuWei"].state.touzhuList;
+        }else if(tag == 1){
+            touzhuList = this.refs["RenXuan"].state.touzhuList;
+        }
+
+        var touzhuListSize=touzhuList.length;
+        var amount=0;//总金额
+        var tipMessage="";//提示信息
+        for(var i=0;i<touzhuListSize;i++){
+            touzhuList[i]['trano']=this.generateMixed(20);//生成订单hao
+            amount=amount+touzhuList[i]['price'];
+            if(i!=0){
+                tipMessage=tipMessage+"  "
+            }
+            tipMessage=tipMessage+touzhuList[i]['playtitle']+":"+touzhuList[i]['numberMessage'] +"  注数:"+touzhuList[i]['zhushu'] +"  金额:"+amount
+        }
+        Pop.show(
+            <BuySureAlert name={this.state.name} lotteryname={this.state.lotteryname} currFullExpect={this.state.currFullExpect} orderDetailMessage={tipMessage} totalAmount={amount} touzhuList={touzhuList} onPress={this.clickBuySureAlert.bind()}/>
+        
+            ,{animationType: 'slide-up', maskClosable: true, onMaskClose: ()=>{
+
+            }})
+
+    }
+
+
+    clickBuySureAlert(sure,name,currFullExpect,touzhuList){
+      
+        if(!sure){
+            Pop.hide();
+            return false;
+        }
+        var nowTime= (new Date()).getTime();
+        if(Math.abs(nowTime-clickLastTime)<sys.clickIntervalTime){
+            //小于1 秒 点击速度太快导致重复下单 
+            alert("操作频繁，请稍后再试");
+            return false;
+        }
+        clickLastTime=nowTime;
+        self.buyNow(name,currFullExpect,touzhuList,0);
+    }
+
+
+    buyNow(name,currFullExpect,touzhuList,num){
+        // this.setState({visible: true,visibleMessage:'正在购买...'});
+        let codeurl = sys.host + "/AppApijiekou.cpbuy";
+        let formData = new FormData();
+        formData.append('lotteryname',name);
+        formData.append('expect',currFullExpect);
+        var base64Str= new Buffer(JSON.stringify(touzhuList)).toString('base64');
+        formData.append("orderList",base64Str);
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                
+                // this.setState({visible: false});
+
+
+
+                this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                Pop.hide()
+
+
+                // if(result['respCode']==1){
+              
+                // }else{
+  
+                // }
+
+            })
+            .catch(error=>{
+                // this.setState({visible: false});
+                // if(num<=0){
+                //     self.buyNow(name,currFullExpect,touzhuList,num+1);
+                // }else{
+
+                // }
+
+
+                this.refs.toast.show(error, DURATION.LENGTH_LONG);
+                Pop.hide()
+               
+
+            })
+    }
+
+
+    //生成随机订单号
+    generateMixed(n) {
+        var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+        var res = "";
+        for(var i = 0; i < n ; i ++) {
+            var id = Math.ceil(Math.random()*35);
+            res += chars[id];
+        }
+        return res;
+    }
+
+
+
+    constructor(props) {
+        super(props);
+
+        self = this;
+        this.state = {
+            newlist:[],
+            lotterytimesData:{},
+            currFullExpect:"",
+            kaijianJlArr:[],
+            name:this.props.navigation.state.params.item['title'],
+            lotteryname:this.props.navigation.state.params.item['name'],
+            typeid:this.props.navigation.state.params.item['typeid'],
+            isOpen: false,
+            animation: new Animated.Value(0),
+            scroll: true,
+            visible:false,
+            visibleMessage:"加载中...",
+        };
+
+        this.toggle = this._toggle.bind(this)
+    }
+
+    _toggle() {
+
+        if (this.refs.menu) {
+            this.state.isOpen ? this.refs.menu.close() : this.refs.menu.open()
+        }
+    }
+
+    componentDidMount() {
+        this.getRateList(0);
+
+        // DeviceEventEmitter.addListener('Login',(dic)=>{
+        //     Pop.hide()
+        //     const {navigate} = this.props.navigation;
+        //     this.props.navigation.navigate("Login",dic);
+
+        // });
+
+        // DeviceEventEmitter.addListener('LoginQuxiao',(dic)=>{
+        //     Pop.hide()
+
+        // });
+      
+    }
+
+    // 获取测试数据
+    getRateList(num) {
+        this.setState({visible: true,visibleMessage:'正在加载数据...'});
+        let codeurl = sys.host + "/AppGame."+this.state.typeid+".code." + this.state.lotteryname  +".do";
+        let formData = new FormData();
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                this.setState({visible: false});
+                if(result['respCode']==1){
+                    let testData = result['data']["rates"]["rates"];
+                    this.setState({newlist: testData,})
+                }else{
+     
+                    this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                  
+                }
+            })
+            .catch(error=>{
+                this.setState({visible: false});
+                if(num<=0){
+                     this.getRateList(num+1)
+                }else{
+                    this.refs.toast.show("获取数据失败", DURATION.LENGTH_LONG);
+
+                }
+            })
+    }
+
+
+    menu(opacity) {
+        const menu = (
+            <Animated.View style={{ flex: 1, backgroundColor: 'transparent', opacity }}>
+                <Record ref="Record" type={this.state.typeid} lotteryname={this.state.lotteryname} 
+                onPress={self.orderDetail.bind()}
+                style={{ flex: 1,  backgroundColor: 'red'} }>
+                </Record>
+            </Animated.View>
+        );
+        return menu
+    }
+
+    orderDetail(e){
+        const {navigate} = self.props.navigation;
+        navigate('OrderDetail',{item:e})
+    }
+
+    render(){
+
+
+        const menuWidth = Dimensions.get('window').width * 0.9;
+        const opacity = this.state.animation.interpolate({
+            inputRange: [0, menuWidth],
+            outputRange: [0, 1],
+        });
+
+        return    <EZSideMenu
+            onMenuStateChaned={(isOpen) => { this.setState({ isOpen }) }}
+            onPanMove={(x) => { console.log('onPanMove ' + x) }}
+            onSliding={(x, persent) => { console.log('onSliding x ' + x + ' persent ' + persent) }}
+            onPanStartMove={() => { this.setState({ scroll: false }) }}//adapt android
+            onPanEndMove={() => { this.setState({ scroll: true }) }}//adapt android
+            type={EZSideMenu.type.Default}
+            menuStyle={styles.container}
+            shadowStyle={{ backgroundColor: 'rgba(20,20,20,.7)' }}
+            direction={EZSideMenu.direction.Left}
+            ref="menu"
+            position={this.state.animation}
+            width={menuWidth}
+            menu={this.menu(opacity)}
+            panWidthFromEdge={200}
+            animationFunction={(prop, value) => Animated.spring(prop, {
+                friction: 10,
+                toValue: value
+            })}>
+        <View style={{
+            flex: 1}}>
+            <KaijiangHeadView name={this.state.lotteryname} typeid={this.state.typeid} codeNum={20} KaijiangReturn={(currFullExpect)=>{
+                       
+                    this.setState({currFullExpect:currFullExpect})
+             }}/> 
+            <ScrollableTabView
+    style={{marginTop: 0, }}
+    initialPage={0}
+    renderTabBar={() => <DefaultTabBar />}
+    tabBarUnderlineStyle={{backgroundColor:sys.mainColor,height:4,width:(sys.dwidth-100)/2,marginLeft:100/4}}
+    tabBarBackgroundColor='#FFFFFF'
+    tabBarActiveTextColor={sys.mainColor}
+    tabBarInactiveTextColor='#333333'
+    tabBarTextStyle={{fontSize: 15}}
+>
+            <QuWei ref="QuWei" lodaData={()=>this.getRateList(0)} datalist={this.state.newlist}  onPress={()=>this.buyClick(0)}
+            visible={this.state.visible}
+            currFullExpect={this.state.currFullExpect}
+            viewHeight={sys.zhongjianIsHaveChange}
+            params={this.props.navigation.state} navigation={this.props.navigation} tabLabel='趣味'>趣味</QuWei>
+            <RenXuan ref="RenXuan" lodaData={()=>this.getRateList(0)} viewHeight={sys.zhongjianIsHaveChange} 
+            visible={this.state.visible}
+            datalist={this.state.newlist}   onPress={()=>this.buyClick(1)}
+            currFullExpect={this.state.currFullExpect}  
+            params={this.props.navigation.state} navigation={this.props.navigation} tabLabel='任选'>任选</RenXuan>
+        
+        </ScrollableTabView>
+
+
+            <ActionButton
+                buttonColor="rgba(231,76,60,1)"   offsetY={80} offsetX={10} position='right'
+                onPress={() => {
+                    this.rightViewClick();
+                }}
+                renderIcon={() => (<View >
+                    <Text style={{color:'white',lineHeight:18,fontSize:14,textAlign:'center'}}>记录</Text>
+                </View>)}
+            />
+        </View>
+
+        <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                /> 
+
+            </EZSideMenu>
+
+}
+
+
+}
+
+
+
+
+
+
+

@@ -1,0 +1,851 @@
+//
+//  Created by Liu Jinyong on 17/4/5.
+//  Copyright © 2016年 Liu Jinyong. All rights reserved.
+//
+//  @flow
+//  Github:
+//  https://github.com/huanxsd/react-native-refresh-list-view
+
+import React, {Component} from 'react'
+import {View, StyleSheet, Text, Platform,NativeModules,ScrollView,Image,TouchableOpacity,DeviceEventEmitter,Keyboard,
+TextInput} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import Cell from './Cell'
+import {sys,NoDataView,isIphoneX} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+import FcusImage from './HeadView';
+import RNLogin from "../common/RNLoginModule"
+import DialogSelected from '../common/AlertSelect';
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+import { Header } from 'react-navigation';
+import Alert from '../common/Alert';
+
+const { StatusBarManager } = NativeModules;
+
+let recordWidth = sys.dwidth;
+
+var clickLastTime=0;
+
+export default class HongbaoDetail extends Component {
+
+    // static  navigationOptions = ({navigation}) => ({
+        
+    //     headerTitle:"我的红包",
+    //     headerTitleStyle:{
+    //         alignSelf:'center',
+    //         flex: 1,
+    //         textAlign: 'center',
+            
+    //     },
+    //     headerRight: <View />
+    // });
+
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+
+        var titStr = "我的红包"
+
+
+        if (params.hongbaoNum == 1 || params.hongbaoNum == 2 ||params.hongbaoNum==3) {
+            titStr = '我收的红包'
+        } else {
+            titStr = '我发的红包' 
+        }
+
+
+        if (Platform.OS=='ios') {
+            var leftView = <TouchableOpacity
+            onPress={() => {
+                 navigation.goBack()
+            }}
+
+            style={{width:50}}
+
+            >
+
+           <Image
+            source={require('../res/images/iosfanhui.png')}
+            style={{marginLeft:10,marginTop:0}}
+            />
+
+            </TouchableOpacity>
+
+            return {
+                title: titStr,
+                headerTitleStyle:{
+                    alignSelf:'center',
+                    flex: 1,
+                    textAlign: 'center',
+                    
+                },
+                
+                
+                headerRight: <View />,
+                headerLeft:leftView
+            }
+
+        }
+
+        return {
+        title: titStr,
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            
+        },
+        
+        
+        headerRight: <View />
+
+    }
+};
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:20,
+            noNetwork:false,
+            noData:true,
+            hongbaoPrice:'',
+            hongbaoNum:'',
+            beizhuStr:'恭喜发财，大吉大利',
+            balance:'0',
+            userId:'',
+            lingquMoney:'0'
+        }
+    }
+
+ 
+
+
+    componentDidMount(){
+
+
+
+        if (this.props.navigation.state.params.hongbaoNum==1) {
+            storage.load('islogin', (dic) => {
+                if (dic != "" && dic != null) {
+            
+                    this.setState({
+                        userId:dic['id'],
+                    })
+    
+                }
+            })
+    
+            this.getPersonInfo(0)
+        } else if (this.props.navigation.state.params.hongbaoNum==2) {
+
+            // this.caiHongbao(this.props.navigation.state.params.hongbaoId)
+
+
+        } else if (this.props.navigation.state.params.hongbaoNum==3) { //我收到的红包
+
+            storage.load('islogin', (dic) => {
+                if (dic != "" && dic != null) {
+            
+                    this.setState({
+                        userId:dic['id'],
+                    })
+    
+                }
+            })
+    
+            this.getPersonInfo(0)
+
+            this.linghongbaoList(true)
+
+
+        } else { //我发的红包
+
+            
+            this.fahongbaoList(true)
+
+
+        }
+
+        
+
+    }
+
+
+    onHeaderRefresh = () => {
+
+        this.setState(
+            {
+                currentPage:1,
+                refreshState: RefreshState.HeaderRefreshing,
+            },()=>{
+
+
+                if (this.props.navigation.state.params.hongbaoNum==3) { //我收到的红包
+
+                    this.linghongbaoList(true)
+        
+        
+                } else if (this.props.navigation.state.params.hongbaoNum==4){ //我发的红包
+        
+                    
+                    this.fahongbaoList(true)
+        
+        
+                }
+
+            })
+
+
+    }
+
+    onFooterRefresh = () => {
+
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        },()=>{
+
+            if (this.props.navigation.state.params.hongbaoNum==3) { //我收到的红包
+
+                this.linghongbaoList(false)
+    
+    
+            } else if (this.props.navigation.state.params.hongbaoNum==4){ //我发的红包
+    
+                
+                this.fahongbaoList(false)
+    
+    
+            }
+        })
+    }
+
+
+
+    fahongbaoList(isReload){
+      
+        let codeurl = sys.host + '/AppChat.fahongbaoList.do';
+
+
+        let formData = new FormData();
+
+        formData.append('page ',this.state.currentPage);
+
+        formData.append('pagesize ',10);
+
+        this.setState({
+            isloading:true
+        })
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+
+                console.log('result')
+                console.log(result)
+
+                let testData = result['rows'];
+
+                let newList = testData.map((data) => {
+                    return {
+                        id: data["id"],
+                        money: data["money"],
+                        comment: data["comment"],
+                        sendTime: data["sendTime"],
+                        sendUsername: data["sendUsername"],
+                        num:data['num']
+                    }
+                });
+
+                let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+                // this.state.currentPage = parseInt(dataList.length/this.state.pageSize)+2;
+
+                if (newList.length) {
+                    this.state.currentPage++
+                }
+            
+                this.setState({
+                    dataList: dataList,
+                    isloading:false,
+                    refreshState: (dataList.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                })
+
+            })
+            .catch(error=>{
+                //Alert.alert(error)
+                this.setState({
+                    isloading:false,
+                    refreshState: RefreshState.Idle,
+                })
+
+            })
+    }
+
+
+    linghongbaoList(isReload){
+        let codeurl = sys.host + '/AppChat.linghongbaoList.do';
+
+
+        let formData = new FormData();
+
+        formData.append('page ',this.state.currentPage);
+
+        formData.append('pagesize ',10);
+
+        this.setState({
+            isloading:true
+        })
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+
+                // console.log('result')
+                // console.log(result)
+
+                let testData = result['rows'];
+
+                let newList = testData.map((data) => {
+                    return {
+                        id: data["id"],
+                        money: data["money"],
+                        time: data["time"],
+                        sendUsername: data["sendUsername"],
+                        sendUid: data["sendUid"],
+                    }
+                });
+
+                let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+                // this.state.currentPage = parseInt(dataList.length/this.state.pageSize)+2;
+            
+                if (newList.length) {
+                    this.state.currentPage++
+                }
+
+                this.setState({
+                    dataList: dataList,
+                    isloading:false,
+                    refreshState: (dataList.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                })
+
+            })
+            .catch(error=>{
+                //Alert.alert(error)
+                this.setState({
+                    isloading:false,
+                    refreshState: RefreshState.Idle,
+                })
+
+            })
+    }
+
+    // caiHongbao(idStr) {
+    //     let codeurl = sys.host + '/AppChat.hongbaoDetail.do';
+    //     let formData = new FormData();
+    //     formData.append('id',idStr);
+    //     HttpUtils.post(codeurl,formData)
+    //         .then(result=>{
+
+    //             //  Pop.hide()
+
+    //             if(result['respCode']==1){  
+                        
+
+    //                 // console.log('result')
+    //                 // console.log(result['data']['isLingqu'])
+
+    //                 let isLingqu = result['data']['isLingqu']
+
+    //                 if (isLingqu) {
+
+
+    //                     this.setState({
+    //                         dataList:result['data']['list']
+    //                     })
+                        
+
+    //                 } else {
+                       
+    //                 }
+
+                    
+
+    //             }else{
+                    
+    //                 myThis.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+
+    //             }
+    //         })
+    //         .catch(error=>{
+        
+    //              myThis.refs.toast.show(error, DURATION.LENGTH_LONG);
+
+
+    //         })
+    // }
+
+
+
+    getPersonInfo(num){
+        let codeurl = host + '/AppMember.index.do';
+        let formData = new FormData();
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){  
+                    let dic = result['data'];
+                  
+                    this.setState({
+                        userId:dic['id'],
+                    })
+
+                    storage.save('islogin',dic)
+                      
+                }else{
+                    
+                }
+            })
+            .catch(error=>{
+              
+                if(num<=0){
+                    this.getPersonInfo(++num);
+                }
+            })
+    }
+
+    
+    render() {
+
+
+        if (this.props.navigation.state.params.hongbaoNum==1) { //已经领取过的红包详情
+
+
+            var moneyNum=0
+            for(var i=0;i<this.props.navigation.state.params.dataArr.length;i++) {
+
+                var hongbao = this.props.navigation.state.params.dataArr[i] 
+
+                if (this.state.userId == hongbao['uid']) {
+                    var money = parseFloat(hongbao["money"])
+                    moneyNum = moneyNum+money
+                }
+            }
+
+
+            var scrollViewH = sys.dheight -Header.HEIGHT - (Platform.OS=='ios'?(isIphoneX()?48:0):StatusBarManager.HEIGHT+10)
+
+
+            let topView = null;
+            if (moneyNum>0) {
+                topView = <View style={{width:sys.dwidth,height:50}}>
+
+                <Text style={{marginLeft:10,marginTop:20,fontSize:20,width:sys.dwidth-20,textAlign:'center',color:sys.titleColor}}>
+                    恭喜您抢到红包:<Text style={{color:sys.mainColor}}>{moneyNum+'元'}</Text>
+                </Text>
+
+                {/* <Text style={{marginLeft:10,marginTop:20,fontSize:15,width:sys.dwidth-20,textAlign:'center'
+                ,color:sys.mainColor
+                 }}>{moneyNum+'元'}</Text> */}
+
+                </View>
+            }
+
+            let contentView = <ScrollView style={{
+                backgroundColor:sys.whiteColor,
+                width:sys.dwidth,
+                height:scrollViewH
+            }}>
+
+                {topView}
+
+
+                <View style={{// 主轴方向
+                            marginTop:10,
+                            height:30,
+                            flexDirection:'row',
+                            //  justifyContent: 'space-between',
+                            // 一行显示不下,换一行
+                            flexWrap:'wrap',
+                            // 侧轴方向
+                            width:sys.dwidth,
+                            alignItems:'center',}}
+                         >
+                           <Text style={{color:sys.titleColor,textAlign:'center',textAlignVertical:'center',height:30,
+                            marginLeft:0,width:sys.dwidth/4,...Platform.select({
+                                ios: { lineHeight: 30},
+                                android: {}
+                            })}
+                            }>用户</Text>   
+                            <Text style={{color:sys.titleColor,textAlign:'center',textAlignVertical:'center',height:30,
+                            marginLeft:0,width:sys.dwidth/4,...Platform.select({
+                                ios: { lineHeight: 30},
+                                android: {}
+                            })}
+                            }>金额</Text> 
+
+                           <Text style={{color:sys.titleColor,textAlign:'center',textAlignVertical:'center',height:30,
+                            marginLeft:0,width:sys.dwidth/2,...Platform.select({
+                                ios: { lineHeight: 30},
+                                android: {}
+                            })}
+                            }>时间</Text> 
+                        </View>
+
+                        <View style={{height:1,width:sys.dwidth,backgroundColor:sys.grayColor}}></View>
+
+                {this.props.navigation.state.params.dataArr.map((info, index) => {
+
+
+                    let userName = info['username']
+
+                    if (this.state.userId != info['uid']) {
+                        if (userName.length>=6) {
+  
+                      
+                            // userName = userName.substring(0,2)+'***'+userName.substring(userName.length-2,userName.length);
+
+                            userName = userName.substring(0,4)+'***';
+                    
+                          }
+                    }
+
+                    // console.log('this.state.userId')
+
+                    // console.log(this.state.userId)
+
+                    // console.log(info)
+
+                    return (
+
+                        <View>
+                        <View style={{// 主轴方向
+                            marginTop:10,
+                            height:30,
+                            flexDirection:'row',
+                            //  justifyContent: 'space-between',
+                            // 一行显示不下,换一行
+                            flexWrap:'wrap',
+                            // 侧轴方向
+                            width:sys.dwidth,
+                            alignItems:'center',}}
+                            key={index}
+                         >
+                           <Text style={{color:sys.titleColor,textAlign:'center',textAlignVertical:'center',height:30,
+                            marginLeft:0,width:sys.dwidth/4,...Platform.select({
+                                ios: { lineHeight: 30},
+                                android: {}
+                            })}
+                            }>{userName}</Text>   
+                            <Text style={{color:sys.titleColor,textAlign:'center',textAlignVertical:'center',height:30,
+                            marginLeft:0,width:sys.dwidth/4,...Platform.select({
+                                ios: { lineHeight: 30},
+                                android: {}
+                            })}
+                            }>{info['money']+'元'}</Text> 
+
+                           <Text style={{color:sys.titleColor,textAlign:'center',textAlignVertical:'center',height:30,
+                            marginLeft:0,width:sys.dwidth/2,...Platform.select({
+                                ios: { lineHeight: 30},
+                                android: {}
+                            })}
+                            }>{info['time']}</Text> 
+                        </View>
+
+                        <View style={{height:1,width:sys.dwidth,backgroundColor:sys.grayColor}}></View>
+
+                        </View>
+                    );
+                })}
+
+            </ScrollView>
+
+
+            return (contentView)
+  
+        } else if (this.props.navigation.state.params.hongbaoNum==2) { //开启红包
+        
+
+            var scrollViewH = sys.dheight -Header.HEIGHT - (Platform.OS=='ios'?(isIphoneX()?48:0):StatusBarManager.HEIGHT+10)
+
+
+            let contentView = <ScrollView style={{
+                backgroundColor:sys.whiteColor,
+                width:sys.dwidth,
+                height:scrollViewH
+            }}>
+
+                <View style={{width:sys.dwidth,height:50}}>
+
+                    <Text style={{marginLeft:10,marginTop:20,fontSize:20,width:sys.dwidth-20,textAlign:'center',color:sys.titleColor}}>
+                        恭喜您抢到红包:<Text style={{color:sys.mainColor}}>{this.props.navigation.state.params.dataMoney+'元'}</Text>
+                    </Text>
+
+                    {/* <Text style={{marginLeft:10,marginTop:20,fontSize:15,width:sys.dwidth-20,textAlign:'center'
+                    ,color:sys.mainColor
+                     }}>{moneyNum+'元'}</Text> */}
+
+                </View>
+
+            </ScrollView>
+
+
+            return (contentView)
+
+        } else if (this.props.navigation.state.params.hongbaoNum==3) { //我收到的红包
+
+
+
+            // console.log('this.state.dataList')
+
+            // console.log(this.state.dataList)
+
+            let showView = this.state.dataList.length?
+            <RefreshListView
+                data={this.state.dataList}
+                keyExtractor={this.keyExtractor}
+                renderItem={this.renderLinghongbaoCell}
+                refreshState={this.state.refreshState}
+                onHeaderRefresh={this.onHeaderRefresh}
+                onFooterRefresh={this.onFooterRefresh}
+                numColumns ={1}
+                // ListHeaderComponent={this.renderHeadView}
+                // horizontal={false}
+                //ItemSeparatorComponent={this._separator}
+                // 可选
+                footerRefreshingText= '玩命加载中 >.<'
+                footerFailureText = '我擦嘞，居然失败了 =.=!'
+                footerNoMoreDataText= '-我是有底线的-'
+            />
+            :<NoDataView click={()=>this.linghongbaoList(true)}
+                         isloading = {this.state.isloading}
+                         text = {"点击重新加载"}
+        />
+
+            return(
+                <View style={{marginTop:1,width:recordWidth,height:'100%',backgroundColor:'white'}}>
+
+                {/* {this.renderHeadView()} */}
+                {showView}
+
+                <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                />   
+            </View>
+            )
+
+
+        } else { //我发的红包
+
+
+            // console.log('this.state.dataList')
+
+            // console.log(this.state.dataList)
+
+            let showView = this.state.dataList.length?
+            <RefreshListView
+                data={this.state.dataList}
+                keyExtractor={this.keyExtractor}
+                renderItem={this.renderFahongbaoCell}
+                refreshState={this.state.refreshState}
+                onHeaderRefresh={this.onHeaderRefresh}
+                onFooterRefresh={this.onFooterRefresh}
+                numColumns ={1}
+                // ListHeaderComponent={this.renderHeadView}
+                // horizontal={false}
+                //ItemSeparatorComponent={this._separator}
+                // 可选
+                footerRefreshingText= '玩命加载中 >.<'
+                footerFailureText = '我擦嘞，居然失败了 =.=!'
+                footerNoMoreDataText= '-我是有底线的-'
+            />
+            :<NoDataView click={()=>this.fahongbaoList(true)}
+                         isloading = {this.state.isloading}
+                         text = {"点击重新加载"}
+        />
+
+        return(
+            <View style={{marginTop:1,width:recordWidth,height:'100%',backgroundColor:'white'}}>
+
+            {/* {this.renderHeadView()} */}
+            {showView}
+
+            <Toast  //提示
+                ref="toast"
+                style={{backgroundColor:'gray'}}
+                position='center'
+                positionValue={200}
+                opacity={0.6}
+                textStyle={{color:'white'}}
+            />   
+            </View>
+            )
+        }
+
+
+
+
+        
+
+    }
+
+   renderHeadView(){
+
+   }
+    
+
+   renderLinghongbaoCell = (item) => {
+
+    return this.linghongbaoView(item.index)
+   }
+
+   renderFahongbaoCell = (item) => {
+
+    return this.fahongbaoView(item.index)
+   }
+
+
+
+   fahongbaoView(index) {
+
+    var follow = this.state.dataList[index];
+
+    // id: data["id"],
+    //                     money: data["money"],
+    //                     comment: data["comment"],
+    //                     sendTime: data["sendTime"],
+    //                     sendUsername: data["sendUsername"],
+    //                     num:data['num']
+
+    return <View>
+    <View style={{flexDirection:'row',width:sys.dwidth}}>
+         
+         <View style={{height:60,width:sys.dwidth*3/4}}>
+            
+            <Text style={{color:sys.titleColor,textAlign:'left',textAlignVertical:'center',height:30,
+                            marginLeft:10,width:sys.dwidth*3/4-10,...Platform.select({
+                                ios: { lineHeight: 30},
+                                android: {}
+                            })}}>{follow['sendUsername']}</Text>
+            <Text style={{color:sys.titleColor,textAlign:'left',textAlignVertical:'center',height:30,
+            marginLeft:10,width:sys.dwidth*3/4-10,...Platform.select({
+                ios: { lineHeight: 30},
+                android: {}
+            })}}>{follow['sendTime']}</Text>
+
+         </View>
+
+
+         <View style={{height:60,width:sys.dwidth*1/4}}>
+            
+            <Text style={{color:sys.titleColor,textAlign:'right',textAlignVertical:'center',height:30,
+                            marginLeft:0,width:sys.dwidth*1/4-10,...Platform.select({
+                                ios: { lineHeight: 30},
+                                android: {}
+                            })}}><Text style={{color:sys.mainColor}}>{follow['money']}</Text>元</Text>
+            <Text style={{color:sys.titleColor,textAlign:'right',textAlignVertical:'center',height:30,
+            marginLeft:0,width:sys.dwidth*1/4-10,...Platform.select({
+                ios: { lineHeight: 30},
+                android: {}
+            })}}>{follow['num']+'个'}</Text>
+
+         </View>
+
+    </View>
+
+    <View style={{height:1,width:sys.dwidth,backgroundColor:sys.grayColor}}></View>
+    </View>
+
+   }
+
+   linghongbaoView(index){
+
+    var follow = this.state.dataList[index];
+
+
+
+    // console.log('follow')
+
+    // console.log(follow)
+
+    let userName = follow['sendUsername']
+
+    if (this.state.userId != follow['sendUid']) {
+        if (userName.length>=6) {
+
+      
+            // userName = userName.substring(0,2)+'***'+userName.substring(userName.length-2,userName.length);
+
+            userName = userName.substring(0,4)+'***';
+    
+          }
+    }
+
+    // id: data["id"],
+    // money: data["money"],
+    // time: data["time"],
+    // sendUsername: data["sendUsername"],
+
+
+
+    return <View>
+    <View style={{flexDirection:'row',width:sys.dwidth}}>
+         
+         <View style={{height:60,width:sys.dwidth*3/4}}>
+            
+            <Text style={{color:sys.titleColor,textAlign:'left',textAlignVertical:'center',height:30,
+                            marginLeft:10,width:sys.dwidth*3/4-10,...Platform.select({
+                                ios: { lineHeight: 30},
+                                android: {}
+                            })}}>{userName}</Text>
+            <Text style={{color:sys.titleColor,textAlign:'left',textAlignVertical:'center',height:30,
+            marginLeft:10,width:sys.dwidth*3/4-10,...Platform.select({
+                ios: { lineHeight: 30},
+                android: {}
+            })}}>{follow['time']}</Text>
+
+         </View>
+
+
+         <Text style={{color:sys.titleColor,textAlign:'right',textAlignVertical:'center',height:60,
+            marginLeft:0,width:sys.dwidth*1/4-10,...Platform.select({
+                ios: { lineHeight: 60},
+                android: {}
+            })}}><Text style={{color:sys.mainColor}}>{follow['money']}</Text>元</Text>
+
+
+    </View>
+
+    <View style={{height:1,width:sys.dwidth,backgroundColor:sys.grayColor}}></View>
+    </View>
+
+   }
+
+  
+
+
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:sys.grayColor,
+
+    },
+    headView:{
+       width:sys.dwidth,
+       height:sys.dwidth/3
+    }
+})
+
+

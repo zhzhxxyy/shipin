@@ -1,0 +1,136 @@
+import React, {Component} from 'react';
+import {
+    StyleSheet,
+    View,
+    Text,
+    WebView,
+    BackHandler,
+} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { sys } from '../common/Data';
+
+class WebLoadingView extends Component {
+
+    render() {
+        return (
+            <View style={{flex:1,justifyContent:'center',
+                alignItems:'center',backgroundColor:'#f2f2f2'}}>
+                <Text style={styles.loadingText}>
+                    页面正在加载...
+                </Text>
+            </View>
+        )
+    }
+}
+
+
+export default class WebViewScene extends Component {
+
+
+
+    // static navigationOptions = ({navigation}) => ({
+    //     header:null
+    // });
+
+    // 构造
+    constructor(props) {
+        super(props);
+        // 初始状态
+        this.state = {
+            url: "",
+            title: "宗隐",
+            loading: true,
+            isBackButtonEnable: false,
+            isForwardButtonEnable: false
+        };
+    }
+
+    componentDidMount() {
+
+        BackHandler.addEventListener("webHardwareBackPress", ()=> {
+            try {
+                if (this.state.isBackButtonEnable) {
+                    this.refs._webView.goBack();//返回上一个页面
+                    return true;//true 系统不再处理 false交给系统处理
+                }
+            } catch (error) {
+                return false;
+            }
+            return false;
+        })
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener("webHardwareBackPress");
+    }
+
+    render() {
+        const {params} = this.props.navigation.state;
+
+        this.props.navigation.headerTitle = params.uri.title
+        return (
+            <View  style={{flex:1}}>
+            <View style={styles.top}></View>
+            {/* <View style={styles.container}> */}
+
+                <WebView
+                    style={styles.webView}
+                    ref="_webView"
+                    title={params.uri.title}
+                    source={{uri:params.uri.content}}//获取url参数
+                    automaticallyAdjustContent Insets={true}
+                    domStorageEnabled={true}
+                    javaScriptEnabled={true}
+                    scalesPageToFit={true}
+                    startInLoadingState={true}
+                    renderLoading={()=>{return <WebLoadingView/>}}
+                    onNavigationStateChange={this._onNavigationStateChange.bind(this)}
+                />
+                </View>
+                // </View>
+        )
+    }
+
+    //WebView导航状态改变
+    _onNavigationStateChange(navState) {
+
+        this.setState({
+            url: navState.url,
+            title:  "",
+            loading: navState.loading,
+            isBackButtonEnable: navState.canGoBack,
+            isForwardButtonEnable: navState.canGoForward,
+        })
+    }
+
+}
+
+const styles = StyleSheet.create({
+
+
+    top: {
+        top:0,
+
+        width:sys.dwidth,
+        height:50,
+        backgroundColor: "red",
+    },
+
+    container: {
+   
+
+        width:sys.dwidth,
+        height:400,
+        backgroundColor: "red",
+    },
+    webview: {
+       
+        backgroundColor: "red",
+        width:sys.dwidth,
+        height:400
+    },
+    loadingText: {
+        color: '#8a8a8a',
+        fontSize: 16
+    }
+})

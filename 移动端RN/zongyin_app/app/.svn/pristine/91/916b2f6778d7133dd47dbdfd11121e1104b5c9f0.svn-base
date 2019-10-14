@@ -1,0 +1,2369 @@
+import React, { Component } from 'react';
+import {
+    Platform,
+    StyleSheet,
+    Alert,
+    View,
+    StatusBar,
+    Image,
+    PermissionsAndroid,
+    Text,
+    DeviceEventEmitter,
+    AppState,
+    ActivityIndicator,
+    TouchableOpacity,
+    Keyboard
+} from 'react-native';
+
+// import {AudioRecorder, AudioUtils} from 'react-native-audio'
+// import RNFS from 'react-native-fs'
+// import Sound from 'react-native-sound'
+import {BuySureAlert} from "../home/common/CommonViewButton"
+
+
+import {sys,NoDataView,TitleHeadView,isIphoneX} from "../common/Data"
+
+import { ChatScreen } from 'react-native-easy-chat-ui'
+import HttpUtils from "../common/HttpUtil"
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+import Pop from 'rn-global-modal'
+
+
+var Buffer = require('buffer').Buffer;
+
+
+var xiazhuData;
+
+var ImagePicker = require('react-native-image-picker');
+const webSocketUrl = sys.webSocketUrl;
+// var ws = null;
+var myThis;
+
+var sendChatTime='';
+
+export default class ChatView extends Component {
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+
+
+        if (Platform.OS=='ios') {
+            var leftView = <TouchableOpacity
+            onPress={() => {
+                 navigation.goBack()
+            }}
+
+            style={{width:50}}
+
+            >
+
+           <Image
+            source={require('../res/images/iosfanhui.png')}
+            style={{marginLeft:10,marginTop:0}}
+            />
+
+            </TouchableOpacity>
+
+            return {
+                title: params.item.title?params.item.title:'聊天室',
+                headerRight:React.createElement(View, null, null),
+                headerTitleStyle:{
+                    alignSelf:'center',
+                    flex: 1,
+                    textAlign: 'center',
+                },
+                 headerLeft:leftView
+            }
+
+        }
+
+
+        return {
+            title: params.item.title?params.item.title:'聊天室',
+            headerRight:React.createElement(View, null, null),
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+            },
+            // headerLeft:leftView
+        }
+    };
+
+    
+    constructor(props) {
+        super(props);
+        const { params } = this.props.navigation.state;
+        this.state = {
+            lianjiestate:global.lianjiestate,//鏈接狀態 0 表示未鏈接 1 鏈接中  2 鏈接成功 3鏈接失敗 4.鏈接關閉
+            getUserInfotate:0,//獲取用戶信息狀態 0未獲取 1獲取中 2 獲取成功 3獲取失敗
+            title:params.item.title,
+            id:params.item.id,
+            code:params.item.typeid,
+            userInfo:params.item.userInfo,//用户信息
+            token:params.item.token,
+            currentPage:0,
+            pageSize:5,
+            messageList:[],
+            msg: {
+                friend_12345678: {
+                    messages: [],
+                    inverted: false,  // require
+                    nofresh:false,
+                }
+            },
+            voiceHandle: true,
+            currentTime: 0,
+            recording: false,
+            paused: false,
+            stoppedRecording: false,
+            finished: false,
+            audioPath: '',
+            blance:'',
+
+            bendiUseName:'',
+
+            isManage:false,
+            atMessge:[],
+
+            isXiaLa:false,
+
+            isOne:true,
+            isFasong:false
+           
+        }
+    }
+
+
+    
+    wsaction() {
+
+        storage.load(sys.host + '/AppChat.publicMsgLog.do'+myThis.state.title, (dic) => {
+            if(dic!=''){
+
+                this.setState({msg :dic})
+            }
+         })
+
+        const { params } = this.props.navigation.state;
+        this.state.getUserInfotate=0;
+        if(params.item.typeid==null||params.item.typeid==""){
+            this.openNewSocket();
+            this.getUserInfo();
+
+        }else{
+            this.state.getUserInfotate=2;
+            this.publicMsgLog(0);
+            this.openNewSocket();
+        }   
+
+    }
+
+
+    componentDidMount() {//掛載
+        this.wsaction()  
+        AppState.addEventListener('change', this.handleAppStateChange);
+    }
+
+    
+    componentWillUnmount(){//销毁
+        if (myThis.state.title=='客服') {
+            myThis.getChatReadData();
+        }
+        AppState.removeEventListener('change', this.handleAppStateChange);
+        // ws.close();
+    }
+
+     //状态改变响应
+     handleAppStateChange(appState) {
+
+        if(appState == 'active'){
+            // myThis.refs.toast.show("连接中"+global.lianjiestate, DURATION.LENGTH_LONG);
+            if(global.lianjiestate!=2){
+                
+                try {
+                    myThis.openNewSocket()
+                } catch (error) {
+                    Alert.alert(error);
+                }
+            }else {
+                myThis.closeSocket();
+                myThis.openNewSocket()
+            }
+        }
+
+    }
+
+    getChatReadData(){
+
+        DeviceEventEmitter.emit('Read', {});
+        let codeurl = sys.host + "/AppChat.readRoom.do"
+        let formData = new FormData();
+        formData.append('room',this.state.code)
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                
+        })
+        .catch(error=>{
+        
+               
+        })        
+    }
+
+
+
+    deepCopy(obj) {
+        var result = Array.isArray(obj) ? [] : {};
+        for (var key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            if (typeof obj[key] === 'object') {
+              result[key] = this.deepCopy(obj[key]);   //递归复制
+            } else {
+              result[key] = obj[key];
+            }
+          }
+        }
+        return result;
+      }
+
+
+    //新建鏈接
+    openNewSocket(){
+         //未鏈接或鏈接失敗時候 鏈接
+            this.state.lianjiestate=1;
+
+             global.ws = new WebSocket(sys.webSocketUrl);
+             ws.onopen = () => {
+                global.lianjiestate = 2;
+                this.state.lianjiestate=2;
+                
+                    this.bindUser();
+                    this.joinRoom();
+            
+            };
+
+
+        ws.onmessage = (evt) => {
+
+           // console.log('msgmsgmsgmsg')      
+            var data = null;
+            // console.log(evt)          
+            // console.log(evt.data)
+
+            try {
+                data = JSON.parse(evt.data);
+            } catch (error) {
+
+                return;
+                
+            }
+
+            switch (data.code) {
+
+
+            case 'chehuiChat':
+
+                if (data.data.respCode == 1) {
+
+
+                    for(var i=0;i<this.state.msg.friend_12345678.messages.length;i++) {
+                        newMsg = this.state.msg.friend_12345678.messages[i]
+    
+                        if (newMsg.id == data.data.data.id) {
+    
+                            this.state.msg.friend_12345678.messages.splice(i,1)
+                           // newMsg.sendStatus = 1;
+                            this.setState({msg : this.state.msg})
+                            
+    
+                            break;
+                        }
+                    }
+
+
+                    
+                }
+
+                break;
+            case 'lockChat':
+
+                if (data.data.respCode == 1) {
+                    myThis.refs.toast.show(data.data.respMsg, DURATION.LENGTH_LONG)
+                }
+
+                break;
+            //群聊消息
+            case 'publicMsg':
+
+
+                myThis.state.isFasong = false
+
+              if(data.data.room!=this.state.code){
+                  //不是该房间号的话
+                  return false;
+              }
+              if(this.state.userInfo==null){
+                  return false;
+              }
+              var msg=this.getMsgItemData(data.data,this.state.userInfo.id);
+              
+            if (msg.per.hasOwnProperty('tag')) {
+
+                if (msg.per.tag != null && msg.per.tag != '') {
+                    var isCunzai = false;
+                    for(var i=0;i<this.state.msg.friend_12345678.messages.length;i++) {
+                        var newMsg = this.state.msg.friend_12345678.messages[i]
+    
+                        if (newMsg.per.tag == msg.per.tag) {
+
+                            if (msg.per.type == 'image') {
+                                msg.per.content.uri = newMsg.per.content.uri
+                            }
+
+
+                            myThis.oneMsgTimeShow(msg)
+
+
+                            // msg.renderTime = newMsg.renderTime;
+
+                            this.state.msg.friend_12345678.messages.splice(i,1,msg)
+                           // newMsg.sendStatus = 1;
+                            this.setState({msg : this.state.msg})
+                            isCunzai = true
+                             break;
+                        }
+                    }
+    
+                    if (!isCunzai) {
+    
+                        myThis.oneMsgTimeShow(msg)
+
+                        this.state.msg.friend_12345678.messages.push(msg)
+
+
+                        if (this.state.msg.friend_12345678.messages.length>200) {
+                            this.state.msg.friend_12345678.messages.splice(0,this.state.msg.friend_12345678.messages.length - 200)
+                        }
+
+                         this.setState({msg : this.state.msg})
+                    }
+
+
+                } else {
+                    
+                    myThis.oneMsgTimeShow(msg)
+
+                    this.state.msg.friend_12345678.messages.push(msg)
+
+                    if (this.state.msg.friend_12345678.messages.length>200) {
+                        this.state.msg.friend_12345678.messages.splice(0,this.state.msg.friend_12345678.messages.length - 200)
+                    }
+
+                     this.setState({msg : this.state.msg})
+                }
+
+
+                // for(var i=0;i<this.state.msg.friend_12345678.messages.length;i++) {
+                //     var newMsg = this.state.msg.friend_12345678.messages[i]
+                
+                //     console.log('newMsg.sendStatus')
+
+                //     console.log(newMsg.sendStatus)
+
+                    
+
+                //     if (newMsg.sendStatus != 1) {
+                //         this.state.msg.friend_12345678.messages.splice(i,1)
+                //         i= i-1
+                //     }
+                // }
+
+
+                // this.setState({msg : this.state.msg})
+
+
+              } else {
+
+                myThis.oneMsgTimeShow(msg)
+
+                this.state.msg.friend_12345678.messages.push(msg)
+
+                if (this.state.msg.friend_12345678.messages.length>200) {
+                    this.state.msg.friend_12345678.messages.splice(0,this.state.msg.friend_12345678.messages.length - 200)
+                }
+
+                this.setState({msg : this.state.msg})
+
+              }
+
+
+              
+                break;
+            //计划消息
+            case 'publicMsg_plan':
+                //Alert.alert("计划消息")
+                break;
+            //群聊弹幕消息
+            case 'tanmuPublicMsg':
+               // Alert.alert("弹幕消息")
+                break;
+            //被封禁
+            case 'close':
+               // Alert.alert("聊天室已关闭")
+                break;
+            //会员加入
+            case 'join':
+                // Alert.alert("会员加入")
+                break;
+            //ping服务端，防断开
+            case 'ping':
+                send("Ping.ping", {});
+                break;
+            //通用失败弹窗消息
+            case 'fail':
+               // Alert.alert(data.data.msg)
+          
+               for(var i=0;i<this.state.msg.friend_12345678.messages.length;i++) {
+                newMsg = this.state.msg.friend_12345678.messages[i]
+
+                myThis.state.isFasong = false
+
+                if (newMsg.per.tag == data.data.tag) {
+
+                    let failMsg = this.deepCopy(newMsg)
+                    failMsg.sendStatus = -2;
+                    this.state.msg.friend_12345678.messages.splice(i,1,failMsg)
+                   // newMsg.sendStatus = 1;
+                    this.setState({msg : this.state.msg})
+                    // isCunzai = true
+                    break;
+                }
+                myThis.refs.toast.show(data.data.msg, DURATION.LENGTH_LONG)
+
+                
+            }
+
+                break;
+            //领取红包结果通知
+            case 'hongbaoPull':
+                if (data.data.isPull == 1) {
+                  //  Alert.alert("已领到红包")
+
+                } else if (data.data.isPull == 0) {
+                  //  Alert.alert("查看红包")
+                }
+                break;
+            //收到在线人数变化通知
+            case 'onlineNotify':
+                // Alert.alert("在线人数变化")
+                break;
+            //收到房间不存在
+            case 'roomNotExists':
+              //  Alert.alert("聊天室不存在")
+                break;
+                //客服
+            case 'kefu':
+            if(data.data.room!=this.state.code){
+                //不是该房间号的话
+                DeviceEventEmitter.emit('unRead', {});
+                return false;
+            }
+            break;
+            case 'oneMsg':
+
+
+
+
+                break
+                // var msg = {
+                //     id: `${new Date().getTime()}`,
+                //     per: {
+
+                //         type: 'text',
+                //         content: data.data.text
+                //     } ,
+                //     targetId: '12345678',
+                //     chatInfo: {
+                //         avatar: require('./images/avatar.png'),
+                //         id: '12345678'
+                //     },
+                //     renderTime: true,
+                //     sendStatus: -2,
+                //     time: new Date().getTime()
+                // }
+
+                // this.state.msg.friend_12345678.messages.push(msg)
+
+                // this.setState({
+                //     msg : this.state.msg
+                // })
+                // break
+        }
+    };
+
+    }
+    //綁定用戶
+    bindUser(){  
+        this.wsSendMessage("User.bind")
+    }
+    //加入房間
+    joinRoom(){
+        this.wsSendMessage("Room.join")
+      
+    }
+
+    //獲取個人信息
+    getUserInfo(){        
+ 
+        storage.load('islogin',(userInfo)=>{
+
+            storage.load('youkeChat',(youkeChat)=>{
+
+                if (userInfo != "" && userInfo != null) {
+            
+                    myThis.setState({
+                        bendiUseName:userInfo['username'],
+                    })
+    
+                } else {
+                    if (youkeChat != "" && youkeChat != null) {
+            
+                        myThis.setState({
+                            bendiUseName:youkeChat.userInfo['username'],
+                        })
+        
+                    }
+                }
+
+                this.openKeFuChat(userInfo,youkeChat,0);
+              
+            })
+        })      
+    }
+
+      //打开客服聊天
+    openKeFuChat(userInfo,youkeChat,num){      
+  
+        if(this.state.getUserInfotate==0||this.state.getUserInfotate==3){     
+            this.state.getUserInfotate=1;
+            let formData = new FormData();
+            if(this.state.title=="聊天室"){
+                var codeurl = sys.host + '/AppChat.commonChat.do';
+            }else{
+                var codeurl = sys.host + '/AppChat.keFuChat.do';
+            }
+            if(userInfo!=null&&userInfo!=""){
+                formData.append('face',userInfo.face);
+            }
+            if(youkeChat!=null&&youkeChat!=""){
+                formData.append('code',youkeChat.userInfo.id);
+            }
+            HttpUtils.post(codeurl, formData)
+            .then(result => {
+                // Alert.alert(JSON.stringify(result));
+              if(result['respCode']==1){   
+                  this.state.getUserInfotate=2;
+                  result['data'].name="客服";
+                  var item={
+                      id: result['data'].id?result['data'].id:1,
+                      typeid: result['data'].code,
+                      title: result['data'].name,
+                      ftitle: result['data'].name,
+                      pic:result['data'].pic?result['data']:'',
+                      name:result['data'].name
+                  };
+                  item['userInfo']={
+                    "id": result['data'].userInfo.id,
+                    "username": result['data'].userInfo.username,
+                    "face": result['data'].userInfo.face,
+                  };
+                  item['token']=result['data'].userInfo.token;
+                  item['isYouKe']=result['data'].isYouKe;
+                  if(result['data'].isYouKe){
+                     storage.save('youkeChat',item);
+                  }
+                //   this.state.title=item.title;3
+
+                  this.state.id=item.id;
+                  this.state.code=item.typeid;
+                  this.state.userInfo=item.userInfo;
+                  this.state.token=item.token;
+
+                  this.state.isManage=result['data'].userInfo.isManage
+
+                  this.publicMsgLog(0);  
+           
+                  this.bindUser();
+                  this.joinRoom();
+              }else{
+                this.state.getUserInfotate=3;
+                //   Alert.alert("失败" +result['respMsg']);
+                 // Alert.alert("客服连接失败,请稍后");
+              }
+            }).catch(error => {
+                //Alert.alert("xie hao le ma"+error);
+                this.state.getUserInfotate=3;
+                this.openKeFuChat(userInfo,youkeChat,++num)
+               // Alert.alert("客服连接失败,请稍后");
+            })
+        }
+    }
+
+
+    //關閉鏈接
+    closeSocket(){
+        this.state.lianjiestate=0;
+        ws.close();
+        ws=null;
+    }
+
+    audioProgress = () => {
+        AudioRecorder.onProgress = (data) => {
+            if (data.currentTime === 0) {
+                this.setState((prevState) => ({ currentTime: Math.floor(prevState.currentTime + 0.25) }))
+            } else {
+                this.setState({ currentTime: Math.floor(data.currentTime) })
+            }
+            this._setVoiceHandel(false)
+            this.setState({volume: Math.floor(data.currentMetering) })
+        }
+    }
+
+    audioFinish = () => {
+        AudioRecorder.onFinished = (data) => this._finishRecording(data.status === 'OK', data.audioFileURL)
+    }
+
+
+
+    checkDir = async() => {
+        if (!await RNFS.exists(`${AudioUtils.DocumentDirectoryPath}/voice/`)) {
+            RNFS.mkdir(`${AudioUtils.DocumentDirectoryPath}/voice/`)
+        }
+    }
+
+    initPath = async() => {
+        await this.checkDir()
+        const nowPath = `${AudioUtils.DocumentDirectoryPath}/voice/voice${Date.now()}.aac`
+        this.setState({ audioPath: nowPath, currentTime: 0 })
+        this.prepareRecordingPath(nowPath)
+    }
+
+    prepareRecordingPath (audioPath) {
+        AudioRecorder.prepareRecordingAtPath(audioPath, {
+            SampleRate: 22050,
+            Channels: 1,
+            AudioQuality: 'High',
+            AudioEncoding: 'aac',
+            OutputFormat: 'aac_adts',
+            AudioEncodingBitRate: 32000,
+            MeteringEnabled: true,
+        })
+    }
+
+    _record = async() => {
+        try {
+            await AudioRecorder.startRecording()
+        } catch (error) {
+            // console.log(error)
+        }
+    }
+
+    _stop = async() => {
+        try {
+            await AudioRecorder.stopRecording()
+            if (Platform.OS === 'android') {
+                this._finishRecording(true, filePath)
+            }
+        } catch (error) {
+            // console.log(error)
+        }
+    }
+    _setVoiceHandel = (status) => {
+        this.setState({voiceHandle: status})
+    }
+
+    _pause = async() => {
+        try{
+            await AudioRecorder.pauseRecording() // Android 由于API问题无法使用此方法
+        }catch (e) {
+            // console.log(e)
+        }
+    }
+
+    _resume = async() => {
+        try{
+            await AudioRecorder.resumeRecording() // Android 由于API问题无法使用此方法
+        }catch (e) {
+            // console.log(e)
+        }
+    }
+
+    _finishRecording (didSucceed, filePath) {
+        // console.log(filePath)
+        this.setState({ finished: didSucceed })
+    }
+
+    _checkAndroidPermission = async() => {
+        try {
+            const rationale = {
+                'title': '麦克风权限',
+                'message': '需要权限录制语音.'
+            }
+            const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, rationale)
+            this.setState({ hasPermission: granted === PermissionsAndroid.RESULTS.GRANTED })
+        } catch (e) {
+            // console.log(e)
+        }
+    }
+
+    changePrice(e){
+        // Alert.alert(JSON.stringify(e));
+
+        // xiazhuData = e;
+
+        xiazhuData=[]
+
+        let touzhuName=''
+          let touzhuExpect=''
+
+          let numberStr = ''
+          let priceStr = 0
+
+          let lotterynameStr = ''
+
+          let playtitleStr =''
+
+          let beishu=''
+
+          let price=''
+
+          let zhushu=''
+
+          for(var i=0;i<e.length;i++) {
+            
+            var indextContent = JSON.parse(JSON.stringify(e[i])) 
+
+            xiazhuData.push(indextContent)
+
+            if (i==0) {
+              touzhuName = indextContent.name
+              touzhuExpect = indextContent.expect
+              lotterynameStr = indextContent.lotteryname
+              playtitleStr = indextContent.playtitle
+
+              price = indextContent.price
+              zhushu = indextContent.zhushu
+
+              if (indextContent.hasOwnProperty('beishu')) {
+                beishu = indextContent.beishu
+              } else {
+                beishu = parseInt(indextContent.price/indextContent.zhushu)
+              }
+
+            }
+
+            if (numberStr.length) {
+              numberStr+='#'+indextContent.number;
+            } else {
+                numberStr+=indextContent.number;
+            }
+            priceStr+=parseInt(indextContent.price)
+
+          }
+
+
+        var amount = priceStr;
+
+        //  console.log('rtyuiop9999')
+        // console.log(e)
+        
+        var tipMessage= playtitleStr+":"+numberStr +"  金额:"+priceStr+'元'
+
+        if (e.length>1) {
+            tipMessage= playtitleStr+":"+numberStr +"  注数:"+e.length +"  金额:"+priceStr+'元'
+        }
+
+        // console.log(e)
+
+        // console.log(tipMessage)
+
+
+
+         Pop.show(
+            <BuySureAlert name={touzhuName} lotteryname={lotterynameStr} 
+                currFullExpect={touzhuExpect} 
+                orderDetailMessage={tipMessage} totalAmount={amount} touzhuList={[]} 
+                isChange={true}
+                beishu={beishu}
+                price = {price}
+                zhushu ={zhushu}
+                onPress={myThis.mashangxiazhu.bind()}/>
+         )
+
+       
+
+    }
+
+
+
+    mashangxiazhu(sure,price) {
+        // Alert.alert(price+"");
+        Pop.hide()
+        if (sure) {
+
+            // console.log('xiazhuData')
+            // console.log(xiazhuData)
+
+            if (price != 0) {
+
+
+                for(var i=0;i<xiazhuData.length;i++) {
+            
+                    var indextContent = xiazhuData[i]
+        
+        
+                     indextContent.price = price
+
+                  }
+
+                myThis.buyNow(xiazhuData,false)
+            } else {
+                //myThis.buyNow(xiazhuData,false)
+                myThis.refs.toast.show("金额不能为0", DURATION.LENGTH_LONG)
+            }
+
+        }
+    }
+
+
+    cheHuiMesg(message) {
+        // Alert.alert('点击')
+
+        if(myThis.state.lianjiestate!=2){
+            myThis.openNewSocket();
+            return false;
+        }
+        if(myThis.state.getUserInfotate!=2){
+            myThis.getUserInfo();
+            return false;
+        }
+        // console.log(message)
+
+
+        if (myThis.state.isManage) {
+            var arr = {}  //等同于 arr=new Array();
+            arr['token'] = myThis.state.token,
+            arr['userInfo'] = myThis.state.userInfo
+            let dic = {
+                 data:{'logined':JSON.stringify(arr),'room':myThis.state.code,'id':message.id},
+                // data:{'logined':JSON.stringify(arr),'room':this.state.code,'text':content,'type':type},
+                url:'Chat.chehuiChat'
+            }
+
+            // console.log('didicdicdicdicc')
+
+            // console.log(dic)
+
+            // console.log(ws)
+
+            ws.send(JSON.stringify(dic))
+        } else {
+            myThis.refs.toast.show('您没有此权限', DURATION.LENGTH_LONG);
+        }
+
+        
+    }
+
+    clickAtMan(isSelf,message) {
+        //  Alert.alert('点击at')
+
+
+        //  console.log(message)
+
+        if (!isSelf) {
+            if (message.chatInfo.username.length>=6) {
+   
+                message.chatInfo.username = message.chatInfo.username.substring(0,2)+'***'+message.chatInfo.username.substring(message.chatInfo.username.length-2,message.chatInfo.username.length);
+        
+            }
+    
+    
+            //  myThis.state.atMessge.push(message);
+        } else {
+
+
+            myThis.refs.toast.show('您不能@自己', DURATION.LENGTH_LONG);
+
+            return;
+        }
+        
+
+         myThis.chat.setState({
+            messageContent:myThis.chat.state.messageContent+'@'+message.chatInfo.username+' '
+         })
+
+         
+    }
+
+    clickUseImg(isSelf,message){
+
+
+        // Alert.alert('点击')
+
+        // console.log(isSelf)
+
+        //  console.log(message)
+
+        if(myThis.state.lianjiestate!=2){
+            myThis.openNewSocket();
+            return false;
+        }
+        if(myThis.state.getUserInfotate!=2){
+            myThis.getUserInfo();
+            return false;
+        }
+
+        if (myThis.state.isManage) {
+            Alert.alert('是否要禁言此用户','',
+                [
+                    {text:"取消", onPress: ()=>{
+
+                        }},
+                    {text:"确定", onPress: ()=>{
+                        var arr = {}  //等同于 arr=new Array();
+                        arr['token'] = myThis.state.token,
+                        arr['userInfo'] = myThis.state.userInfo
+                        let dic = {
+                             data:{'logined':JSON.stringify(arr),'room':myThis.state.code,'id':message.chatInfo.id},
+                            // data:{'logined':JSON.stringify(arr),'room':this.state.code,'text':content,'type':type},
+                            url:'Chat.lockChat'
+                        }
+            
+                        // console.log('didicdicdicdicc')
+            
+                        // console.log(dic)
+            
+                        ws.send(JSON.stringify(dic))
+
+                    }}
+                ]
+            );
+        } else {
+            myThis.refs.toast.show('您没有此权限', DURATION.LENGTH_LONG);
+        }
+
+
+    }
+
+    followTouzhu(e){
+      
+
+        // console.log(e)
+        // Alert.alert(e.lotteryname);
+        // if (e.lotteryname == "cqssc") {
+            // myThis.buyNow(e)
+
+            Alert.alert('确实要跟投','',
+                [
+                    {text:"取消", onPress: ()=>{
+
+                        }},
+                    {text:"确定", onPress: ()=>{
+                       myThis.buyNow(e,true)
+
+                    }}
+                ]
+            );
+
+
+        // }else{
+           
+        // }
+
+    }
+
+
+    buyNow(e,isgenTou){
+
+        // console.log(number)
+
+    
+        let codeurl = sys.host + "/AppApijiekou.cpbuy";
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+
+
+        let content = e[0]
+
+        formData.append('lotteryname',content.lotteryname);
+        formData.append('expect',content.expect);
+
+
+        // console.log('ooooooo')
+        // console.log(e)
+
+        // if (isgenTou) {
+            // var base64Str= new Buffer(JSON.stringify(e)).toString('base64');
+            // // encrypt
+            // formData.append("orderList",base64Str);
+        // } else {
+        var orderList = [];
+
+
+        // console.log('e>>>>>>>>>>>>>>>>>>>')
+        // console.log(e)
+
+
+        for (var i=0;i<e.length;i++) {
+
+            var numValue = e[i]
+
+
+
+            let isTypeid=true
+            if (!content.hasOwnProperty('typeid')) {
+                isTypeid = false
+            }
+
+
+            var formlist =  {
+                //添加2行
+                'expect':content.expect,
+                'name':content.name,
+                'lotteryname':content.lotteryname,
+                'typeid':isTypeid?content.typeid:''
+            };
+            formlist['playtitle'] = numValue.playtitle;
+            formlist['playid']=numValue.playid;
+            formlist['minxf']=numValue.minxf;
+            formlist['totalzs']=numValue.totalzs;
+            formlist['maxjj']=numValue.maxjj;
+            formlist['minjj']=numValue.minjj;
+            formlist['maxzs']=numValue.maxzs;
+            formlist['rate']=numValue.rate;
+            formlist['number']=numValue.number;
+    
+    
+    
+            formlist['price']= numValue.price+'';
+           
+            formlist['zhushu']=numValue.zhushu;
+    
+            // formlist['beishu']=numValue.beishu;
+            formlist['yjf' ]=numValue.yjf;
+    
+    
+            // formlist['trano']= self.generateMixed(20);
+    
+    
+             orderList.push(formlist);
+    
+        }
+        
+            var base64Str= new Buffer(JSON.stringify(orderList)).toString('base64');
+            // encrypt
+            formData.append("orderList",base64Str);
+        // }
+
+        
+
+        
+
+
+        // JSON.encode
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                    if(result['respCode']==1){
+                        Pop.hide()
+
+
+                        if (myThis.state.isFasong) {
+            
+                            Keyboard.dismiss()
+                            myThis.refs.toast.show('消息正在发送中', DURATION.LENGTH_LONG);
+                            return false
+                        }
+
+                        var nowTime= (new Date()).getTime();
+
+                        sendChatTime = nowTime
+                        var msg = {
+                            id: `888`,
+                            per: {
+                                type: 'touzhu',
+                                content: JSON.stringify(orderList),
+                                tag:nowTime
+                            } ,
+                            targetId: '88886666',
+                            chatInfo: {
+                                avatar:'../source/image/defaultAvatar.png',
+                                id: '88886666',
+                                username:myThis.state.bendiUseName
+                            },
+                            renderTime: true,
+                            sendStatus: 0,
+                            time: myThis.format(nowTime)
+                        }
+                
+                        var msg2 = {
+                            id: `888`,
+                            per: {
+                                type: 'touzhu',
+                                content: JSON.stringify(orderList),
+                                tag:nowTime
+                            } ,
+                            targetId: '88886666',
+                            chatInfo: {
+                                avatar:'../source/image/defaultAvatar.png',
+                                id: '88886666',
+                                username:myThis.state.bendiUseName
+                            },
+                            renderTime: true,
+                            sendStatus: -2,
+                            time: myThis.format(nowTime)
+                        }
+                        
+
+                        myThis.oneMsgTimeShow(msg)
+                        myThis.oneMsgTimeShow(msg2)
+                
+                        myThis.state.isFasong = true
+
+                        myThis.state.msg.friend_12345678.messages.push(msg)
+                        myThis.setState({msg : myThis.state.msg})
+                        // }
+                
+                        setTimeout(()=>{
+                            
+                    
+                            for(var i=0;i<myThis.state.msg.friend_12345678.messages.length;i++) {
+                                newMsg = myThis.state.msg.friend_12345678.messages[i]
+                
+                                if (newMsg.per.tag == msg.per.tag) {
+                
+                
+                                    if (newMsg.sendStatus==0) {
+
+                                        myThis.state.isFasong = false
+
+                                        myThis.state.msg.friend_12345678.messages.splice(i,1)
+                                        myThis.state.msg.friend_12345678.messages.push(msg2)
+                
+                                        // myThis.refs.toast.show("发送失败", DURATION.LENGTH_LONG)
+                                        myThis.setState({msg : myThis.state.msg})
+                                    }
+                                    break;
+                                }
+                            }
+                
+                         }, 16000);
+
+                        myThis.wsSendMessage('Chat.sendToAll',JSON.stringify(orderList),'touzhu')
+                    }else{
+                         myThis.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+                        Pop.hide()
+                    }
+            })
+            .catch(error=>{
+                myThis.refs.toast.show(error, DURATION.LENGTH_LONG);
+                Pop.hide()
+
+            })
+
+
+    }
+
+
+    tianZhuan(typeStr,hannum,urlStr,dataArr){
+
+
+        if (typeStr=='touZhu') {
+            
+            let content = dataArr[0]
+
+
+            if (!content.hasOwnProperty('typeid')) {
+                return false;
+            }
+
+            let item = {
+                name:content.lotteryname,
+                title:content.name,
+                typeid:content.typeid
+            }
+
+
+            const {navigate} = myThis.props.navigation;
+
+            switch(content.typeid){
+                
+                case 'ssc':
+
+                    navigate('Cqssc',{item:item,isRoot:false})
+                    break;
+                case 'k3':
+                    navigate('KuaiThreeAction',{item:item})
+                    break;
+
+                case 'pk10':
+
+                    navigate('Pkten',{item:item});
+                    break;
+
+                case 'lhc':
+                    navigate('Sixhc',{item:item});
+                    break;
+
+                case 'keno':
+                    navigate('Keno',{item:item});
+                    break;
+                case 'dpc':
+                    navigate('Dpc',{item:item});
+                    break;
+
+                case 'x5':
+                    navigate('ElevenSelectFive',{item:item});
+                    break;
+
+                case 'pcdd':                  
+                    navigate('PcDanDan',{item:item});
+
+                default: //更多
+                    
+                    //  console.log('更多')
+
+                    // navigate('CaipiaoMore',{caipiaoTypeList:myThis.state.caipiaoTypeList,
+                    //     dataList:myThis.state.dataList})
+                    break;
+
+            }
+
+
+        } else if(typeStr == "image"){
+
+
+            var arr = []
+          arr.push({url:dataArr.per.content.uri});
+
+            const {navigate} = myThis.props.navigation;
+            navigate("ShowImageViewer",arr);  
+
+
+        } else if (typeStr == "hongbao") {
+           
+        //    Alert.alert('红包')
+      
+          if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+           }
+
+          Pop.show(
+            <TouchableOpacity>
+            <View transparent={true}  style={{flex:1,marginTop: 100,alignItems: 'center',justifyContent: 'center',width:sys.dwidth}}>
+            <Text style={{color:sys.whiteColor}}>加载中：</Text>
+            <ActivityIndicator />
+            </View>
+            </TouchableOpacity>
+          )
+
+
+          let resultArr = JSON.parse(dataArr['per'].content)
+
+          if (resultArr != null || resultArr.hasOwnProperty('id')) {
+
+
+            myThis.caiHongbao(resultArr['id'])
+
+          } else {
+
+            myThis.refs.toast.show('红包失效', DURATION.LENGTH_LONG);
+
+          }
+
+         
+
+
+        }
+
+    }
+
+
+    // jj(){
+    //     let codeurl = host + '/AppChat.hongbaoDetail.do';//参数 id
+    //     let codeurl = host + '/AppChat.linghongbao.do';//参数 id
+    // }
+
+
+    kaiHongbao(idStr) {
+        let codeurl = sys.host + '/AppChat.linghongbao.do';
+        let formData = new FormData();
+        formData.append('id',idStr);
+
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                //  Pop.hide()
+
+                if(result['respCode']==1){  
+                        
+
+                    //  console.log('linghongbaoresult')
+                    // console.log(result)
+
+                    Pop.hide()
+
+                    const {navigate} = myThis.props.navigation;
+                    navigate("HongbaoDetail",{dataMoney:result['data']['money'],hongbaoNum:2,hongbaoId:idStr}); 
+   
+
+                }else{
+                    
+                    myThis.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+
+                    Pop.hide()
+                }
+            })
+            .catch(error=>{
+        
+                 myThis.refs.toast.show(error, DURATION.LENGTH_LONG);
+
+                 Pop.hide()
+
+            })
+
+    }
+
+
+    caiHongbao(idStr) {
+        let codeurl = sys.host + '/AppChat.hongbaoDetail.do';
+        let formData = new FormData();
+        formData.append('id',idStr);
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                //  Pop.hide()
+
+                if(result['respCode']==1){  
+                        
+
+                    // console.log('result')
+                    // console.log(result['data']['isLingqu'])
+
+                    let isLingqu = result['data']['isLingqu']
+
+                    if (isLingqu || result['data']['pullMoney']>=result['data']['money']) {
+
+                        Pop.hide()
+                        const {navigate} = myThis.props.navigation;
+                        navigate("HongbaoDetail",{dataArr:result['data']['list'],hongbaoNum:1}); 
+
+
+                    } else {
+                        Pop.show(
+                           <View style={{height:sys.dheight/3,width:sys.dwidth/2,backgroundColor:'#be4e38',borderRadius:5}}>
+                            
+                            {/* <Text style={{marginTop:10,textAlign:'center',color:'#dcbc83'}}>{result['data']['comment']}</Text> */}
+    
+
+                            <Text style={{color:'#dcbc83',marginTop:20,fontSize:15,width:sys.dwidth/2-20,textAlign:'center',marginLeft:10,}
+                            } numberOfLines={2}
+                            >{result['data']['comment']}</Text>
+                                      
+    
+                            <TouchableOpacity style={{height:50,width:50,marginLeft:(sys.dwidth/2-50)/2,marginTop:sys.dheight/3 -110,borderRadius:25,
+                            backgroundColor:'#dcbc83'}}
+                            onPress={() => {
+
+                                Pop.show(
+                                    <TouchableOpacity>
+                                    <View transparent={true}  style={{flex:1,marginTop: 100,alignItems: 'center',justifyContent: 'center',width:sys.dwidth}}>
+                                    <Text style={{color:sys.whiteColor}}>加载中：</Text>
+                                    <ActivityIndicator />
+                                    </View>
+                                    </TouchableOpacity>
+                                )
+
+                                 myThis.kaiHongbao(result['data']['id'])
+                              }}
+                            >
+    
+    
+                             <Text style={{color:sys.titleColor,textAlign:'center',color:'black',
+                            textAlignVertical:'center',width:50,height:50,borderRadius:25,
+                            backgroundColor:'#dcbc83',...Platform.select({
+                                ios: { lineHeight: 50},
+                                android: {}
+                            })}}>開</Text>
+    
+                            </TouchableOpacity>
+    
+                             
+    
+                            </View>
+                            
+                          )
+                    }
+
+                    
+
+                }else{
+                    
+                    myThis.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+
+                    Pop.hide()
+                }
+            })
+            .catch(error=>{
+        
+                 myThis.refs.toast.show(error, DURATION.LENGTH_LONG);
+
+                 Pop.hide()
+
+            })
+    }
+
+
+    sendMessage = (type, content) => {
+
+
+        console.log('myThis.state.isFasong')
+
+        console.log(myThis.state.isFasong)
+
+        // console.log('type, content')
+
+        // console.log(content) console.log('type, content')
+
+        // console.log(content)
+
+        if(this.state.lianjiestate!=2){
+
+            Keyboard.dismiss()
+            myThis.refs.toast.show('连接失败正在重新连接', DURATION.LENGTH_LONG);
+
+            this.openNewSocket();
+            return false;
+        }
+        if(this.state.getUserInfotate!=2){
+
+            Keyboard.dismiss()
+            myThis.refs.toast.show('连接失败正在重新连接', DURATION.LENGTH_LONG);
+
+            this.getUserInfo();
+            return false;
+        }
+        this.state.msg.friend_12345678.nofresh = false;
+
+
+        if (myThis.state.isFasong) {
+            
+            Keyboard.dismiss()
+            myThis.refs.toast.show('消息正在发送中', DURATION.LENGTH_LONG);
+            return false
+        }
+
+        // if (type == 'text') {
+        var nowTime= (new Date()).getTime();
+
+        sendChatTime = nowTime
+
+
+        // console.log('sendChatTime')
+
+        // console.log(myThis.state.bendiUseName)
+
+
+        
+
+
+        var msg = {
+            id: `888`,
+            per: {
+                type: type,
+                content: content,
+                tag:nowTime
+            } ,
+            targetId: '88886666',
+            chatInfo: {
+                avatar:'../source/image/defaultAvatar.png',
+                id: '88886666',
+                username:myThis.state.bendiUseName
+            },
+            renderTime: false,
+            sendStatus: 0,
+            time: myThis.format(nowTime)
+        }
+
+        var msg2 = {
+            id: `888`,
+            per: {
+                type: type,
+                content: content,
+                tag:nowTime
+            } ,
+            targetId: '88886666',
+            chatInfo: {
+                avatar:'../source/image/defaultAvatar.png',
+                id: '88886666',
+                username:myThis.state.bendiUseName
+            },
+            renderTime: false,
+            sendStatus: -2,
+            time: myThis.format(nowTime)
+        }
+        
+
+        myThis.oneMsgTimeShow(msg)
+        myThis.oneMsgTimeShow(msg2)
+
+        this.state.msg.friend_12345678.messages.push(msg)
+
+        myThis.state.isFasong = true;
+
+        this.setState({msg : this.state.msg})
+        // }
+
+        setTimeout(()=>{
+            
+    
+            for(var i=0;i<this.state.msg.friend_12345678.messages.length;i++) {
+                newMsg = this.state.msg.friend_12345678.messages[i]
+
+                if (newMsg.per.tag == msg.per.tag) {
+
+
+                    if (newMsg.sendStatus==0) {
+
+                        myThis.state.isFasong = false
+
+
+                        this.state.msg.friend_12345678.messages.splice(i,1)
+                        this.state.msg.friend_12345678.messages.push(msg2)
+
+                        // myThis.refs.toast.show("发送失败", DURATION.LENGTH_LONG)
+                        this.setState({msg : this.state.msg})
+                    }
+                    // break;
+                }
+            }
+
+        }, 16000);
+
+
+        if (type === 'voice') {
+            this.chat.messageItem.changeLoading(true)
+        }
+       
+
+        // console.log('myThis.state.atMessge.length')
+        // console.log(myThis.state.atMessge.length)
+
+
+        // var newAtMessge=[]
+
+        // var idsArr = []
+
+        // if (myThis.state.atMessge.length) {
+             
+        //     for(var i=0;i<myThis.state.atMessge.length;i++) {
+                 
+        //         var atMsg = myThis.state.atMessge[i]
+
+        //         var atuser = '@'+atMsg.chatInfo.username
+
+        //         if (content.includes(atuser)) {
+        //             newAtMessge.push(atMsg)
+        //             idsArr.push(message.chatInfo.id)
+        //         } 
+        //     }
+
+        //     myThis.state.atMessge = newAtMessge
+
+        //     if (myThis.state.atMessge.length>0) {
+
+
+        //         // var item =  {
+                    
+        //         //     "ids":idsArr,
+        //         //     "msg":content
+        //         // };
+
+        //         // console.log('JSON.stringify(item)')
+
+        //         // console.log(JSON.stringify(item))
+
+
+        //         // let atContent = JSON.stringify(item)
+            
+        //         // this.hongbaoMes(JSON.stringify(item))
+
+
+        //         this.wsSendMessage("Chat.sendToAll",content,'at');
+        //     } else{
+        //         this.wsSendMessage("Chat.sendToAll",content);
+        //     }
+
+        // } else {
+            this.wsSendMessage("Chat.sendToAll",content);
+        // }
+
+        
+    }
+
+    wsSendMessage(sendUrl,content="",type=0){
+        if(this.state.lianjiestate==2&&this.state.userInfo!=null  && ws.readyState==WebSocket.OPEN){
+
+
+
+            // console.log('sendChatTime----')
+            // console.log(sendChatTime)
+
+            var arr = {}  //等同于 arr=new Array();
+            arr['token'] = this.state.token,
+            arr['userInfo'] = this.state.userInfo
+            let dic = {
+                 data:{'logined':JSON.stringify(arr),'room':this.state.code,'text':content,'type':type,'tag':sendChatTime},
+                // data:{'logined':JSON.stringify(arr),'room':this.state.code,'text':content,'type':type},
+                url:sendUrl
+            }
+
+            ws.send(JSON.stringify(dic))
+
+
+
+           // sendChatTime=''
+            
+        }
+    }
+
+    onMessagePress = (type, index, content, message) =>{
+ 
+          //Alert.alert(JSON.stringify(message.per.content.uri));
+          var arr = []
+          arr.push({url:message.per.content.uri});
+      
+        if(type == "image"){
+            const {navigate} = this.props.navigation;
+            this.props.navigation.navigate("ShowImageViewer",arr);  
+        }
+
+    }
+
+    publicMsgLog(num){
+
+        
+        // console.log('this.state.msg.friend_12345678.messages')
+
+        // console.log(this.state.msg.friend_12345678.messages[0]['id'])
+
+
+        let codeurl = sys.host + "/AppChat.publicMsgLog.do";
+        let formData = new FormData();
+        formData.append('room',this.state.code);
+        // formData.append('page',this.state.currentPage);
+        formData.append('page','0');
+        formData.append('pageSize',this.state.pageSize);
+
+        if (!myThis.state.isOne && myThis.state.msg.friend_12345678.messages.length) {
+            formData.append('id',myThis.state.msg.friend_12345678.messages[0]['id']);
+        }
+        
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                
+                myThis.state.isXiaLa = false
+
+                if (myThis.state.isOne) {
+                    myThis.state.isOne = false
+                }
+                 
+
+                if(result['respCode']==1){
+                    let tempArr = [];
+                    // console.log(this.state.msg);
+                    if(result['data']['rows']!=null&&result['data']['rows'].length>0){
+                        var userInfoId=this.state.userInfo==null?"":this.state.userInfo.id;
+                        result['data']['rows'].forEach(element => {
+                            var msg=this.getMsgItemData(element,userInfoId);
+                            tempArr.push(msg);
+                        });
+             
+                        if(this.state.currentPage == 0){
+                           this.state.msg.friend_12345678.messages=tempArr
+                           storage.save(codeurl+this.state.title,this.state.msg)
+                         
+                        }else{
+                        this.state.msg.friend_12345678.messages=tempArr.concat(this.state.msg.friend_12345678.messages)
+                        this.state.msg.friend_12345678.nofresh = (this.state.currentPage)*this.state.pageSize;
+                        
+                        }
+
+                       myThis.msgTimeShow() 
+
+                       this.state.currentPage += 1
+                       this.setState({msg : this.state.msg})         
+                    }
+                }
+            }).catch(error=>{
+                // console.log(error);
+                myThis.state.isXiaLa = false
+
+                if(num==0){
+                    this.publicMsgLog(++num);
+                }   
+            })
+    }
+
+    
+
+    oneMsgTimeShow(msg) {
+
+
+        console.log('msgmsgmsgggg')
+
+        console.log(msg)
+
+        console.log(this.state.msg.friend_12345678.messages.length)
+
+        // console.log(this.state.msg.friend_12345678.messages[0])
+
+
+        if (this.state.msg.friend_12345678.messages.length>0) {
+            for(var i=this.state.msg.friend_12345678.messages.length-1;i>0;i--) {
+                var newMsg = this.state.msg.friend_12345678.messages[i]
+    
+                // console.log(i)
+                // console.log('msgmsgmsgggg----------------'+newMsg)
+
+               
+                if (newMsg.renderTime) {
+                    // var startTime = newMsg.time.replace(/\-/g,"").replace(/\:/g,"").replace(/\ /g,"")
+                    // var endTime = msg.time.replace(/\-/g,"").replace(/\:/g,"").replace(/\ /g,"")
+    
+                    // console.log('startTime,endTime')
+    
+                    // console.log(startTime,endTime)
+    
+                    //  msg.renderTime = this.getYMDHMS(startTime,endTime)
+    
+                    
+                    if ((this.state.msg.friend_12345678.messages.length - i) >= 20) {
+                        msg.renderTime = true
+                    } else {
+                        msg.renderTime = false
+                    }
+                    
+                    break;
+                }
+                
+                
+            }
+        }
+
+        
+
+    }
+
+
+    msgTimeShow() {
+         
+
+        for(var i=0;i<this.state.msg.friend_12345678.messages.length;i++){
+            var newMsg = this.state.msg.friend_12345678.messages[i]
+
+                if (i%20 == 0) {
+                    newMsg.renderTime = true;
+                } else {
+                    newMsg.renderTime = false;
+                }
+            
+        
+        }
+         
+        // var timeShowMsg = this.state.msg.friend_12345678.messages[0]
+        // timeShowMsg.renderTime = true
+
+        // for(var i=1;i<this.state.msg.friend_12345678.messages.length;i++) {
+        //     var newMsg = this.state.msg.friend_12345678.messages[i]
+
+        //     var startTime = timeShowMsg.time.replace(/\-/g,"").replace(/\:/g,"").replace(/\ /g,"")
+        //     var endTime = newMsg.time.replace(/\-/g,"").replace(/\:/g,"").replace(/\ /g,"")
+
+        //     // console.log('startTime,endTime')
+
+        //     // console.log(startTime,endTime)
+
+        //     newMsg.renderTime = this.getYMDHMS(startTime,endTime)
+
+        //     if (newMsg.renderTime) {
+        //         timeShowMsg = newMsg
+        //     }
+        // }
+
+    }
+
+    
+
+    getYMDHMS(startTime, endTime) {
+
+        if(startTime.length < 14 || endTime.length < 14) {
+            alert('时间格式不正确');
+        }
+
+        var startArr = [startTime.substring(0, 4), startTime.substring(4, 6), startTime.substring(6, 8), startTime.substring(8, 10), startTime.substring(10, 12), startTime.substring(12, 14)];//切分开始时间为数组
+        var endArr = [endTime.substring(0, 4), endTime.substring(4, 6), endTime.substring(6, 8), endTime.substring(8, 10), endTime.substring(10, 12), endTime.substring(12, 14)];//切分结束时间为数组
+        var dateStart = new Date(startArr[0], startArr[1], startArr[2], startArr[3], startArr[4], startArr[5]);//采用new Date(yyyy,mth,dd,hh,mm,ss);创建方式分别传入年月日时分秒
+        var dateEnd = new Date(endArr[0], endArr[1], endArr[2], endArr[3], endArr[4], endArr[5]);
+        var dateInterval = dateEnd.getTime() - dateStart.getTime() //获取时间差毫秒
+        //计算出相差天数
+        var days = Math.floor(dateInterval / (24 * 60 * 60 * 1000));
+        //计算小时数
+        var hourLevel = dateInterval % (24 * 60 * 60 * 1000);
+        var hours = Math.floor(hourLevel / (60 * 60 * 1000))
+        //计算分钟数
+        var minutesLevel = hourLevel % (60 * 60 * 1000);
+        var minutes = Math.floor(minutesLevel / (60 * 1000));
+        //计算秒数
+        var seconds = Math.round((minutesLevel % (60 * 1000)) / 1000);
+
+
+        //  console.log('天数 ' + days + ' 小时数 ' + hours + ' 分钟数 ' + minutes + ' 秒数 ' + seconds)
+
+        if (days>0 || hours > 0 || minutes > 5) {
+            return true;
+        }
+
+        return false;
+
+        // alert('天数 ' + days + ' 小时数 ' + hours + ' 分钟数 ' + minutes + ' 秒数 ' + seconds)
+    }
+
+
+
+     //對聊天信息數據進行轉化
+    getMsgItemData(element,userInfoId){
+
+        var id=element.id;
+
+        if(element.sendUid==userInfoId){
+            var targetId="88886666";//表示自己
+          }else{
+            var targetId="member"+element.sendUid;
+          }
+          
+          if(element.sendUid!=null && element.sendUid.length> 4 && element.face.slice(0,4)!="http"){
+            element.face= sys.host+element.face;
+          }
+
+          if(element.sendUid!=null && element.sendUid.length> 3 && element.sendUid.slice(0,3)=="sys"){
+            element.sendUsername= "客服";
+          }
+          var content=element.text+"";
+          var msg = {
+            id: id,
+            per: {
+                type: 'text',
+                content:myThis.delHtmlTag(content),
+                tag:element.tag
+            } ,
+            targetId: targetId,
+            chatInfo: {
+                avatar: {uri:element.face},//本地图片就直接是地址就可以
+                id: element.sendUid,
+                username:element.sendUsername
+            },
+            renderTime: false,
+            sendStatus: 1,
+            time:element.time?element.time:element.sendTime
+        }
+        if(element.type==1){
+            //是否包含 http
+            if(content!=null&&content!=""){
+                // if(content.)
+                if(content.slice(0,4)!="http"){
+                    content= sys.host+content;
+                }
+                
+            }
+           msg.per.type="image";
+           msg.per.content={};
+           msg.per.content.uri=content;
+           msg.per.content.width=100;
+           msg.per.content.height=80;
+           msg.per.tag = element.tag
+        }else if(element.type=="touzhu"){
+            msg.per.type="touzhu";
+        }else if(element.type=="hongbao"){
+
+            msg.per.type="hongbao";
+            msg.per.content.width=100;
+            msg.per.content.height=80;
+        }
+
+
+       return msg;
+    }
+
+
+    delHtmlTag(str)
+    {
+    return str.replace(/<[^>]+>/g,"");  //正则去掉所有的html标记
+    }
+
+
+    takePhoto(){
+        if(this.state.lianjiestate!=2){
+            this.openNewSocket();
+       
+          
+            return false;
+        }
+        if(this.state.getUserInfotate!=2){
+            this.getUserInfo();
+          
+            return false;
+        }
+     
+        let options = {
+            title: 'Select Avatar',
+            customButtons: [
+                {name: 'fb', title: 'Choose Photo from Facebook'},
+            ],
+            storageOptions: {
+                skipBackup: true,
+                path: 'images'
+            }
+        };
+        ImagePicker.launchImageLibrary(options, (response) => {
+
+
+            if (response.didCancel) {
+                // console.log('User cancelled image picker');
+            }
+            else if (response.error) {
+                // console.log('ImagePicker Error: ', response.error);
+            }
+            else if (response.customButton) {
+                // console.log('User tapped custom button: ', response.customButton);
+            }
+            else {
+                // let source = { uri: response.uri };
+                // You can also display the image using data:
+                // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+                this.uploadImage(response.uri)
+
+            }
+        });
+    }
+    takeCamera(){
+        if(this.state.lianjiestate!=2){
+            this.openNewSocket();
+       
+            return false;
+        }
+        if(this.state.getUserInfotate!=2){
+            this.getUserInfo();
+            return false;
+        }
+     
+        let options = {
+            title: 'Select Avatar',
+
+            maxWidth: 500,
+            maxHeight: 500,
+
+            customButtons: [
+                {name: 'fb', title: 'Choose Photo from Facebook'},
+            ],
+            storageOptions: {
+                skipBackup: true,
+                path: 'images'
+            }
+        };
+        ImagePicker.launchCamera(options, (response)  => {
+            // Same code as in above section!
+            if (response.didCancel) {
+                // console.log('User cancelled image picker');
+            }
+            else if (response.error) {
+                // console.log('ImagePicker Error: ', response.error);
+            }
+            else if (response.customButton) {
+                // console.log('User tapped custom button: ', response.customButton);
+            }
+            else {
+                // let source = { uri: response.uri };
+                // You can also display the image using data:
+                // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+                this.uploadImage(response.uri)
+            }
+        });
+    }
+    uploadImage(picpath){
+        if(this.state.lianjiestate!=2){
+            Keyboard.dismiss()
+            myThis.refs.toast.show('连接失败正在重新连接', DURATION.LENGTH_LONG);
+            this.openNewSocket();
+            return false;
+        }
+        if(this.state.getUserInfotate!=2){
+            Keyboard.dismiss()
+            myThis.refs.toast.show('连接失败正在重新连接', DURATION.LENGTH_LONG);
+            this.getUserInfo();
+            return false;
+        }
+     
+
+
+        if (myThis.state.isFasong) {
+            
+            Keyboard.dismiss()
+            myThis.refs.toast.show('消息正在发送中', DURATION.LENGTH_LONG);
+            return false
+        }
+
+        let codeurl = sys.host + '/AppUpload.uploadImage.do';
+        let imageArr = [picpath];
+
+
+
+        // console.log('picpath,picpathpicpath,')
+
+        // console.log('file://'+picpath)
+
+
+        var nowTime= (new Date()).getTime();
+
+        sendChatTime = nowTime
+
+        var msg =  {
+            id: `${new Date().getTime()}`,
+            per: {
+                type: 'image',
+                content: {
+                    uri:picpath,
+                    width: 100,
+                    height: 80,
+                },
+                tag:sendChatTime,
+            } ,
+            targetId: '88886666',
+            chatInfo: {
+                avatar:'',
+                id: '88886666',
+                username:myThis.state.bendiUseName
+            },
+            renderTime: false,
+            sendStatus: 0,
+            time: myThis.format(nowTime)
+        }
+
+        var msg2 =  {
+            id: `${new Date().getTime()}`,
+            per: {
+                type: 'image',
+                content: {
+                    uri:picpath,
+                    width: 100,
+                    height: 80,
+                },
+                tag:sendChatTime,
+            } ,
+            targetId: '88886666',
+            chatInfo: {
+                avatar:'',
+                id: '88886666',
+                username:myThis.state.bendiUseName
+            },
+            renderTime: false,
+            sendStatus: -2,
+            time: myThis.format(nowTime)
+        }
+
+
+        // myThis.oneMsgTimeShow(msg)
+        // myThis.oneMsgTimeShow(msg2)
+
+        myThis.state.isFasong = true
+
+        // console.log('myThis.state.isFasong = true')
+
+        this.state.msg.friend_12345678.messages.push(msg)
+        this.setState({msg : this.state.msg})
+
+
+        setTimeout(()=>{
+            
+    
+                for(var i=0;i<this.state.msg.friend_12345678.messages.length;i++) {
+                    newMsg = this.state.msg.friend_12345678.messages[i]
+
+                    if (newMsg.per.tag == msg.per.tag) {
+
+
+                        if (newMsg.sendStatus==0) {
+
+                            myThis.state.isFasong = false
+
+                            this.state.msg.friend_12345678.messages.splice(i,1)
+                            this.state.msg.friend_12345678.messages.push(msg2)
+
+                            // myThis.refs.toast.show("发送图片失败", DURATION.LENGTH_LONG)
+                            this.setState({msg : this.state.msg})
+                        }
+                        break;
+                    }
+                }
+
+        }, 16000);
+
+        // 请求参数 ('key',value)
+        HttpUtils.uploadImage(codeurl, imageArr)
+            .then(result => {
+                if (result['respCode'] == 1) {
+                    var path = result['data'];
+                    myThis.wsSendMessage('Chat.sendToAll',path,1);
+                } else {
+                    // myThis.refs.toast.show("发送图片失败", DURATION.LENGTH_LONG)
+                }
+            }).catch(error => {
+                // myThis.refs.toast.show("发送图片失败" + JSON.stringify(error), DURATION.LENGTH_LONG);
+                
+            })
+    }
+
+
+    format(shijianchuo)
+{
+//shijianchuo是整数，否则要parseInt转换
+var time = new Date(shijianchuo);
+var y = time.getFullYear();
+var m = time.getMonth()+1;
+var d = time.getDate();
+var h = time.getHours();
+var mm = time.getMinutes();
+var s = time.getSeconds();
+return y+'-'+myThis.add0(m)+'-'+myThis.add0(d)+' '+myThis.add0(h)+':'+myThis.add0(mm)+':'+myThis.add0(s);
+}
+
+add0(m){return m<10?'0'+m:m }
+
+
+    renderMessageTime(time){
+        return <View style={{ justifyContent: 'center', alignItems: 'center', paddingTop: 10 }}>
+        <View style={{ backgroundColor: '#e6e6e6', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 16 }}>
+          <Text style={{ color: '#333', fontSize: 10 }}>{time}</Text>
+        </View>
+      </View>
+    }
+    xialaRefresh(){
+
+        if (myThis.state.msg.friend_12345678.messages.length>=200) {
+            
+            myThis.refs.toast.show("亲到顶了！！！", DURATION.LENGTH_LONG)
+            return;
+        }
+
+        if (!myThis.state.isXiaLa) {
+
+            myThis.state.isXiaLa = true;
+
+            myThis.publicMsgLog(0);
+        }
+        
+    }
+    fahongbao(){
+        // Alert.alert("发红包");
+
+        if(global.user.loginState != 1) {
+            DeviceEventEmitter.emit('Login', {});
+            return false;
+        }
+
+        const {navigate} = myThis.props.navigation;
+        navigate("MyHongbao",{fasongHongBao:(hongbaoData,nowTime)=>{
+            
+
+            if (myThis.state.isFasong) {
+            
+                Keyboard.dismiss()
+                myThis.refs.toast.show('消息正在发送中', DURATION.LENGTH_LONG);
+                return false
+            }
+
+            var msg = {
+                id: `888`,
+                per: {
+                    type: 'hongbao',
+                    content: hongbaoData,
+                    tag:nowTime
+                } ,
+                targetId: '88886666',
+                chatInfo: {
+                    avatar:'../source/image/defaultAvatar.png',
+                    id: '88886666',
+                    username:myThis.state.bendiUseName
+                },
+                renderTime: true,
+                sendStatus: 0,
+                time: myThis.format(nowTime)
+            }
+    
+            var msg2 = {
+                id: `888`,
+                per: {
+                    type: 'hongbao',
+                    content: hongbaoData,
+                    tag:nowTime
+                } ,
+                targetId: '88886666',
+                chatInfo: {
+                    avatar:'../source/image/defaultAvatar.png',
+                    id: '88886666',
+                    username:myThis.state.bendiUseName
+                },
+                renderTime: true,
+                sendStatus: -2,
+                time: myThis.format(nowTime)
+            }
+            
+    
+            // myThis.oneMsgTimeShow(msg)
+            // myThis.oneMsgTimeShow(msg2)
+
+            myThis.state.isFasong = true;
+
+            myThis.state.msg.friend_12345678.messages.push(msg)
+            myThis.setState({msg : myThis.state.msg})
+            // }
+    
+            setTimeout(()=>{
+                
+        
+                for(var i=0;i<myThis.state.msg.friend_12345678.messages.length;i++) {
+                    newMsg = myThis.state.msg.friend_12345678.messages[i]
+    
+                    if (newMsg.per.tag == msg.per.tag) {
+    
+    
+                        if (newMsg.sendStatus==0) {
+
+                            myThis.state.isFasong = false
+
+                            myThis.state.msg.friend_12345678.messages.splice(i,1)
+                            myThis.state.msg.friend_12345678.messages.push(msg2)
+    
+                            // myThis.refs.toast.show("发送失败", DURATION.LENGTH_LONG)
+                            myThis.setState({msg : myThis.state.msg})
+                        }
+                        break;
+                    }
+                }
+    
+             }, 16000);
+    
+
+        }});  
+        
+        
+    }
+
+    render() {
+        myThis = this;
+        let statusHeight = StatusBar.currentHeight || 0
+        let androidHeaderHeight = statusHeight + 55
+        var avatar =this.state.userInfo==null?"../images/avatar":this.state.userInfo.face; 
+
+        var souceArr = [
+            {
+              icon: <Image source={require('./images/photo.png')} style={{ width: 30, height: 30 }} />,
+              title: '照片',
+              onPress: () => { this.takePhoto() }
+            }, {
+              icon: <Image source={require('./images/camera.png')} style={{ width: 30, height: 30 }} />,
+              title: '拍照',
+              onPress: () => { this.takeCamera() }
+            },
+            {
+              icon: <Image source={require('./images/hongbao.png')} style={{ width: 30, height: 30 }} />,
+              title: '红包',
+              onPress: () => { this.fahongbao() }
+            }
+          ]
+
+        if (myThis.state.title=='客服') {
+            souceArr = [
+                {
+                  icon: <Image source={require('./images/photo.png')} style={{ width: 30, height: 30 }} />,
+                  title: '照片',
+                  onPress: () => { this.takePhoto() }
+                }, {
+                  icon: <Image source={require('./images/camera.png')} style={{ width: 30, height: 30 }} />,
+                  title: '拍照',
+                  onPress: () => { this.takeCamera() }
+                }
+              ]
+        }
+
+
+        return (
+            <View style={styles.container}>
+                <ChatScreen
+                    userProfile={{
+                        id: '88886666',
+                        avatar:{uri:avatar}
+                    }}
+                    onFollowTouzhu={this.followTouzhu}
+                    onChangePrice={this.changePrice}
+                    xialaRefreshFunc={this.xialaRefresh}
+                    useVoice={false}
+                    ref={(e) => this.chat = e}
+                    messageList={this.state.msg}
+                    isIphoneX={isIphoneX()}
+                    androidHeaderHeight={androidHeaderHeight}
+                    sendMessage={this.sendMessage}
+                    // onMessagePress={()=>{Alert.alert("com message")}}
+                    onMessagePress={this.tianZhuan}
+                    renderMessageTime={this.renderMessageTime}
+                    liaoTianTitle={myThis.state.title}
+                    panelSource={souceArr} 
+
+                    clickUseImg={this.clickUseImg}
+                    cheHuiMesg={this.cheHuiMesg}
+                    clickAtMan={this.clickAtMan}
+
+                    isManage={this.state.isManage}
+                >
+                </ChatScreen>
+                <Toast  //提示
+                ref="toast"
+                style={{backgroundColor:'gray'}}
+                position='center'
+                positionValue={100}
+                opacity={0.6}
+                textStyle={{color:'white'}}
+            />  
+            </View>
+
+        );
+    }
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:sys.grayColor,
+
+    },
+    headView:{
+       width:sys.dwidth,
+       height:sys.dwidth/3
+    }
+})
+
+

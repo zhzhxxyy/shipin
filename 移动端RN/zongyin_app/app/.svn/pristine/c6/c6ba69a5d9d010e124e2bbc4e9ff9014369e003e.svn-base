@@ -1,0 +1,166 @@
+import React, {Component} from 'react'
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    Animated,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Switch,
+    Button,
+    ImageBackground,
+    Dimensions,
+    ScrollView
+} from 'react-native';
+
+
+export function combine(arr, num) {
+    var r = [];
+    (function f(t, a, n) {
+        if (n == 0) return r.push(t);
+        for (var i = 0, l = a.length; i <= l - n; i++) {
+            f(t.concat(a[i]), a.slice(i + 1), n - 1);
+        }
+    })([], arr, num);
+    return r.length;
+}
+
+
+
+
+export function syxwQsfs(currNumber){
+    var ballw = [];
+    var ballq = [];
+    var ballb = [];
+    for(var ss = 0; ss< currNumber.length; ss++){
+        for(var sss = 0; sss < currNumber[ss].length; sss++){
+            if(ss == 0){
+                ballw[parseInt(currNumber[ss][sss])] = currNumber[ss][sss];
+            }else if(ss == 1){
+                ballq[parseInt(currNumber[ss][sss])] = currNumber[ss][sss];
+            }else if(ss == 2){
+                ballb[parseInt(currNumber[ss][sss])] = currNumber[ss][sss];
+            }
+        }
+    }
+
+    var itemcount = 0;
+    for (var i = 0; i < ballw.length; i++) {
+        for (var j = 0; j < ballq.length; j++) {
+            for (var k = 0; k < ballb.length; k++) {
+                if(ballw[i]!=undefined&&ballq[j]!=undefined&&ballb[k]!=undefined&&ballw[i]!=""&&ballq[j]!=""&&ballb[k]!=""){
+                    if (ballw[i] != ballq[j] && ballw[i] != ballb[k] && ballq[j] != ballb[k]) {
+                        itemcount++;
+                    }
+                }
+            }
+        }
+    }
+    return itemcount;
+}
+
+
+export function syxwzxbd(currNumber){
+    var balld = [];
+    var ballt = [];
+    for(var ss = 0; ss< currNumber.length; ss++){
+        for(var sss = 0; sss < currNumber[ss].length; sss++){
+            if(ss == 0){
+                balld[parseInt(currNumber[ss][sss])] = currNumber[ss][sss];
+            }else if(ss == 1){
+                ballt[parseInt(currNumber[ss][sss])] = currNumber[ss][sss];
+            }
+        }
+    }
+    var d_count=currNumber[0].length;
+    var t_count=currNumber[1].length;
+    var itemcount=0;
+    var b=true;
+    for (var i = 0; i < ballt.length; i++) {
+        if(ballt[i]!=""){
+            for(var j=0;j<balld.length;j++)
+                if(ballt[i]==balld[j]&&balld[j]!=null){
+                    b=false;
+                    break;
+                }
+        }
+    }
+    if(b){
+        if(d_count==1&&t_count>1){
+            itemcount=parseInt(t_count)*(parseInt(t_count)-1)/2;
+        }
+        if(d_count==2&&t_count>=1){
+            itemcount=parseInt(t_count);
+        }
+    }
+    return itemcount;
+}
+
+
+
+export function syxwqezxfs(currNumber){
+    var ballw = [];
+    var ballq = [];
+    for(var ss = 0; ss< currNumber.length; ss++){
+        for(var sss = 0; sss < currNumber[ss].length; sss++){
+            if(ss == 0){
+                ballw[parseInt(currNumber[ss][sss])] = currNumber[ss][sss];
+            }else if(ss == 1){
+                ballq[parseInt(currNumber[ss][sss])] = currNumber[ss][sss];
+            }
+        }
+    }
+    var itemcount = 0;
+    for (var i = 0; i < ballw.length; i++) {
+        for (var j = 0; j < ballq.length; j++) {
+            if(ballw[i]!=undefined&&ballq[j]!=undefined&&ballw[i]!=""&&ballq[j]!=""){
+                if (ballw[i] != ballq[j]) {
+                    itemcount++;
+                }
+            }
+        }
+    }
+    return itemcount;
+}
+
+
+export function syxwqezxbd(currNumber){
+    var balld = [];
+    var ballt = [];
+
+    for(var ss = 0; ss< currNumber.length; ss++){
+        for(var sss = 0; sss < currNumber[ss].length; sss++){
+            if(ss == 0){
+                balld[parseInt(currNumber[ss][sss])] = currNumber[ss][sss];
+            }else if(ss == 1){
+                ballt[parseInt(currNumber[ss][sss])] = currNumber[ss][sss];
+            }
+        }
+    }
+
+    var d_count=currNumber[0].length;
+    var t_count=currNumber[1].length;
+
+    var itemcount=0;
+    var b=true;
+    for (var i = 0; i < ballt.length; i++) {
+        if(ballt[i]!=""){
+            for(var j=0;j<balld.length;j++)
+                if(ballt[i]==balld[j]&&balld[j]!=null){
+                    b=false;
+                    break;
+                }
+        }
+    }
+    if(b){
+        if(d_count==1&&t_count>=1){
+            itemcount=parseInt(t_count);
+        }
+    }
+
+    return itemcount;
+}

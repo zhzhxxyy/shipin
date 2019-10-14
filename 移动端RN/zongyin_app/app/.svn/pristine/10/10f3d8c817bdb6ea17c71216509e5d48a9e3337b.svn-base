@@ -1,0 +1,340 @@
+
+import React, {Component} from 'react'
+import {
+    View,
+    TextInput,
+    Dimensions,
+    Text,
+    Animated,
+    Platform, 
+    ActivityIndicator,
+    DeviceEventEmitter,
+    TouchableOpacity,
+    StyleSheet,
+} from 'react-native';
+
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+import HttpUtils from "../common/HttpUtil"
+import {NoDataView, sys,TitleHeadView, isIphoneX} from "../common/Data"
+import Alert from '../common/Alert'
+// import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+// import SuspendButton from 'suspend-button'
+// import ReactDOM from 'react-dom'
+
+export default class GameScore extends Component{
+
+    static  navigationOptions = ({navigation}) => {
+        // const { params } = navigation.state;
+
+        return {
+            headerTitle: '额度转换',
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',   
+            },
+            headerRight: <View></View>
+
+        }
+    };
+
+   
+
+    constructor(props) {
+        super(props);
+
+        self = this;
+        this.state = {
+            // gameUrl:this.props.navigation.state.params.gameUrl,
+            balanceNum:'0.00',
+            gameBalance:'0.00',
+            drawcash:'',
+        };
+
+    }
+
+
+
+    componentDidMount() {
+        this.getBalance(0);   
+        this.getGameBalance(0) 
+    }
+
+  
+
+
+    getBalance(num){
+
+        //let codeurl = host + '/member/index/getMemberInfoById';
+        let codeurl = sys.host + '/AppMember.index.do';
+        let formData = new FormData();
+
+        this.setState({
+            isloading:true
+        })
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+           
+                if(result['respCode']==1){
+                    let data = result['data'];
+                    this.setState({
+                            balanceNum: data['balance'],
+                           
+                        });  
+                }
+               
+            })
+            .catch(error=>{
+                // Alert.alert('提示：'+error+'')
+                if(num<=0){
+                    this.getBalance(++num);
+                }
+
+                this.setState({
+                    isloading:false,
+                })
+
+            })
+
+    }
+
+    getGameBalance(num){
+
+        //let codeurl = host + '/member/index/getMemberInfoById';
+        let codeurl = sys.host + '/AppKy.queryAccount.do';
+        let formData = new FormData();
+      
+     
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+        
+                if(result['respCode']==1){
+                    let data = result['data'];
+                    this.setState({
+                            gameBalance: data['freeMoney'],                          
+                        });  
+                }
+               
+            })
+            .catch(error=>{
+                // Alert.alert('提示：'+error+'')
+                if(num<=0){
+                    this.getGameBalance(++num);
+                }
+            })
+
+    }
+
+    onNavigationStateChange(e){
+        this.setState({
+        title:e.title,
+        cangoback:e.canGoBack
+        })
+    }
+
+    clickDraw(){
+
+    }
+
+    ///转到余额
+    changeToBalance(){
+  
+        //let codeurl = host + '/member/index/getMemberInfoById';
+
+        let codeurl = sys.host + '/AppKy.reduceAmount.do';
+        let formData = new FormData();
+        formData.append('money',this.state.drawcash)
+
+        HttpUtils.post(codeurl,formData)
+        .then(result=>{
+
+            this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+          if(result['respCode']==1){
+            this.getBalance()
+            this.getGameBalance()
+          }
+         
+        })
+        .catch(error=>{
+          // Alert.alert('提示：'+error+'')
+          this.refs.toast.show(error, DURATION.LENGTH_LONG);100
+        })
+
+    }
+
+    ///转到棋牌
+    changeToKyBalance(){
+          //let codeurl = host + '/member/index/getMemberInfoById';
+
+
+          console.log('add~~~')
+          let codeurl = sys.host + '/AppKy.addAmount.do';
+          let formData = new FormData();
+          formData.append('money',this.state.drawcash)
+
+
+          HttpUtils.post(codeurl,formData)
+          .then(result=>{
+  
+            this.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG);
+            if(result['respCode']==1){
+               this.getBalance()
+               this.getGameBalance()
+            }
+           
+          })
+          .catch(error=>{
+            // Alert.alert('提示：'+error+'')
+            this.refs.toast.show(error, DURATION.LENGTH_LONG);
+          })
+    }
+
+
+    render(){
+        return  <View  style={{flex:1}}>
+               <Text style={styles.leftText}>{"钱包余额(元)："}<Text style={{color:sys.mainColor}}>{this.state.balanceNum}</Text></Text>
+               <Text style={styles.leftText}>{"棋牌余额(元)："}<Text style={{color:sys.mainColor}}>{this.state.gameBalance}</Text></Text>
+
+            <View style={styles.twoView}>
+                <TextInput style={styles.inputText}
+                    underlineColorAndroid='transparent'
+                    placeholder={"请输入金额"}
+                    value={this.state.drawcash}
+                    onChangeText={(text) => this.setState(
+                        {
+                            drawcash:text
+                        }
+                   )}
+                    ref={(c) => this._cashInput = c}
+                ></TextInput>
+                {/* <TouchableOpacity  style={styles.drawCashView} onPress={()=>this.clickDraw()}>
+                    <Text style={styles.drawCash}>一键转入</Text>
+                </TouchableOpacity> */}
+
+                <View style={styles.lineView2}></View>
+            </View>
+
+            <View style={styles.changeView}>
+          
+                <TouchableOpacity  style={styles.balanceBtn} onPress={()=>this.changeToBalance()}>
+                    <Text style={styles.btnText}>转到钱包</Text>
+                </TouchableOpacity>
+                <TouchableOpacity  style={styles.gameBalanceBtn} onPress={()=>this.changeToKyBalance()}>
+                    <Text style={styles.btnText}>转到棋牌</Text>
+                </TouchableOpacity>
+              
+            </View>
+
+
+            <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.7}
+                    textStyle={{color:'white'}}
+                />  
+        </View>
+    }
+
+
+    
+
+}
+
+
+const styles = StyleSheet.create({
+
+    inputText:{
+
+        marginLeft:10,
+        marginTop:5,
+        width:sys.dwidth-100,
+        color:sys.titleColor,
+        textAlign:'left',
+        fontSize:16,
+        height:50,
+
+    },
+
+    leftText:{
+        marginLeft:10,
+        marginTop:17,
+        color:sys.titleColor,
+        // width:120,
+        fontSize:16,
+    },
+
+    lineView2:{
+        height:1,//TODO这里小于0.8没显示出来
+        backgroundColor:sys.grayColor,
+        marginTop:0,
+        marginLeft:10,
+        width:sys.dwidth-20,
+    },
+
+    drawCash:{
+        color:sys.mainColor,
+        fontSize:14
+    },
+
+    drawCashView:{
+        marginLeft:sys.dwidth-70,
+        marginTop:-30,
+        height:30,
+    },
+
+
+    changeView:{
+        top:30,
+        
+        flexDirection:'row',
+
+    },
+
+    balanceBtn:{
+        marginLeft:20,
+        backgroundColor:sys.yellowColor,
+        height:40,
+        borderRadius:5,
+        width:(sys.dwidth - 60)/2,
+
+        
+    },
+
+    gameBalanceBtn:{
+        marginLeft:20,
+        backgroundColor:sys.mainColor,
+        height:40,
+        borderRadius:5,
+        width:(sys.dwidth - 60)/2,
+    },
+
+
+    btnText:{
+        color:'white',
+        fontSize:16,
+        textAlign:'center',
+        textAlignVertical:'center',
+        // borderBottomWidth:1,
+        ...Platform.select({
+            ios:{
+                lineHeight:40,
+            },
+            android:{
+            }
+        }),
+    },
+
+    twoView:{
+        
+    },
+
+})
+

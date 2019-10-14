@@ -1,0 +1,724 @@
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ * @flow
+ */
+import React,{Component} from 'react';
+import {
+    Image, View,
+    StyleSheet,
+    Text, 
+    DeviceEventEmitter,
+    Platform,
+    AppState
+} from 'react-native';
+
+import {createBottomTabNavigator, createStackNavigator,createAppContainer} from 'react-navigation';
+
+import HttpUtils from "./common/HttpUtil"
+import My from './my/My';
+import Hot from './hot/Hot';
+import Chat from './hot/ChatView'
+import ShowImageViewer from './hot/ShowImageViewer'
+import Home from './home/Home';
+import Lottery from './Lottery/Lottery';
+import LotteryDetail from './Lottery/LotteryDetail'
+import ElevenSelectFive from './home/ElevenSelectFive/ElevenSelectFive'
+import kuaiThreeAction from './home/kuaiThreeAction';
+import caipiaoMore from './home/CaipiaoMore';
+import Cqssc from './home/cqssc/Cqssc';
+import Sixhc from './home/Sixhc/Sixhc';
+import pkten from './home/pkten/pkten';
+import pcDanDan from './home/PCdandan/pcDanDan';
+import Keno from './home/keno/Keno';
+import Dpc from './home/dpc/Dpc';
+
+import BetsResult from './home/common/BetsResult';
+
+import WelcomePage from "./WelcomePage";
+
+import Login from "./my/Login"
+import Register from "./my/Register"
+import BuycoinsCent from './my/BuycoinsCent'
+import WebViewScene from './hot/WebView'
+import MyFollow from "./my/MyFollow"
+import TradingRecord from "./my/TradingRecord"
+import DelegateCenter from './my/DelegateCenter/DelegateCenter'
+import DelegateManger from './my/DelegateCenter/DelegateManger'
+import DelegateXiaZhuJilu from './my/DelegateCenter/DelegateXiaZhuJilu'
+import DelegateZaiXianHuiYuan from './my/DelegateCenter/DelegateZaiXianHuiYuan'
+import DelegateZhangBianJiLu from './my/DelegateCenter/DelegateZhangBianJiLu'
+import DelegateBaoBiao from './my/DelegateCenter/DelegateBaoBiao'
+import DelegateCunTk from './my/DelegateCenter/DelegateCunTk'
+
+
+import SecurityCenter from './my/SecurityCenter'
+
+import PassWordChange from './my/PassWordChange'
+
+
+import DelegateKaiHuCenter from './my/DelegateCenter/DelegateKaiHuCenter'
+
+import StackViewStyleInterpolator from "react-navigation-stack/src/views/StackView/StackViewStyleInterpolator"
+// import CardStackStyleInterpolator from 'react-navigation/src/views/CardStack/CardStackStyleInterpolator';
+import TodayLoss from "./my/TodayLoss"
+import OrderDetail from "./my/OrderDetail"
+import Setup from "./my/Setup"
+import EditUser from "./my/EditUser"
+import FeedBack from  "./my/FeedBack"
+
+import RechargeRecord from "./my/RechargeRecord"
+import ConsumeDetail from "./my/ConsumeDetail"
+import InviteHistory from  "./my/InviteHistory"
+
+import WithdrawCash from './my/WithdrawCash'
+import BankCard from "./my/BankCard"
+
+import {sys,isIphoneX} from './common/Data'
+import storage from './common/Storage'
+import { Header } from 'react-navigation';
+
+// import ToastComponent  from './common/ToastManger'
+
+var unRead=false
+const styles = StyleSheet.create({
+    rightView: {
+        marginHorizontal: 20
+    },
+    headerView: {
+        backgroundColor: sys.mainColor
+    },
+    headerTitleStyle: {
+        color: '#ffffff',
+        fontSize: 18,
+        // alignSelf: 'center'
+    },
+    leftText: {
+        color: 'green'
+    }
+});
+
+class TabBarBradgeItem extends React.Component {
+
+
+    // mixins: [TimerMixin]
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            unRead:false
+        };
+    }
+
+    componentDidMount() {
+
+   
+        this.timer = setInterval(
+            () => {  
+            // this.getChatUnReadData()   
+        },
+            5000
+          );
+
+          //监听状态改变事件
+        AppState.addEventListener('change', this.handleAppStateChange);
+
+
+          DeviceEventEmitter.addListener('Read',(dic)=>{
+
+            //接收到详情页发送的通知，刷新首页的数据，改变按钮颜色和文字，刷新UI
+            // if(dic['islogin'] != 0){
+            //     this.getPersonInfo(0)
+            // }else{
+
+                this.setState({
+                    unRead:false
+                });
+                //存储数据
+            //     storage.save('islogin', "")
+            // }
+
+        });
+
+        ws.onmessage = (evt) => {
+            var data = JSON.parse(evt.data);
+            // console.log("===============");
+            // console.log(data);
+            switch (data.code) {
+                case 'kefu':
+                this.setState({
+                     unRead:true
+                 });
+            }
+        }
+    }
+
+
+    componentWillUnmount() {
+        // 如果存在this.timer，则使用clearTimeout清空。
+        // 如果你使用多个timer，那么用多个变量，或者用个数组来保存引用，然后逐个clear
+        this.timer && clearTimeout(this.timer);
+        AppState.removeEventListener('change', this.handleAppStateChange);
+        
+      }
+
+
+
+     //状态改变响应
+    handleAppStateChange(appState) {
+        console.log(">>>>>>>>>>>>"+appState);
+        this.getChatUnReadData();
+    }
+
+    getChatUnReadData(){
+
+
+        this.state.unRead = unRead
+        // if(this.state.unRead ){
+        //     return;
+        // }
+
+        let codeurl = sys.host + "/AppChat.unReadRoommessage.do."
+        let formData = new FormData();
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                console.log('unread----')
+                console.log(result)
+
+                if(result['respCode']==1){
+
+                    this.setState({
+                        unRead:result['data']['kefu_unread']
+                    })
+                    unRead = result['data']['kefu_unread']
+
+                    if(unRead){
+                        this.setState({
+                            unRead:true
+                        });
+                    }
+
+                }else{
+
+                }
+        })
+        .catch(error=>{
+        
+               
+        })        
+    }
+
+
+    render() {
+
+        // var count = this.props.count
+
+        var bradgeView = null;
+
+        if(this.state.unRead ){
+            bradgeView = (
+                <View style={{backgroundColor: 'red', position: 'absolute', right: 2, top: 3, height: 8, width: 8, borderRadius: 4, overflow: 'hidden'}}>
+                    {/* <Text style={{fontSize: 12, textAlign: 'center',color:'white'}}>{count}</Text> */}
+                </View>
+            )
+        }
+
+        return(
+
+            <View style={{position: 'absolute', top: 3}}>
+                <Image source={ this.props.focused ? this.props.selectedImage : this.props.normalImage }
+                   style={ { tintColor:this.props.tintColor,width:26,height:26, resizeMode: 'contain' } }
+                />
+                {
+                    bradgeView
+                }
+           
+          </View>
+           
+        )
+    }
+
+}
+
+class TabBarItem extends React.Component {
+
+    render() {   
+        return(         
+                <Image source={ this.props.focused ? this.props.selectedImage : this.props.normalImage }
+                   style={ { tintColor:this.props.tintColor,width:26,height:26, resizeMode: 'contain' } }
+                />                 
+        )
+    }
+
+}
+
+const Tab = createBottomTabNavigator({
+    红彩在线: {
+        screen: Home,
+        navigationOptions: {
+            
+            tabBarLabel: '购彩',    //若不设置,则以key为标题
+            tabBarVisible: true,  //是否隐藏标签栏。默认不隐藏(true),该选项卡激活时生效
+            tabBarIcon: ({focused,tintColor}) => (
+                <TabBarItem
+                    // tintColor={tintColor}
+                    focused={focused}
+                    normalImage={require('./res/images/unselected_goucai.png')}
+                    selectedImage={require('./res/images/selected_goucai.png')}
+                />
+            ),
+            // title:"充值",
+            headerTitle : "主页",
+            headerTitleStyle:{
+                alignSelf:'center',
+                color:sys.titleColor
+            },
+
+        },
+
+    },
+    // 聊天: {
+    //     screen: Chat,
+    //     navigationOptions: {
+    //         tabBarLabel: '聊天',
+    //         tabBarVisible: true,  //是否隐藏标签栏。默认不隐藏(true),该选项卡激活时生效
+    //         tabBarIcon: ({focused,tintColor}) => (<TabBarItem
+    //             // tintColor={tintColor}
+    //             focused={focused}
+    //             normalImage={require('./res/images/unselected_remen.png')}
+    //             selectedImage={require('./res/images/selected_remen.png')}
+    //         />)
+    //     },
+        
+    // },
+ 
+     注单: {
+        screen: MyFollow,
+        navigationOptions: {
+            tabBarLabel: '注单',
+            tabBarVisible: true,  //是否隐藏标签栏。默认不隐藏(true),该选项卡激活时生效
+            tabBarIcon: ({focused,tintColor}) => (<TabBarItem
+                // tintColor={tintColor}
+                focused={focused}
+                normalImage={require('./res/images/unselected_zhudan.png')}
+                selectedImage={require('./res/images/selected_zhudan.png')}
+            />)
+        },
+    },
+    开奖: {
+        screen: Lottery,
+        navigationOptions: {
+            tabBarLabel: '开奖',
+            tabBarVisible: true,  //是否隐藏标签栏。默认不隐藏(true),该选项卡激活时生效
+            tabBarIcon: ({focused,tintColor}) => (<TabBarItem
+                // tintColor={tintColor}
+                focused={focused}
+                normalImage={require('./res/images/unselected_kaijian.png')}
+                selectedImage={require('./res/images/selected_kaijian.png')}
+            />)
+        },
+    },
+    我的: {
+        screen: My,
+        navigationOptions: {
+            tabBarLabel: '我的',
+            tabBarVisible: true,  //是否隐藏标签栏。默认不隐藏(true),该选项卡激活时生效
+            tabBarIcon: ({focused,tintColor}) => (<TabBarBradgeItem
+                // tintColor={tintColor}
+                count = {2}
+                focused={focused}
+                normalImage={require('./res/images/unselected_mine.png')}
+                selectedImage={require('./res/images/selected_mine.png')}
+            />)
+        },
+    },
+
+
+
+}, {
+
+    tabBarPosition: 'bottom',    //设置tabbar的位置，iOS默认在底部，安卓默认在顶部。（属性值：'top'，'bottom'）
+    swipeEnabled: true,          //是否允许在标签之间滑动
+    animationEnabled: false,     //是否在更改标签时显示动画。
+    lazy: true,                  //是否根据需要懒惰呈现标签，而不是提前制作，意思是在app打开的时候将底部标签栏全部加载，默认false,推荐改成true哦
+    initialRouteName: '红彩在线',    //设置默认的页面组件
+    backBehavior: 'none',        //按 back 键是否跳转到第一个Tab(首页)， none 为不跳转
+    // tabBarComponent: TabBarBottom, //设置安卓和iOS一样的样式
+   
+
+
+    tabBarOptions: {
+        activeTintColor: sys.mainColor,//label和icon的前景色 活跃状态下（选中）。
+        activeBackgroundColor: 'white', //label和icon的背景色 活跃状态下（选中） 。
+        //inactiveTintColor:'black',
+        inactiveBackgroundColor: 'white', //label和icon的背景色 活跃状态下（选中） 。
+        showLabel: true,         //是否显示label，默认开启
+        labelStyle: {backgroundColor:'white',fontSize: 12}, //label的样式
+        style: {height: 49},  //tabbar的样式
+        iconStyle: {height: 30,width:30},   //安卓,
+        indicatorStyle:{height:0}
+
+    },
+
+    navigationOptions:{
+
+           
+            
+        tabBarOnPress:(obj)=>{
+            obj.jumpToIndex(obj.scene.index)
+            if(obj.scene.index == 4){
+                this.timer = setTimeout(
+                    () => { 
+                        DeviceEventEmitter.emit('ChangeUI', {});
+
+                        if(unRead){
+                            DeviceEventEmitter.emit('UnRead', {});
+                        }
+                     },
+                    6000
+                  );
+            }
+        },
+       
+        headerTintColor:sys.mainColor,
+
+    },
+
+
+
+
+});
+
+Tab.navigationOptions = ({navigation}) => {
+    let {routeName} = navigation.state.routes[navigation.state.index];
+
+   
+    if(Platform.OS == 'ios'){
+        return {         
+            headerTitle:routeName,
+            // backgroundColor:sys.mainColor
+            headerStyle:{
+                // alignSelf:'center',
+                // flex: 1,
+                // textAlign: 'center',
+                backgroundColor:'red',
+                // color:'red'
+            },
+            headerTintColor:'red',
+        };
+       
+    }else{
+
+        let isMine = (routeName == '我的')
+
+
+        return {
+            header: <View style={{backgroundColor:sys.whiteColor,width:sys.dwidth,height:
+                Header.HEIGHT,borderColor:sys.grayColor,borderBottomWidth:1}}>
+                <Text style={{marginTop:(Header.HEIGHT-25)/2,textAlign:'center',
+                fontWeight:'bold',
+                color:sys.titleColor,
+                textAlignVertical:'center',
+                fontSize:20,
+
+                width:sys.dwidth,height:25}}>
+    
+                    {routeName}</Text></View>,
+            headerTitle:routeName,
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                width:sys.dwidth,
+                textAlign: 'center',              
+            },
+            headerRight: <View/>
+        };
+    }
+};
+
+const StacksOverTab = createStackNavigator({
+        WelcomePage: {
+            screen: WelcomePage,
+            navigationOptions: {
+                header: null
+            }
+        },
+        LotteryDetail:{
+            screen: LotteryDetail,
+        },
+
+        Cqssc:{
+            screen:Cqssc,
+        },
+
+        KuaiThreeAction: {
+            screen: kuaiThreeAction,
+        },
+
+        CaipiaoMore: {
+            screen: caipiaoMore,
+        },
+
+        
+
+
+        Pkten:{
+            screen:pkten,
+        },
+
+        PcDanDan:{
+            screen:pcDanDan,
+        },
+
+        Sixhc:{
+            screen:Sixhc,
+        },
+
+        Keno:{
+            screen:Keno,
+        },
+        Dpc:{
+            screen:Dpc,
+        },
+
+        BetsResult:{
+            screen:BetsResult,
+        },
+        
+        ElevenSelectFive:{
+            screen:ElevenSelectFive,
+        },
+
+
+        Tab: {
+            screen: Tab,
+            navigationOptions: {
+                // header: null
+                gesturesEnabled: true,
+                // headerTitle: '设置',  //设置导航栏标题，推荐用这个方法。
+                headerRight: <View><Text></Text></View>,
+                headerStyle: {},
+                headerTitleStyle: {
+                    color: '#000000',
+                    fontSize: 18,
+                    alignSelf: 'center'
+                },
+                headerBackTitle: null,
+                headerBackTitleStyle: styles.leftText,
+                headerLeft: <View style={styles.rightView}></View>,
+                headerTintColor : '#ffffff', //返回按钮的颜色
+            }
+        },
+
+        Login: {
+            screen: Login,
+            path:'app/login',
+            navigationOptions: {
+                // header: null
+            }
+        },
+        Register: {
+            screen: Register,
+            navigationOptions: {
+                // header: null
+            }
+        },
+       
+
+        MyFollow:{
+            screen: MyFollow,
+            navigationOptions: {
+                // header: null
+            }
+        },
+
+        TradingRecord:{
+            screen: TradingRecord,
+            navigationOptions: {
+                // header: null
+            }
+        },
+
+
+        TodayLoss:{
+            screen: TodayLoss,
+            navigationOptions: {
+                // header: null
+            }
+        },
+
+        DelegateCenter:{
+            screen: DelegateCenter,
+            navigationOptions: {
+            // header: null
+            }
+        },
+
+        DelegateManger:{
+            screen:DelegateManger,
+            navigationOptions: {
+                // header: null
+                }
+        },
+
+
+        DelegateXiaZhuJilu:{
+            screen:DelegateXiaZhuJilu,
+            navigationOptions: {
+                // header: null
+                }
+        },
+
+        DelegateZaiXianHuiYuan:{
+            screen:DelegateZaiXianHuiYuan,
+            navigationOptions: {
+                // header: null
+                }
+        },
+
+        DelegateBaoBiao:{
+            screen:DelegateBaoBiao,
+            navigationOptions: {
+                // header: null
+                }
+        },
+
+        DelegateCunTk:{
+            screen:DelegateCunTk,
+            navigationOptions: {
+                // header: null
+                }
+        },
+  
+        DelegateKaiHuCenter:{
+            screen:DelegateKaiHuCenter,
+            navigationOptions: {
+                // header: null
+                }
+        },
+
+
+        DelegateZhangBianJiLu:{
+            screen:DelegateZhangBianJiLu,
+            navigationOptions: {
+                // header: null
+                }
+        },
+
+        SecurityCenter:{
+            screen:SecurityCenter,
+            navigationOptions: {
+                // header: null
+                }
+        },
+
+        PassWordChange:{
+            screen:PassWordChange,
+            navigationOptions: {
+                // header: null
+                }
+        },
+
+        OrderDetail:{
+            screen: OrderDetail,
+        },
+
+
+
+        WebViewScene:{
+            screen: WebViewScene,
+            navigationOptions :(props) => {
+                // header: null
+                // const {params} = props.navigation.state;
+                // return{
+                // title:params.title?params.title:'宗隐'
+                // }
+            }
+        },
+        Setup:{
+            screen: Setup,
+        },
+        EditUser:{
+            screen: EditUser,
+        },
+        FeedBack:{
+            screen: FeedBack,
+        },
+      
+        RechargeRecord:{
+            screen:RechargeRecord
+        },
+        ConsumeDetail:{
+            screen:ConsumeDetail
+        },
+        InviteHistory:{
+            screen:InviteHistory
+        },
+        
+        BuycoinsCent:{
+            screen:BuycoinsCent
+        },
+      
+        WithdrawCash:{
+            screen:WithdrawCash
+        },
+        BankCard:{
+            screen:BankCard
+        },
+        Chat:{
+            screen:Chat
+        },
+        ShowImageViewer:{
+            screen:ShowImageViewer,
+            navigationOptions: {
+                header: null
+            }
+        }
+    },
+    {
+        mode: 'card',
+        headerMode: 'screen',
+        navigationOptions: {
+            gesturesEnabled: true,
+            // headerTitle: '设置',  //设置导航栏标题，推荐用这个方法。
+            headerRight: <View style={styles.rightView}><Text></Text></View>,
+            headerStyle: styles.headerView,
+            headerTitleStyle: styles.headerTitleStyle,
+            headerBackTitle: null,
+            headerBackTitleStyle: styles.leftText,
+            //headerLeft: <View style={styles.rightView}></View>,
+            headerTintColor : '#ffffff', //返回按钮的颜色
+        },
+
+        transitionConfig:()=>({
+
+            screenInterpolator: StackViewStyleInterpolator.forHorizontal,
+            
+        }),
+
+    }
+);
+
+const App = createAppContainer(StacksOverTab);
+export default App;
+// export default class App extends Component {
+
+//     render() {
+//        return(
+//           <View style={{flex: 1}}>
+//                {/*...你的代码*/}
+
+//                {/*toast*/}
+//                <ToastComponent/>
+//           </View>);
+//      }
+// }
+
+
+// export default class App extends React.Component {
+//     render(){
+//         return <StacksOverTab />
+//     }
+// };

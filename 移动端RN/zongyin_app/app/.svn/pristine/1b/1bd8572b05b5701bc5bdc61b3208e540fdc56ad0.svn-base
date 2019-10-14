@@ -1,0 +1,391 @@
+
+import React, {Component} from 'react'
+import {
+    View, StyleSheet, Text, Platform, Alert, TouchableOpacity, Image, PixelRatio, ImageBackground,
+    DeviceEventEmitter,TextInput
+} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+
+
+import {Button, sys} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+
+import RNLogin from "../common/RNLoginModule"
+
+import DialogSelected from '../common/AlertSelect';
+var ImagePicker = require('react-native-image-picker');
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+export default class PushSetting extends React.Component {
+
+    static  navigationOptions = ({navigation}) => ({
+        headerTitle:"发布直播",
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+    
+        },
+        headerRight: <View />
+    });
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:10,
+            headInfo:{},
+            isFollow:true,
+            front_cover:"",
+            change_pic:"",
+            title:"",
+            fubi:"0",
+            visible:false,
+            textTip:"直播初始化中..."
+        }
+    }
+
+
+    componentDidMount() {
+
+
+        storage.load({
+            key: 'islogin',
+            // autoSync(default true) means if data not found or expired,
+            // then invoke the corresponding sync method
+            autoSync: true,
+            // syncInBackground(default true) means if data expired,
+            // return the outdated data first while invoke the sync method.
+            // It can be set to false to always return data provided by sync method when expired.(Of course it's slower)
+            syncInBackground: true,
+
+        }).then(ret => {
+            if (ret != '' && ret != null) {
+                let data = JSON.parse(ret);
+                this.setState({
+                    front_cover:data['front_cover'],
+                });
+            }
+        })
+
+        this.showAlertSelected = this.showAlertSelected.bind(this);
+        this.callbackSelected = this.callbackSelected.bind(this);
+    }
+
+    showAlertSelected(){
+        this.dialog.show("请选择照片", ['拍照','相册'], '#333333', this.callbackSelected);
+    }
+    // 回调
+    callbackSelected(i){
+        switch (i){
+            case 0: // 拍照
+                this.choose(1)
+                break;
+            case 1: // 图库
+                this.choose(0)
+                break;
+        }
+    }
+
+    choose(isCamera){
+
+        let options = {
+            title: 'Select Avatar',
+            customButtons: [
+                {name: 'fb', title: 'Choose Photo from Facebook'},
+            ],
+            storageOptions: {
+                skipBackup: true,
+                path: 'images'
+            }
+        };
+
+        if(isCamera){
+            // Open Image Library:
+            ImagePicker.launchCamera(options, (response)  => {
+                // Same code as in above section!
+                if (response.didCancel) {
+                    console.log('User cancelled image picker');
+                }
+                else if (response.error) {
+                    console.log('ImagePicker Error: ', response.error);
+                }
+                else if (response.customButton) {
+                    console.log('User tapped custom button: ', response.customButton);
+                }
+                else {
+                    let source = { uri: response.uri };
+                    // You can also display the image using data:
+                    // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+                    this.setState({
+                        change_pic:source.uri
+                    });
+                }
+            });
+            return;
+        }
+
+        ImagePicker.launchImageLibrary(options, (response) => {
+
+
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            }
+            else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            }
+            else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            }
+            else {
+                let source = { uri: response.uri };
+                // You can also display the image using data:
+                // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+                this.setState({
+                    change_pic:source.uri
+                },function () {
+                    this.uploadImage()
+                });
+            }
+        });
+
+    }
+
+
+    render() {
+
+        // let picView = this.state.front_cover.length>0?{uri:this.state.front_cover}:require('../res/images/image_background.png')
+        let picView = this.state.front_cover.length>0?{uri:this.state.front_cover}:require('')
+        if(this.state.change_pic.length > 0){
+            picView = {uri:this.state.change_pic}
+        }
+        return (
+            <KeyboardAwareScrollView style={styles.container}>
+                
+        <View  style={styles.hedView}>
+            <TouchableOpacity style={styles.hedBgImg}  onPress={()=>this.showAlertSelected()}>
+                <ImageBackground style={styles.hedBgImg}
+                    source={picView}>
+                    <View>
+                    {/* <Image style={styles.uploadImage} source={require('./images/icon_upload.png')} /> */}
+                    <Image style={styles.uploadImage} source={require('')} />
+                        <Text style={styles.uploadText}>给你的直播设置一个满意的封面</Text>
+                    </View>
+                </ImageBackground>
+            </TouchableOpacity>
+            <View style={styles.lineView}></View>
+
+            <TextInput
+                underlineColorAndroid='transparent'
+                style={styles.textIp}
+                placeholder="输入直播标题"
+                onChangeText={(text) => this.setState({title:text})}
+            />
+            <View style={styles.boldlineView}></View>
+            <TextInput
+                underlineColorAndroid='transparent'
+                style={styles.textIp}
+                value="设置为付费直播"
+                editable={false}
+            ></TextInput>
+            <View style={styles.lineView}></View>
+
+            <TextInput
+                underlineColorAndroid='transparent'
+                style={styles.textIp}
+                placeholder="请输入价格"
+                onChangeText={(text) => this.setState({fubi:text})}
+            />
+            <View style={styles.lineView}></View>
+            <TextInput
+                underlineColorAndroid='transparent'
+                style={styles.textTip}
+                multiline={true}
+                placeholder="建议价格设置在100-1000福币的整数，超出1000福币须等待系统审核通过才能进行直播"
+                editable={false}
+            />
+            <View style={styles.boldlineView}></View>
+            <TouchableOpacity onPress={() => this.updateMemberInfo()} style={styles.button}>
+                <Text style={styles.buttontext}>开始直播</Text>
+            </TouchableOpacity>
+            <DialogSelected ref={(dialog)=>{
+                this.dialog = dialog;
+            }} />
+        </View>
+            </KeyboardAwareScrollView>)
+
+    }
+
+
+
+    updateMemberInfo(){
+
+
+        if(this.state.title.length < 1){
+            Alert.alert("请输入直播标题")
+            return
+        }
+
+        let codeurl = host + '/member/index/updateMemberInfo';
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+        formData.append('front_cover', this.state.change_pic?this.state.change_pic:this.state.front_cover);
+
+
+        HttpUtils.post(codeurl, formData)
+            .then(result => {
+                this.setState({
+                    visible: false,
+                });
+
+                if (result['respCode'] == 1) {
+
+
+                    let dic = {"title":this.state.title,"front_cover":this.state.change_pic,"fubi":this.state.fubi}
+
+
+                    RNLogin.startPush("com.tujing.zongyin.linkmic.TCLinkMicLivePushActivity", dic);
+
+
+
+                } else {
+                   
+                }
+
+
+            })
+            .catch(error => {
+               
+            })
+    }
+
+    uploadImage() {
+        //
+        // this.setState({
+        //     visible: true
+        // });
+
+        if(this.state.change_pic == ''){
+            this.updateMemberInfo()
+            return
+        }
+
+        let codeurl = host + '/index/index/uploadImage';
+        let imageArr = [this.state.change_pic];
+        // 请求参数 ('key',value)
+        HttpUtils.uploadImage(codeurl, imageArr)
+            .then(result => {
+
+
+                if (result['respCode'] == 1) {
+                    this.state.change_pic = result['data'];
+
+
+                } else {
+                 
+                    this.setState({
+                        visible: false
+                    });
+
+                }
+
+            })
+            .catch(error => {
+              
+                this.setState({
+                    visible: false
+                });
+
+            })
+
+    }
+
+
+
+
+
+
+
+}
+
+const styles = StyleSheet.create({
+
+    container: {
+        flex: 1,
+
+        backgroundColor:sys.grayColor
+    },
+    hedView:{
+        width:sys.dwidth,
+        alignItems:'center',
+        backgroundColor:sys.grayColor,
+    },
+
+    hedBgImg:{
+
+
+        justifyContent:'center',
+        width:sys.dwidth,
+        height:sys.dwidth/3*2,
+        backgroundColor:sys.grayColor
+
+    },
+
+    uploadImage:{
+
+        width:70,
+        height:70,
+        marginLeft:sys.dwidth/2-35
+
+    },
+    uploadText:{
+        color:sys.whiteColor,
+        backgroundColor: 'rgba(52, 52, 52, 0.1)',
+        textAlign:'center',
+        marginTop:10
+    },
+
+
+    lineView:{
+        backgroundColor:"#cccccc",
+        height:1
+    },
+    boldlineView:{
+        backgroundColor:sys.grayColor,
+        height:10
+    },
+    textIp:{
+        paddingLeft:10,
+        marginLeft:0,
+        width:sys.dwidth,
+        height:60,
+        fontSize:15,
+        backgroundColor:sys.whiteColor
+    },
+    textTip:{
+        paddingLeft:10,
+        marginLeft:0,
+        width:sys.dwidth,
+        height:60,
+        fontSize:15,
+        backgroundColor:sys.whiteColor
+    },
+    button:{
+        width:sys.dwidth,
+        backgroundColor:sys.mainColor,
+        height:50,
+        alignItems:'center',
+        justifyContent:'center',
+    },
+    buttontext:{
+        color:'#ffffff',
+        textAlign:'center',
+        fontSize:18,
+    },
+
+})

@@ -1,0 +1,542 @@
+/**
+ * Created by jakie on 2019/1/30.
+ */
+/**
+ * Created by jakie on 2019/1/30.
+ */
+import React, {PureComponent,Component} from 'react'
+import {View,
+    Text,
+    TouchableOpacity,
+    Dimensions,
+    TextInput,
+    Alert,
+    ScrollView} from 'react-native'
+import {sys,NoDataView,isIphoneX,sysScrollH} from "../../common/Data"
+import {LeftButton} from "../common/CommonViewButton"
+import {CustomButton} from "../common/CommonViewButton"
+import {styles} from "../common/CommonStyle"
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+const view_arr_data=[
+    {
+      'title': '任选一',
+      'playid':'bjkl8rx1',
+      'number':1,
+      'message':'从01-80中选择1个号码组成一注，当期开奖结果的20个号码中包含所选号码，即可中奖。 ',
+    },
+    {
+      'title': '任选二',
+      'playid':'bjkl8rx2',
+      'number':2,
+      'message':'从01-80中选择2-8个号码，当期开奖结果的20个号码中包含所选号码中的两个，即可中奖。 ',
+      },
+      {
+        'title': '任选三',
+        'playid':'bjkl8rx3',
+        'number':3,
+        'message':'从01-80中选择3-8个号码，当期开奖结果的20个号码中包含所选号码中的三个，即可中奖。  ',
+      },
+      {
+        'title': '任选四',
+        'playid':'bjkl8rx4',
+        'number':4,
+        'message':'从01-80中选择4-8个号码，当期开奖结果的20个号码中包含所选号码中的四个，即可中奖。  ',
+      },
+      {
+        'title': '任选五',
+        'playid':'bjkl8rx5',
+        'number':5,
+        'message':'从01-80中选择5-8个号码，当期开奖结果的20个号码中包含所选号码中的五个，即可中奖。 ',
+      },
+      {
+        'title': '任选六',
+        'playid':'bjkl8rx6',
+        'number':6,
+        'message':'从01-80中选择6-8个号码，当期开奖结果的20个号码中包含所选号码中的六个，即可中奖。  ',
+      },
+      {
+        'title': '任选七',
+        'playid':'bjkl8rx7',
+        'number':7,
+        'message':'从01-80中选择7-8个号码，当期开奖结果的20个号码中包含所选号码中的七个，即可中奖。  ',
+      }
+  ];
+var thiz = this;
+
+
+
+export default class RenXuan extends React.Component {
+    _onPress = () => {
+        this.props.onPressItem(this.props.id);
+    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            fontLoaded: false,
+            index: 0,
+            beishu:"1",
+            zhushu : "0注",
+            count:0,
+            amount:"0元",  
+            currFullExpect:"",
+            touzhuList:[],//投注的信息
+        };
+    }
+    async componentDidMount() {
+        //页面加载时候执行 async如果有异步任务 需要执行后才会加载页面
+        this.setState({ fontLoaded: true });
+        this.setState({ currFullExpect: this.props.currFullExpect });
+    }
+    onButtonPress(index){
+        if (index == this.state.index){
+            return;
+        }    
+        var oldIndex=this.state.index;
+        this.setState({
+            index:index,
+            beishu:"1",
+            zhushu : "0注",
+            count:0,
+            amount:"0元",
+        },()=>{
+            for(var key in this.refs){
+               // if(this.refs[key].state.selected != null && key.substr(0,4) != "left"){
+                if (key.includes('number')){
+                    this.refs[key].setState({
+                       selected:false
+                   });
+                }
+              }
+            this.refs["left"+oldIndex].setState({
+                selected: false
+            });
+            this.refs["left"+index].setState({
+                selected: true
+            });
+        })
+    };
+        //组合算法
+  combine(arr, num) {
+    var r = [];
+    (function f(t, a, n) {
+      if (n == 0) return r.push(t);
+      for (var i = 0, l = a.length; i <= l - n; i++) {
+        f(t.concat(a[i]), a.slice(i + 1), n - 1);
+      }
+    })([], arr, num);
+    return r;
+  }
+
+    itemClick(index){
+        var numberArray=[];
+        for(var i=1;i<=80;i++){
+            var tempNumber=i;
+            if(tempNumber<10){
+                tempNumber="0"+tempNumber;
+            }
+            if(this.refs["number"+tempNumber].state.selected){
+                numberArray.push(tempNumber);
+            }
+        }
+
+        var numberSize=numberArray.length;  
+        if(numberSize<=0){
+            this.setState({
+                zhushu:"0注",
+                count:0,
+                amount :"0元"
+            })
+            return false;
+        }
+        var clickNumber=index;//点击的号码
+        var item=view_arr_data[this.state.index];
+        var number=item.number;
+        var zhushuCount=0;//几注
+        if(number==1){
+             //任选一 
+             zhushuCount=numberSize;
+        }else{
+            if(numberSize>8){     
+                this.setState({
+                },()=>{
+                    this.refs["number"+clickNumber].setState({
+                        selected:false
+                    });
+                })
+                this.refs.toast.show("对不起，当前玩法最多只能选择8个号码", DURATION.LENGTH_LONG);     
+          
+                return false;
+            }
+            var combineArray=  this.combine(numberArray,number);
+            zhushuCount=combineArray.length;
+        }
+
+        if(this.state.beishu==""||this.state.beishu==null){
+            var totalAmount=0;
+        }else{
+            var totalAmount=zhushuCount*parseInt(this.state.beishu)*2;
+        }
+        this.setState({
+            zhushu:zhushuCount+"注",
+            count:zhushuCount,
+            amount :totalAmount+"元"
+        })
+    }
+
+    buynow(){
+
+
+        var item=view_arr_data[this.state.index];
+        let isCunZai = this.props.datalist.hasOwnProperty(item.playid)
+
+        if (!isCunZai) {
+            this.props.lodaData()
+
+            return;
+        }
+
+        if(this.state.beishu==""||this.state.beishu==null){   
+          
+            this.refs.toast.show("倍数不能为空", DURATION.LENGTH_LONG);      
+            return false;
+        }
+        var numberArray=[];
+        for(var i=1;i<=80;i++){
+            var tempNumber=i;
+            if(tempNumber<10){
+                tempNumber="0"+tempNumber;
+            }
+            if(this.refs["number"+tempNumber].state.selected){
+                numberArray.push(tempNumber);
+            }
+        }
+        
+        var numberSize=numberArray.length;  
+        var item=view_arr_data[this.state.index];
+        var number=item.number;
+        var zhushuCount=0;//几注
+        if(number==1){
+             //任选一 
+             zhushuCount=numberSize;
+        }else{
+            if(numberSize>8){     
+                this.setState({
+                },()=>{
+                    this.refs["number"+clickNumber].setState({
+                        selected:false
+                    });
+                })
+         
+                this.refs.toast.show("对不起，当前玩法最多只能选择8个号码", DURATION.LENGTH_LONG);      
+                return false;
+            }
+            var combineArray=  this.combine(numberArray,number);
+            zhushuCount=combineArray.length;
+        }
+        if(zhushuCount<=0){
+            this.refs.toast.show("下注注数不少于1", DURATION.LENGTH_LONG);  
+            return false;
+        }
+
+        var numberMessage="";
+        for(var i=0;i<numberSize;i++){
+            numberMessage=numberMessage+numberArray[i]; 
+            if(i==numberSize-1){
+                //最后一个 如果前一个或是这一个是小于40的需要加|
+                if(i==0){
+                  if(numberArray[i]<=40){
+                    numberMessage=numberMessage+"|"; 
+                  }
+                }else{
+                    if(numberArray[i-1]<=40){
+                        numberMessage=numberMessage+"|"; 
+                     }
+                }
+            }else{
+                if(numberArray[i]<=40&&numberArray[i+1]>40){
+                    numberMessage=numberMessage+"|"; 
+                 }else{
+                    numberMessage=numberMessage+","; 
+                 }
+            }
+        }
+
+        if(this.props.datalist[item.playid]==null){
+            this.refs.toast.show("请重新刷新页面获取数据", DURATION.LENGTH_LONG);  
+      
+            return false;
+        }
+        var totalAmount=this.state.count*parseInt(this.state.beishu)*2;
+        var rateItem=this.props.datalist[item.playid];//赔率信息
+
+        if(this.state.count>rateItem['maxzs']){
+            this.refs.toast.show("最高投注注数"+rateItem['maxzs']+"注", DURATION.LENGTH_LONG);  
+            return false;
+        }
+        if(totalAmount<rateItem['minxf']&&rateItem['minxf']>0){
+            this.refs.toast.show("最低投注金额为"+rateItem['minxf']+"元", DURATION.LENGTH_LONG);          
+            return false;
+        }
+        if(totalAmount>rateItem['maxxf']&&rateItem['maxxf']>0){
+            this.refs.toast.show("最高投注金额为"+rateItem['maxxf']+"元", DURATION.LENGTH_LONG);  
+            return false;
+        }
+         var item={
+             "trano":"",
+             "playtitle":rateItem.title,
+             "playid":rateItem.playid,
+             "number":numberMessage,
+             "zhushu":this.state.count,
+             "price":totalAmount,
+             "minxf":rateItem.minxf,
+             "totalzs":rateItem.totalzs,
+             "maxjj":rateItem.maxjj,
+             "minjj":rateItem.minjj,
+             "maxzs":rateItem.maxzs,
+             "rate":rateItem.rate,
+             "beishu":this.state.beishu,
+             "yjf":"1",
+             "numberMessage":numberMessage
+         };     
+        var list=[];
+        list.push(item);
+
+        this.setState({
+            touzhuList : list
+        },()=>{
+            this.props.onPress();
+        });
+    }
+    render(){
+
+        thiz = this;
+        var  zhushu  = thiz.state.zhushu ;
+        var  amount = thiz.state.amount;
+       
+        var rate=9.9; 
+        var item=view_arr_data[this.state.index];
+        var remark='';  
+
+        if(this.props.datalist[item.playid]!=null){
+            remark=this.props.datalist[item.playid].remark;
+            if (remark == '' || remark == null) {
+                remark=item.message; 
+            }
+        }
+
+        let isCunZai = this.props.datalist.hasOwnProperty(item.playid)
+
+        let rarmkView = isCunZai?<Text style={styles.remarkHeader}>{remark}</Text>:<NoDataView
+             isloading = {this.props.visible} click={()=>this.props.lodaData()}
+             text = {"重新加载"}></NoDataView> 
+
+        var scrollH = sysScrollH(25);
+
+        if (thiz.props.viewHeight) {
+            scrollH = thiz.props.viewHeight;
+        }
+
+        var shangPanList=[
+            ['01','02','03','04','05'],
+            ['06','07','08','09','10'],
+            ['11','12','13','14','15'],
+            ['16','17','18','19','20'],
+            ['21','22','23','24','25'],
+            ['26','27','28','29','30'],
+            ['31','32','33','34','35'],
+            ['36','37','38','39','40'],
+        ];
+       
+        var xiaPanList=[
+            ['41','42','43','44','45'],
+            ['46','47','48','49','50'],
+            ['51','52','53','54','55'],
+            ['56','57','58','59','60'],
+            ['61','62','63','64','65'],
+            ['66','67','68','69','70'],
+            ['71','72','73','74','75'],
+            ['76','77','78','79','80'],
+        ];
+           return (
+    
+            <KeyboardAwareScrollView
+            style={styles.container}
+            keyboardShouldPersistTaps = {"always"}
+
+        >
+                   <View style={{ flex: 1 ,flexDirection:'row'}}>
+                       <ScrollView
+                           style={{
+                               backgroundColor:sys.grayColor,
+                               width:LEFT_WIDTH,
+                               height:scrollH
+                           }}>
+
+                           {view_arr_data.map((info, index) => {
+
+                               var selected = false;
+                               if (this.state.index == index){
+                                   selected = true;
+                               }
+                               return (
+                                   <LeftButton title={info.title} key={index}   index={index} selected={selected} ref={"left"+index}
+                                               onPress={()=>{
+                                                   this.onButtonPress(index)
+                                               }}></LeftButton>
+                               );
+                           })}
+                       </ScrollView>
+                       <ScrollView
+                           style={{
+                               backgroundColor:"white",
+                               width:RIGHT_WIDTH,
+                               height:scrollH
+                           }}>
+                           {/* <Text style={styles.remarkHeader}>{remark}</Text> */}
+                           {rarmkView}
+                           {shangPanList.map((info, index) => {
+                                 return (
+                                     <View key={index} style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                                        {info.map((info_item, index_item) => {
+                                               return (<CustomButton type='renxuan' index={this.state.index} key={index_item}  onPress={this.itemClick.bind(this,info_item)} title={info_item} id={info_item}  ref={"number" +info_item}/>);
+                                        })}
+                                      </View> 
+                                  );
+                             })}
+                             {xiaPanList.map((info, index) => {
+                                 return (
+                                     <View key={index} style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                                        {info.map((info_item, index_item) => {
+                                               return (<CustomButton type='renxuan' index={this.state.index} key={index_item}   onPress={this.itemClick.bind(this,info_item)} title={info_item} id={info_item}  ref={"number" +info_item}/>);
+                                        })}
+                                      </View> 
+                                  );
+                             })}
+
+                           <View style={{height:50}}></View>
+
+                       </ScrollView>
+                   </View>
+                   <View style={styles.beishuView} >
+
+                       <TouchableOpacity  style={styles.reduceBtn }
+                                          onPress={() => {
+
+                                            if(thiz.state.beishu==""||thiz.state.beishu==null){
+                                                var amount = 1*2*thiz.state.count;
+                                                thiz.setState({
+                                                    beishu : 1+"",
+                                                    amount:amount+"元"
+                                                })
+                                            }else{
+                                                if(thiz.state.beishu == "1"){
+                                                    return;
+                                                }else {
+                                                    var beishu = parseInt(thiz.state.beishu) - 1;                                
+                                                    var amount = beishu*2*thiz.state.count;
+                                                    thiz.setState({
+                                                        beishu : beishu+"",
+                                                        amount:amount+"元"
+                                                    })
+  
+                                                }
+                                            }   
+                                          }}
+                       >
+                           <Text style={styles.payButtonText} >-</Text>
+                       </TouchableOpacity>
+
+                       <TextInput underlineColorAndroid='transparent' value={this.state.beishu}
+                               keyboardType='numeric'  style={styles.beishuCount}  ref="beishucount"
+                               onChangeText={(text) =>{
+                                   var newText=text;
+                                　if (!(/(^[1-9]\d*$)/.test(newText))) { 
+                                    //输入的不是正整数
+                                    if(newText == '' || newText == null){
+                                        thiz.setState({
+                                            beishu:text,
+                                            amount : "0元"
+                                        })
+                                    }else{
+                                       var beishu=this.state.beishu;
+                                        thiz.setState({
+                                            beishu:beishu,
+                                            amount : thiz.state.count*2*parseInt(beishu) + "元"
+                                        })
+                                    }
+                                  }else{
+                                    thiz.setState({
+                                        beishu:text,
+                                        amount : thiz.state.count*2*parseInt(text) + "元"
+                                    })
+                                  }
+                               }
+
+                    }
+                    ></TextInput>
+                       <TouchableOpacity  style={styles.reduceBtn }
+                                          onPress={() => {
+                                            if(thiz.state.beishu==""||thiz.state.beishu==null){
+                                                var amount = 1*2*thiz.state.count;
+                                                thiz.setState({
+                                                    beishu : 1+"",
+                                                    amount:amount+"元"
+                                                })
+                                            }else{
+                                                var beishu = parseInt(thiz.state.beishu) + 1;    
+                                                var amount = beishu*2*thiz.state.count;
+                                                thiz.setState({
+                                                    beishu : beishu+"",
+                                                    amount:amount+"元"
+                                                })
+                                            }
+                                             
+                                          }}
+                       >
+                           <Text style={styles.payButtonText}>+</Text>
+                       </TouchableOpacity>
+
+                   </View>
+
+                   <View style={styles.footer} >
+                       <View style={styles.yuerbar}>
+                           <Text style={styles.nameHeader}>总额</Text>
+                           <Text style={styles.yuer}>{amount}</Text>
+                       </View>
+                       <View style={styles.yuerbar}>
+                           <Text style={styles.nameHeader}>单注：</Text>
+                           <Text style={styles.yuer}>2元</Text>
+                           {/*<FormInput style={styles.yuer} placeholder="111" />*/}
+                       </View>
+                       <View style={styles.yuerbar}>
+                           <Text style={styles.nameHeader}>共</Text>
+                           <Text style={styles.yuer}>{zhushu}</Text>
+                       </View>
+
+                       <TouchableOpacity  style={styles.payButton }
+                                          onPress={() => {
+                           this.buynow()
+                                          }}
+                       >
+                           <Text style={styles.payButtonText}>下注</Text>
+                       </TouchableOpacity>
+                   </View>
+                   <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='top'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                />  
+               </KeyboardAwareScrollView>
+           );
+    }
+
+
+}

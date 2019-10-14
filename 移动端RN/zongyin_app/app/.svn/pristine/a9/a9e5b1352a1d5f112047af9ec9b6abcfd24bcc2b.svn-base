@@ -1,0 +1,598 @@
+/**
+ * Created by 卓原 on 2017/10/31.
+ * zhuoyuan93@gmail.com
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    Alert,
+    Keyboard,
+    DeviceEventEmitter,
+    AsyncStorage, Platform,NativeModules
+    ,ActivityIndicator
+} from 'react-native';
+
+import {sys,isIphoneX} from "../common/Data"
+import HttpUtils from "../common/HttpUtil"
+const { StatusBarManager } = NativeModules;
+
+const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
+const host = sys.host;
+const key = "/index/index/code"
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+
+export default class Register extends React.Component {
+
+
+    constructor(props){
+        super(props)
+        this.state = {
+            recomment:'',
+            phone: '',
+            yanqCode: '',
+            passwd:"",
+            queDpasswd:"",
+            tikuanPsw:"",
+            qqNum:"",
+            telNum:"",
+            type:"",
+            requestSucc:"",
+            result:"",
+            keyboardHeight:0,
+            aggree:false,
+            iscommit:false
+        }
+        this._requestAPI = this._requestAPI.bind(this)
+    }
+    //2 秒后随机模拟获取验证码成功或失败的情况
+    _requestAPI(shouldStartCounting){
+        this.loadCode()
+        setTimeout(()=>{
+            const requestSucc = (this.state.result == 1);
+            this.setState({
+                state: `（随机）模拟验证码获取${requestSucc ? '成功' : '失败'}`
+            })
+
+            if(shouldStartCounting && shouldStartCounting(requestSucc)){
+            
+                this.refs.toast.show(this.state.result, DURATION.LENGTH_LONG);
+            }
+
+        }, 1000);
+    }
+
+    //请求验证吗
+    loadCode() {
+
+        let codeurl = host + '/index/index/code';
+        let formData = new FormData();
+        // 请求参数 ('key',value)
+        formData.append('phone', this.state.phone);
+        formData.append('type','registered');
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                this.setState({
+                    result:1
+                })
+     
+                this.refs.toast.show('验证码已发送', DURATION.LENGTH_LONG);
+            })
+            .catch(error=>{
+             
+                this.refs.toast.show(JSON.stringify(error), DURATION.LENGTH_LONG);
+            })
+    }
+
+
+    isInteger(obj) {
+
+        var r = /^\+?[1-9][0-9]*$/;　　//正整数
+
+
+        let newStr = this.Trim(obj,'g')
+
+          let flag=r.test(newStr);
+
+        //   console.log('flag')
+        //   console.log(flag)
+
+        return flag
+    }
+//去除空格
+    Trim(str,is_global)
+  {
+   var result;
+   result = str.replace(/(^\s+)|(\s+$)/g,"");
+   if(is_global.toLowerCase()=="g")
+   {
+    result = result.replace(/\s/g,"");
+    }
+   return result;
+}
+    //注册
+    register() {
+
+        // if(!this.state.aggree){
+        //     Alert.alert("请先同意用户注册协议");
+        //     return;
+        // }
+ 
+        Keyboard.dismiss()
+
+        if (!this.state.yanqCode.length) {
+            // if (!this.isInteger(this.state.yanqCode)) {
+
+                this.refs.toast.show("邀请人账号不能为空", DURATION.LENGTH_LONG);
+                return;
+            // }
+        }
+
+        if(!(this.state.phone.length<=20 && this.state.phone.length>=6)){
+  
+            this.refs.toast.show("请输入6到20位账号", DURATION.LENGTH_LONG);
+            return;
+        }
+        // if(this.state.yanqCode.length<4){
+        //     Alert.alert("请输入正确验证码");
+        //     return;
+        // }
+  
+        
+
+        if(this.state.passwd.length<6) {
+   
+            this.refs.toast.show("密码长度不能小于6位", DURATION.LENGTH_LONG);
+            return;
+        }
+
+        if(this.state.queDpasswd.length<6) {
+       
+            this.refs.toast.show("密码长度不能小于6位", DURATION.LENGTH_LONG);
+            return;
+        }
+
+        if (this.state.queDpasswd != this.state.passwd) {
+            this.refs.toast.show("密码没有一致", DURATION.LENGTH_LONG);
+      
+            return;
+        }
+        
+        if (this.state.tikuanPsw.length<6) {
+            this.refs.toast.show("提款密码不小于六位", DURATION.LENGTH_LONG);
+            return;
+        }
+
+        if (this.state.qqNum.length<=0) {
+            this.refs.toast.show("请输入qq账号", DURATION.LENGTH_LONG);
+            return;
+        }
+
+
+        this.setState({
+            iscommit:true
+        })
+
+   
+        let codeurl = host + '/AppPublic.register.do';
+
+        let formData = new FormData();
+
+        // 请求参数 ('key',value)
+        formData.append('username', this.state.phone);
+        formData.append('reccode',this.state.yanqCode);
+        formData.append('password',this.state.passwd);
+        formData.append('cpassword',this.state.queDpasswd);
+        formData.append('tradepassword',this.state.tikuanPsw);
+        formData.append('qq',this.state.qqNum);
+        formData.append('tel',this.state.telNum);
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                this.setState({
+                    iscommit:false
+                })
+
+                if(result['respCode']==1){
+
+                    let resultdata =   result['data'];
+               
+                        resultdata['islogin']=1
+
+
+                        resultdata['zhanghao'] = this.state.phone;
+
+                       
+                        this.refs.toast.show("注册成功", DURATION.LENGTH_LONG);
+                         
+                                
+                                this.popBack(this.state.phone);
+                          
+                }else{
+                    this.refs.toast.show("message:"+result['respMsg'], DURATION.LENGTH_LONG);
+             
+                }
+
+            })
+            .catch(error=>{
+         
+
+                this.refs.toast.show("注册失败:"+JSON.stringify(error), DURATION.LENGTH_LONG);
+                this.setState({
+                    iscommit:false
+                })
+            })
+    }
+
+    static navigationOptions = ({navigation}) => ({
+        header:null
+    });
+
+    onload(){
+        let url = this.getUrl(this.text)
+    }
+    getUrl(query_str){
+        return host+key+query_str;
+
+    }
+
+
+    popBack(zh){
+        this.props.navigation.state.params.returnZh(zh);
+        this.props.navigation.goBack()
+    }
+    render() {
+        return (
+
+            <KeyboardAwareScrollView
+                keyboardShouldPersistTaps = {"always"}
+                style={styles.container}
+             ref= {component => this.photoPickerRef = component}
+            >
+            <ScrollView style={{height:sys.dheight - 60 - (STATUSBAR_HEIGHT+10)}}>
+                <View style={styles.row}>
+                    <TouchableOpacity onPress={()=>{
+                        this.popBack();
+                    }}>
+                        <Image style={styles.back} source={require('../res/images/icon_back.png')}></Image>
+                    </TouchableOpacity>
+                    <Text style={styles.text}>注册</Text>
+
+                <TouchableOpacity onPress={()=>{
+                    this.kefu();
+                }}>
+                <Text style={
+                        {
+                            marginTop: Platform.OS == 'ios' ? 21 : 5,
+                            height:20,
+                            fontSize:14,
+                            marginLeft:12,
+                            color:sys.titleColor,
+                            marginLeft:sys.dwidth/2 - 75 - 20 - 40,
+                            width:40,
+                            textAlign:'right',
+                            textAlignVertical:'center',
+                            ...Platform.select({
+                                ios: { lineHeight:20},
+                                android: {}
+                            })
+                        }
+                    }>客服</Text>
+              </TouchableOpacity>
+
+
+                </View>
+                {/* <Image style={styles.image} source={require('../..//res/images/logo.png')}></Image> */}
+
+
+                
+                <TextInput
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp}
+                    placeholder="邀请人账号（无邀请人请联系客服）"
+                    // keyboardType='numeric'
+                    onChangeText={(text) => this.setState({yanqCode:text})}
+                />
+                <View style={styles.view}></View>
+                <TextInput
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp}
+                    placeholder="请输入账号"
+                    onChangeText={(text) => this.setState({phone:text})}
+                />
+                <View style={styles.view}></View>
+
+                {/* <View style={styles.codeView}>
+                    <TextInput
+                    underlineColorAndroid='transparent'
+                    style={styles.codeText}
+                    placeholder="请输入验证码"
+                    onChangeText={(text) => this.setState({code:text})}
+                    textStyle={{color:'green'}}
+                    />
+                    <CountDownButton
+                        style={styles.countButton}
+                        textStyle={{color: '#ffffff'}}
+                        disableColor="gray"
+                        timerCount={60}
+                        timerTitle={'获取验证码'}
+                        enable={this.state.phone.length > 10}
+                        onClick={(shouldStartCounting)=>{
+                            this._requestAPI(shouldStartCounting)
+                        }}
+
+
+                        timerEnd={()=>{
+                            this.setState({
+                            state: '倒计时结束'
+                         })
+                    }}/>
+                </View> */}
+                {/* <View style={styles.view}></View> */}
+                <TextInput
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp3}
+                    placeholder="密码"
+                    secureTextEntry={true}//显示输入的为密码
+                    onChangeText={(text) => this.setState({passwd:text})}
+                />
+                <View style={styles.view}></View>
+
+                <TextInput
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp3}
+                    placeholder="确定密码"
+                    secureTextEntry={true}//显示输入的为密码
+                    onChangeText={(text) => this.setState({queDpasswd:text})}
+                />
+                <View style={styles.view}></View>
+
+                <TextInput
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp}
+                    placeholder="提款密码"
+                    onChangeText={(text) => this.setState({tikuanPsw:text})}
+                />
+                <View style={styles.view}></View>
+
+                <TextInput
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp}
+                    placeholder="qq账号"
+                    onChangeText={(text) => this.setState({qqNum:text})}
+                />
+                <View style={styles.view}></View>
+
+                <TextInput
+                    underlineColorAndroid='transparent'
+                    style={styles.textIp}
+                    placeholder="微信或者电话(可选)"
+                    onChangeText={(text) => this.setState({telNum:text})}
+                />
+                <View style={styles.view}></View>
+
+                {/* <View style={styles.greementView}>
+                    <TouchableOpacity  onPress={()=>this.aggree()}>
+                    <Image
+                        style={styles.header_button}
+                        source={this.state.aggree?require('./images/icon_selected.png'):require('./images/icon_unselected.png')} />
+                    </TouchableOpacity>
+                    <Text style={styles.agreeText1}>已阅读并同意</Text>
+                    <TouchableOpacity style={styles.userAgreement} onPress={()=>this.goWebView()}>
+                         <Text style={styles.agreeText2}>{"<<用户注册协议>>"}</Text>
+                    </TouchableOpacity>
+                </View> */}
+                
+
+                <TouchableOpacity disabled={this.state.iscommit} style={styles.button} onPress={()=>this.register()}>
+                    {this.state.iscommit?<ActivityIndicator style={{marginLeft:(sys.dwidth-40-100)/2 - 10 - 20,width:20
+                        ,height:20,marginTop:10}}/>:null}
+                    <Text style={[styles.buttontext,{width:100,marginLeft:this.state.iscommit?10:(sys.dwidth-40-100)/2}]}>{this.state.iscommit?'注册中..':'注册'}</Text>
+                </TouchableOpacity>
+                
+
+            </ScrollView>
+
+
+            {/* <TouchableOpacity disabled={this.state.iscommit} style={styles.button} onPress={()=>this.register()}>
+                    {this.state.iscommit?<ActivityIndicator style={{marginLeft:(sys.dwidth-40-100)/2 - 10 - 20,width:20
+                        ,height:20,marginTop:10}}/>:null}
+                    <Text style={[styles.buttontext,{width:100,marginLeft:this.state.iscommit?10:(sys.dwidth-40-100)/2}]}>{this.state.iscommit?'注册中..':'注册'}</Text>
+                </TouchableOpacity> */}
+
+                <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.7}
+                    textStyle={{color:'white'}}
+                />  
+
+            </KeyboardAwareScrollView>
+
+        )
+    }
+
+
+    kefu(){
+
+        Keyboard.dismiss()
+
+        var item={
+            id: 1,
+            typeid: null,
+            title: "客服",
+            ftitle: "客服",
+            pic:'',
+            name:'客服'
+        };
+        item['userInfo']=null;
+        item['token']="";
+        const {navigate} = this.props.navigation;
+        navigate("Chat",{item:item});
+
+    }
+
+    aggree(){
+        this.setState({
+            aggree: !this.state.aggree
+        })
+    }
+
+    goWebView(){
+        let url = host + "/index/index/html?type=registration"
+        const {navigate} = this.props.navigation;
+        navigate('WebViewScene', {uri: url,title:"宗隐用户注册协议"});
+    }
+
+
+}
+
+
+
+const styles = StyleSheet.create({
+    row:{
+        //改变主轴的方向
+        marginTop:10,
+        flexDirection:'row',
+        height:40
+    },
+    back:{
+        marginLeft:14,
+        marginTop: Platform.OS == 'ios' ? 21 : 5,
+    },
+    container: {
+        marginTop: 0,
+        backgroundColor:'#ffffff',
+        paddingTop:isIphoneX()?20:0,
+        flex:1
+    },
+    text:{
+        fontSize:18,
+        color:"#333333",
+        textAlign: 'center',
+        marginTop: Platform.OS == 'ios' ? 21 : 5,
+        width:150,
+        marginLeft:sys.dwidth/2-75-21
+    },
+    image:{
+        marginTop:10,
+        alignSelf:'center',
+        width:100,
+        height:100
+
+    },
+    textIp:{
+        marginTop:10,
+        marginLeft:12,
+        width:sys.dwidth-40,
+        height:40,
+
+    },
+    textIp3:{
+        marginTop:10,
+        marginLeft:12,
+        width:sys.dwidth-40,
+        height:40,
+    },
+
+    view:{
+        height:0.8,//TODO这里小于0.8没显示出来
+        backgroundColor:'#cccccc',
+        marginTop:0,
+        marginLeft:12,
+        width:sys.dwidth-24,
+    },
+
+    button:{
+        width:sys.dwidth-40,
+        marginLeft:20,
+        marginTop:10,
+        height:40,
+        backgroundColor:sys.mainColor,
+        borderRadius:5,
+        flexDirection:'row',
+
+    },
+    buttontext:{
+       // marginTop:11,
+        color:'#ffffff',
+        textAlign:'center',
+        fontSize:18,
+        height:40,
+        textAlignVertical:'center',
+        ...Platform.select({
+            ios: { lineHeight: 40},
+             android: {}
+        })
+    },
+    forgetregister:{
+        flexDirection:'row'
+    },
+    forgetPw:{
+        marginLeft:20,
+        marginTop:20,
+        width:100,
+        color:sys.mainColor,
+    },
+    register:{
+        marginLeft:sys.dwidth-120-100-20,
+        flexDirection:'row',
+        width:100,
+        justifyContent:'flex-end',
+        marginTop:20
+    },
+    registerTX:{
+        fontSize:14,
+        color:sys.mainColor
+    },
+    stateText:{
+        paddingTop: 50,
+        color: 'gray'
+    },
+    codeView:{
+        flexDirection:'row'
+    },
+    codeText:{
+        marginTop:25,
+        width:sys.dwidth-130,
+        marginLeft:12,
+        height:40
+    },
+    countButton:{
+        width: 110,
+        marginLeft: 0,
+        backgroundColor:sys.mainColor,
+        marginTop:25,
+        justifyContent:'center',
+        flexDirection:'row',
+        borderRadius:5,
+        height:40
+    },
+    greementView: {
+        marginTop:20,
+        flexDirection: 'row',
+        paddingLeft:10
+    },
+    agreeText1:{
+        marginLeft:10,
+        color:"#999999",
+        fontSize:12
+    },
+    agreeText2:{
+        marginLeft:10,
+        color:sys.mainColor,
+        fontSize:12
+    }
+
+})

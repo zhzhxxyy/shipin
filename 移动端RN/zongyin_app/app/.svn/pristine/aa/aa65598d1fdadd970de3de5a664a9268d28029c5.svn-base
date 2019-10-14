@@ -1,0 +1,999 @@
+/**
+ * Created by 卓原 on 2017/10/31.
+ * zhuoyuan93@gmail.com
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Button,
+    DeviceEventEmitter,
+    ImageBackground,
+    ActivityIndicator,
+    Platform,
+    Keyboard,
+    ScrollView
+} from 'react-native';
+
+
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import {sys,NoDataView} from "../../common/Data"
+const host = sys.host;
+
+
+
+import RNLogin from "../../common/RNLoginModule"
+import HttpUtils from "../../common/HttpUtil";
+
+import Picker from 'react-native-picker';
+
+import Toast,{DURATION} from 'react-native-easy-toast';
+
+const titList = ['账户余额','充值金额','提款金额','投注额','中奖额',
+                 '佣金','活动','手续费','棋牌','盈亏']
+
+let zhongHeight = 40;
+let recordWidth = sys.dwidth;
+let qisuW = recordWidth/3 + 20;
+let qitaW =  recordWidth/3-10;
+
+
+export default class DelegateBaoBiao extends React.Component {
+    // static  navigationOptions = ({navigation}) => ({
+    //     headerTitle:"团队报表",
+    //     headerTitleStyle:{
+    //         alignSelf:'center',
+    //         flex: 1,
+    //         textAlign: 'center',
+            
+    //     },
+    //     headerRight: <View />
+    // });
+
+
+    static  navigationOptions = ({navigation}) => {
+       
+
+        const { params } = navigation.state;
+      
+        if (Platform.OS=='ios') {
+            var leftView = <TouchableOpacity
+            onPress={() => {
+                 navigation.goBack()
+            }}
+
+            style={{width:50}}
+
+            >
+
+           <Image
+            source={require('../../res/images/iosfanhui.png')}
+            style={{marginLeft:10,marginTop:0}}
+            />
+
+            </TouchableOpacity>
+
+            return {
+                headerTitle:"团队报表",
+                headerTitleStyle:{
+                    alignSelf:'center',
+                    flex: 1,
+                    textAlign: 'center',
+                    
+                },
+                headerRight: <View />,
+                headerLeft:leftView
+            }
+
+        }  
+
+        return {
+            headerTitle:"团队报表",
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+                
+            },
+            headerRight: <View />
+        }
+    };
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            startDate:'',
+            endDate:'',
+            acountNum:'',
+            refreshState:RefreshState.HeaderRefreshing,
+            isChaXun:false,
+            dataList: [],
+            currentPage:1,
+            totaldata:null,
+            isloading:false,
+            yeNum:0,
+            xianShiArr:[],
+            xianShiNum:parseInt((sys.dheight*4/6 - 45 - 35*2)/35)
+        }
+    }
+
+    onHeaderRefresh = () => {
+
+        this.setState(
+            {
+                currentPage:1,
+                refreshState: RefreshState.HeaderRefreshing,
+            },()=>{
+                this.getDataList(true)
+            })
+
+
+    }
+
+    onFooterRefresh = () => {
+
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        },()=>{
+            this.getDataList(false)
+        })
+    }
+
+    componentDidMount(){
+
+         this.getDataList(true);
+
+
+    }
+
+
+    componentWillUnmount(){
+        Picker.hide()
+    }
+ 
+
+    
+
+
+    //获取当前日期  格式如 2018-12-15
+  _getCurrentDate(){
+    var currDate = new Date()
+    var year = currDate.getFullYear()
+    var month = (currDate.getMonth()+1).toString()
+    month = month.padStart(2,'0')
+    var dateDay = currDate.getDate().toString()
+    dateDay = dateDay.padStart(2,'0')
+    let time = year+'-'+month+'-'+dateDay
+    return time;
+  }
+
+
+
+    //组装日期数据
+  _createDateData(){
+    let date = [];
+    var currDate = new Date()
+    var year = currDate.getFullYear()
+    var month = currDate.getMonth()+1
+    for(let i=1970;i<=year;i++){
+        let month = [];
+        for(let j = 1;j<13;j++){
+            let day = [];
+            if(j === 2){
+                for(let k=1;k<29;k++){
+                    day.push(k+'日');
+                }
+                //Leap day for years that are divisible by 4, such as 2000, 2004
+                if(i%4 === 0){
+                    day.push(29+'日');
+                }
+            }
+            else if(j in {1:1, 3:1, 5:1, 7:1, 8:1, 10:1, 12:1}){
+                for(let k=1;k<32;k++){
+                    day.push(k+'日');
+                }
+            }
+            else{
+                for(let k=1;k<31;k++){
+                    day.push(k+'日');
+                }
+            }
+            let _month = {};
+            _month[j+'月'] = day;
+            month.push(_month);
+        }
+        let _date = {};
+        _date[i+'年'] = month;
+        date.push(_date);
+    }
+    return date;
+  }
+
+   //打开日期选择 视图
+   _showDatePicker(num) {
+    Keyboard.dismiss()
+    var year = ''
+    var month = ''
+    var day = ''
+    var dateStr = this._getCurrentDate();
+    //console.log('dateStr',dateStr)
+    year = dateStr.substring(0,4)
+    month = parseInt(dateStr.substring(5,7))
+    day = parseInt(dateStr.substring(8,10))
+    Picker.init({
+      pickerTitleText:'时间选择',
+      pickerCancelBtnText:'取消',
+      pickerConfirmBtnText:'确定',
+      selectedValue:[year+'年',month+'月',day+'日'],
+      pickerBg:[255,255,255,1],
+      pickerData: this._createDateData(),
+      pickerFontColor: [33, 33 ,33, 1],
+      pickerToolBarFontSize: 16,
+      pickerFontSize: 20,
+      onPickerConfirm: (pickedValue, pickedIndex) => {
+          var year = pickedValue[0].substring(0,pickedValue[0].length-1)
+          var month = pickedValue[1].substring(0,pickedValue[1].length-1)
+          month = month.padStart(2,'0')
+          var day = pickedValue[2].substring(0,pickedValue[2].length-1)
+          day = day.padStart(2,'0')
+          let str = year+'-'+month+'-'+day
+
+          if (num == 1) {
+            this.setState({
+                startDate:str,
+              })
+          }
+          if (num == 2) {
+            this.setState({
+                endDate:str,
+              })
+          }         
+      },
+      onPickerCancel: (pickedValue, pickedIndex) => {
+          console.log('date', pickedValue, pickedIndex);
+      },
+      onPickerSelect: (pickedValue, pickedIndex) => {
+          console.log('date', pickedValue, pickedIndex);
+      }
+    });
+    Picker.show();
+  }
+
+
+
+    render(){
+
+        let hedView = this.renderHeadView()
+
+
+        var hanNum = ['111']
+
+        let showView = null
+        if (this.state.dataList.length) {
+            showView = this.itemView()
+        } else {
+            showView = <NoDataView click={()=>this.getDataList(true)}
+            isloading={this.state.isloading}
+            text = {this.state.isloading?"加载中":"暂无记录,点击重新加载"}
+        />
+        }
+
+        // let showView = this.state.dataList.length?
+        //     <RefreshListView
+        //         data={hanNum}
+        //         keyExtractor={this.keyExtractor}
+        //         renderItem={this.renderCell}
+        //         refreshState={this.state.refreshState}
+        //         onHeaderRefresh={this.onHeaderRefresh}
+        //         onFooterRefresh={this.onFooterRefresh}
+        //         numColumns ={1}
+        //         //ListHeaderComponent={this.renderHeadView}
+        //         // horizontal={false}
+        //         //ItemSeparatorComponent={this._separator}
+        //         // 可选
+        //         footerRefreshingText= '玩命加载中 >.<'
+        //         footerFailureText = '我擦嘞，居然失败了 =.=!'
+        //         footerNoMoreDataText= ''
+        //     />
+        //     :<NoDataView click={()=>this.getDataList(true)}
+        //         isloading={this.state.isloading}
+        //         text = {this.state.isloading?"加载中":"暂无注单,点击重新加载"}
+        //     />
+
+        return(
+
+            <View style={{marginTop:1,width:recordWidth,height:'100%',backgroundColor:'white'}}>
+
+            {hedView}
+            {showView}
+            <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='center'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                /> 
+            </View>
+
+    
+        )
+    }
+
+
+    renderHeadView(){
+
+
+        let isCunZai = (this.state.totaldata != null)
+
+        // console.log(this.state.totaldata)
+
+        // console.log(isCunZai)
+
+
+        let totalView = <View style={{height:10}}></View>;
+        // if (isCunZai) {
+            
+        //     totalView=<View style={{marginTop:10}}>
+        //        <View style={{height:20,width:sys.dwidth,flexDirection:'row'}}>
+        //             <Text style={{marginLeft:10,fontSize:13,textAlign:'left',width:sys.dwidth/2-10,color:'#333333'}}>{'充值:'+
+        //         this.state.totaldata['dayRechargeMoney']+','+'提款:'+
+        //         this.state.totaldata['dayDrawRechargeMoney']}</Text>
+        //         <Text style={{marginLeft:10,fontSize:13,textAlign:'right',width:sys.dwidth/2-20}}>总计</Text>
+        //        </View>
+               
+        //        <Text style={{marginLeft:10,marginTop:5,fontSize:13,textAlign:'left',width:sys.dwidth-20,color:'#333333'}}>{'投注:'+
+        //         this.state.totaldata['dayConsumptionMoney']+','+'返奖:'+
+        //         this.state.totaldata['dayIncomeMoney']+','+'盈亏:'+
+        //         this.state.totaldata['dayDividendMoney']}</Text>
+
+        //         <Text style={{marginLeft:10,marginTop:5,fontSize:13,textAlign:'left',width:sys.dwidth/2-10,color:'#333333'}}>{'活动:'+
+        //         this.state.totaldata['dayActivitiesMoney']}</Text>
+
+        //         <View style={{marginLeft:10,marginTop:10,width:sys.dwidth-20,height:1,backgroundColor:sys.silveryColor,color:'#333333'}}></View>
+
+        //     </View>
+        // }
+
+
+        return <View>
+
+        <View style={{marginTop:10,marginLeft:0,width:sys.dwidth,height:42,
+            textAlign:'left',flexDirection:'row'}}>    
+                <TouchableOpacity style={styles.bankNameView} onPress={()=>this._showDatePicker(1)}>
+                <Text
+                    editable={false}
+
+                    style={[styles.rightText,{marginLeft:0,color:sys.subTitleColor,fontSize:13}]}
+                >
+                    {this.state.startDate?this.state.startDate:"选择初始时间"}
+                </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.bankNameView} onPress={()=>this._showDatePicker(2)}>
+                <Text
+                    editable={false}
+
+                    style={[styles.rightText,{marginLeft:0,color:sys.subTitleColor,fontSize:13}]}
+                >
+                    {this.state.endDate?this.state.endDate:"选择结束时间"}
+                </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity disabled={this.state.isChaXun} style={{width:(sys.dwidth-40)/3,
+                marginLeft:10, marginTop:0,height:40,backgroundColor:sys.mainColor,borderRadius:5,
+                flexDirection:'row',}} onPress={()=>this.chazhao()}>
+                {this.state.isChaXun?<ActivityIndicator style={{marginLeft:((sys.dwidth-40)/3-60)/2 - 10 - 20,width:20
+                    ,height:20,marginTop:10}} />:null}
+                <Text style={[{color:'#ffffff',textAlign:'center',fontSize:16,
+                height:40, textAlignVertical:'center',...Platform.select({
+                ios: { lineHeight: 40}, android: {}})
+                },{width:60,marginLeft:this.state.isChaXun?10:((sys.dwidth-40)/3-60)/2}]}>{this.state.isChaXun?'查询中..':'查询'}</Text>
+            </TouchableOpacity>
+
+        </View>
+
+
+        {/* <View style={{marginTop:10,marginLeft:0,width:sys.dwidth,height:42,
+            textAlign:'left',flexDirection:'row'}}>
+
+               <TextInput
+                underlineColorAndroid='transparent'
+                style={styles.inputText}
+                placeholder="用户名"
+                onFocus={()=>{
+                    Picker.hide()
+                }}
+                value={this.state.acountNum}
+                onChangeText={(text) => this.setState({acountNum:text})}
+            />
+
+            <TouchableOpacity disabled={this.state.isChaXun} style={{width:(sys.dwidth-30)/2,
+                marginLeft:10, marginTop:0,height:40,backgroundColor:sys.mainColor,
+                flexDirection:'row',}} onPress={()=>this.chazhao()}>
+                {this.state.isChaXun?<ActivityIndicator style={{marginLeft:((sys.dwidth-30)/2-100)/2 - 10 - 20,width:20
+                    ,height:20,marginTop:10}} />:null}
+                <Text style={[{color:'#ffffff',textAlign:'center',fontSize:18,
+                height:40, textAlignVertical:'center',...Platform.select({
+                ios: { lineHeight: 40}, android: {}})
+                },{width:100,marginLeft:this.state.isChaXun?10:((sys.dwidth-30)/2-100)/2}]}>{this.state.isChaXun?'查询中..':'查询'}</Text>
+            </TouchableOpacity>
+
+        </View> */}
+
+        {totalView}
+
+        </View>
+
+    }
+
+
+    timeWithDataStr(str)
+    {
+        var date = new Date(str)
+
+        var time = date.getTime();
+
+        return time;
+    }
+    chazhao() {
+
+        Picker.hide()
+        Keyboard.dismiss();
+
+        if (this.state.startDate.length && this.state.endDate.length) {
+
+            if (this.timeWithDataStr(this.state.startDate) > this.timeWithDataStr(this.state.endDate)) {
+
+                this.refs.toast.show("初始时间不能大于结束时间", DURATION.LENGTH_LONG);
+
+                return false
+            }
+
+        }
+
+        this.setState({
+            isChaXun:true,
+            dataList:[]
+        })
+
+        this.getDataList(true)
+
+    }
+
+    renderCell = (item) => {
+
+        return this.itemView(item.index)
+    }
+
+
+
+
+    itemView(inde){
+
+
+        // var follow = this.state.dataList[index];
+
+
+        return <View>
+        <View style={{flexDirection: 'row'}}>
+
+            <View>
+                  
+                   <View>
+                         <View style={{backgroundColor:sys.mainColor}}>
+                       <Text style={{marginLeft:10,marginRight:10,textAlign:'center',height:35,color:sys.whiteColor,textAlignVertical:'center'
+                       ,...Platform.select({
+                        ios: { lineHeight: 35},
+                         android: {}
+                    })
+                    }}>用户名</Text>  
+                    </View>
+
+                    <View style={{borderRightWidth:1,borderColor:sys.grayColor,borderBottomWidth:1}}>
+                     <Text style={{marginLeft:10,marginRight:10,textAlign:'center'
+                         ,height:35,color:sys.titleColor,textAlignVertical:'center'
+                         ,backgroundColor:sys.whiteColor,...Platform.select({
+                             ios: { lineHeight: 35},
+                              android: {}
+                         })
+                        }}>{'总计'+'('+this.state.dataList.length+'人)'}</Text>
+                        </View>
+
+                    {this.state.xianShiArr.map((info,weizNum)=>{
+                         return <View style={{borderRightWidth:1,borderColor:sys.grayColor,borderBottomWidth:1}}>
+                         <Text key={weizNum} style={{marginLeft:10,marginRight:10,textAlign:'center'
+                         ,height:35,color:sys.titleColor,textAlignVertical:'center'
+                         ,backgroundColor:sys.whiteColor,...Platform.select({
+                             ios: { lineHeight: 35},
+                              android: {}
+                         })
+                        }}>{info.username}</Text>
+                        
+                        <View style={{height:1,backgroundColor:sys.grayColor}}></View>
+                        </View>
+                     })}
+                     </View>
+
+                     
+
+            </View>
+
+            <ScrollView horizontal={true}>
+            
+                {titList.map((titStr, index)=>{
+
+
+                    var totalStr =''  
+
+                    if (this.state.totaldata != null) {
+                        if (index==0) {
+                            totalStr = this.state.totaldata['balance']
+                        } else if (index==1) {
+                            totalStr = this.state.totaldata.chongzhi
+                        } else if (index==2) {
+                            totalStr = this.state.totaldata.tixian
+                        } else if (index==3) {
+                            totalStr = this.state.totaldata.touzhu
+                        } else if (index==4) {
+                            totalStr = this.state.totaldata.zhongjiang
+                        } else if (index==5) {
+                            totalStr = this.state.totaldata.yongjin
+                        } else if (index==6) {
+                            totalStr = this.state.totaldata.huodong
+                        } else if (index==7) {
+                            totalStr = this.state.totaldata.shouxufei
+                        } else if (index==8) {
+                            totalStr = this.state.totaldata.kyyingkui
+                        } else if (index==9) {
+                            totalStr = this.state.totaldata.yinli
+                        } 
+                    }
+
+                    
+
+                     return(
+                     <View >
+                         <View style={{backgroundColor:sys.mainColor}}>
+                       <Text style={{marginLeft:10,marginRight:10,textAlign:'center',height:35,color:sys.whiteColor,textAlignVertical:'center'
+                       ,...Platform.select({
+                        ios: { lineHeight: 35},
+                         android: {}
+                    })
+                    }}>{titStr}</Text>  
+                    </View>
+
+                    <View style={{borderLeftWidth:index==0?0:1,borderColor:sys.grayColor,borderBottomWidth:1}}>
+                     <Text style={{marginLeft:10,marginRight:10,textAlign:'center'
+                         ,height:35,color:sys.titleColor,textAlignVertical:'center'
+                         ,backgroundColor:sys.whiteColor,...Platform.select({
+                             ios: { lineHeight: 35},
+                              android: {}
+                         })
+                        }}>{totalStr}</Text>
+                        </View>
+
+                     {this.state.xianShiArr.map((info,weizNum)=>{
+                        
+                        var contentStr ='' 
+                        if (index==0) {
+                            contentStr = info.balance
+                        } else if (index==1) {
+                            contentStr = info.chongzhi
+                        } else if (index==2) {
+                            contentStr = info.tixian
+                        } else if (index==3) {
+                            contentStr = info.touzhu
+                        } else if (index==4) {
+                            contentStr = info.zhongjiang
+                        } else if (index==5) {
+                            contentStr = info.yongjin
+                        } else if (index==6) {
+                            contentStr = info.huodong
+                        } else if (index==7) {
+                            contentStr = info.shouxufei
+                        } else if (index==8) {
+                            contentStr = info.kyyingkui
+                        } else if (index==9) {
+                            contentStr = info.yinli
+                        } 
+                        
+
+                         return <View style={{borderLeftWidth:index==0?0:1,borderColor:sys.grayColor,borderBottomWidth:1}}>
+                         <Text key={weizNum} style={{marginLeft:10,marginRight:10,textAlign:'center'
+                         ,height:35,color:sys.titleColor,textAlignVertical:'center'
+                         ,backgroundColor:sys.whiteColor,...Platform.select({
+                             ios: { lineHeight: 35},
+                              android: {}
+                         })
+                        }}>{contentStr}</Text>
+                        
+                        <View style={{height:1,backgroundColor:sys.grayColor}}></View>
+                        </View>
+                     })}
+                     
+                     
+                                   
+                     </View>
+                     )
+                  })}
+
+             </ScrollView>
+
+        </View>
+        <View style={{marginTop:5,marginLeft:0,width:sys.dwidth,height:35,
+            textAlign:'left',flexDirection:'row'}}>    
+                <TouchableOpacity onPress={()=>{
+                     if (this.state.yeNum) {
+                         this.setState({
+                             yeNum:0
+                         })
+
+                         var newArr=[]
+                        if (this.state.dataList.length>this.state.xianShiNum) {
+                            
+                            for(var i=0;i<this.state.xianShiNum;i++) {
+                                newArr.push(this.state.dataList[i])
+                            }
+
+                        } else {
+                            for(var i=0;i<this.state.dataList.length;i++) {
+                                newArr.push(this.state.dataList[i])
+                            }
+                        }
+
+                        this.setState({
+                           
+                            xianShiArr:newArr,
+                            yeNum:0,
+                            // (testData.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                        })
+
+
+                     } else {
+                        this.refs.toast.show("当前是首页", DURATION.LENGTH_LONG);
+                     }
+                }}>
+                <Text
+                    editable={false}
+
+                    style={{marginLeft:20,height:35,borderRadius:5,
+                        width:(sys.dwidth-80)/3,borderColor:sys.silveryColor,
+                        borderWidth:1,textAlign:'center',
+                         fontSize:13,textAlignVertical:'center',
+                         ...Platform.select({
+                             ios: { lineHeight: 35},
+                                 android: {}
+                         })}}
+                >
+                    首页
+                </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={()=>{
+                    
+                if (this.state.yeNum) {
+
+                    this.state.yeNum--;
+
+                    var newArr=[]
+                                 
+                    for(var i=this.state.yeNum*this.state.xianShiNum;i<(this.state.yeNum+1)*this.state.xianShiNum;i++) {
+                        newArr.push(this.state.dataList[i])
+                    }
+
+                    this.setState({
+                           
+                        xianShiArr:newArr,
+                        yeNum:this.state.yeNum,
+                        // (testData.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                    })
+                         
+
+                } else {
+                    this.refs.toast.show("当前是首页", DURATION.LENGTH_LONG);
+                 }
+
+            }}>
+                <Text
+                    editable={false}
+
+                    style={{marginLeft:20,height:35,borderRadius:5,
+                        width:(sys.dwidth-80)/3,borderColor:sys.silveryColor,
+                        borderWidth:1,textAlign:'center',
+                         fontSize:13,textAlignVertical:'center',
+                         ...Platform.select({
+                             ios: { lineHeight: 35},
+                                 android: {}
+                         })}}
+                >
+                    上一页
+                </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity  onPress={()=>{
+
+                 if (this.state.dataList.length>(this.state.yeNum+1)*this.state.xianShiNum) {
+                    
+                    this.state.yeNum++;
+
+                    var newArr=[]
+
+                    var danQianNum = this.state.dataList.length - this.state.yeNum*this.state.xianShiNum
+
+                    if (danQianNum >this.state.xianShiNum) {
+                        danQianNum = (this.state.yeNum+1)*this.state.xianShiNum
+                    } else{
+                        danQianNum = this.state.dataList.length
+                    }           
+                    for(var i=this.state.yeNum*this.state.xianShiNum;i<danQianNum;i++) {
+                        newArr.push(this.state.dataList[i])
+                    }
+
+                    this.setState({
+                           
+                        xianShiArr:newArr,
+                        yeNum:this.state.yeNum,
+                        // (testData.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                    })
+
+                 } else {
+                    this.refs.toast.show("没有更多数据的", DURATION.LENGTH_LONG);
+                 }
+
+            }}>
+                <Text
+                    editable={false}
+
+                    style={{marginLeft:20,height:35,borderRadius:5,
+                        width:(sys.dwidth-80)/3,borderColor:sys.silveryColor,
+                        borderWidth:1,textAlign:'center',
+                         fontSize:13,textAlignVertical:'center',
+                         ...Platform.select({
+                             ios: { lineHeight: 35},
+                                 android: {}
+                         })}}
+                >
+                    下一页
+                </Text>
+            </TouchableOpacity>
+
+
+        </View>
+
+        </View>
+
+       return<View>
+               <View key={index} style={{width:sys.dwidth,flexDirection: 'row',marginTop:10,height:40, backgroundColor:'white',bottom:0}}>
+                    <View style={{backgroundColor:'white',marginTop:5,width:sys.dwidth - 100 ,}}>
+                        <Text style={{marginLeft:10,fontSize:16,marginTop: 8,color:sys.mainColor,fontWeight: 'bold'}}>{follow.username}</Text>
+
+                    </View>
+                    <View style={{marginTop:5,width:100,// height:135,
+                    backgroundColor:'white'}}>
+                        <Text style={{color:sys.mainColor,width:90,textAlign:'right',top:10,fontWeight: 'bold',fontSize:16}}></Text>
+                    </View>
+               </View>
+
+               <View style={[{backgroundColor:'white',marginTop:5,width:sys.dwidth - 100 ,},{width:sys.dwidth,marginTop:0}]}>
+                     <Text numberOfLines={1} style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',lineHeight:20,}}>{"最后登陆时间:"+follow.logintime}</Text>
+
+
+                     <View style={{flexDirection:'row',width:sys.dwidth}}>
+                         <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',lineHeight:20,width:sys.dwidth/3-10}}>{"充值:"+follow.chongzhi}</Text>
+                         <Text style={{marginLeft:10,fontSize:14,lineHeight:20,marginTop: 8,color:'#333333',width:sys.dwidth/3-10,}}>{"提款:"+follow.tixian}</Text>
+                    </View>
+
+                     <View style={{flexDirection:'row',width:sys.dwidth}}>
+                         <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',lineHeight:20,width:sys.dwidth/3-10}}>{"投注:"+follow.touzhu}</Text>
+                         <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',lineHeight:20,width:sys.dwidth/3-10}}>{"返奖:"+follow.zhongjiang}</Text>
+                         {/* <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',lineHeight:20,width:sys.dwidth/3-10}}>{"盈利:"+follow.yinli}</Text> */}
+                     </View>
+
+                     <View style={{flexDirection:'row',width:sys.dwidth}}>
+                         <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',lineHeight:20,width:sys.dwidth/3-10}}>{"佣金:"+follow.yongjin}</Text>
+                         <Text style={{marginLeft:10,fontSize:14,lineHeight:20,marginTop: 8,color:'#333333',width:sys.dwidth/3-10,}}>{"活动:"+follow.huodong}</Text>
+                     </View>
+                     <View style={{flexDirection:'row',width:sys.dwidth}}>
+                         <Text style={{marginLeft:10,fontSize:14,marginTop: 8,color:'#333333',lineHeight:20,width:sys.dwidth/3-10}}>{"手续费:"+follow.shouxufei}</Text>
+                         <Text style={{marginLeft:10,fontSize:14,lineHeight:20,marginTop: 8,color:'#333333',width:sys.dwidth/3-10,}}>{"开元棋牌:"+follow.kyyingkui}</Text>
+                     </View>
+                     <View style={{flexDirection:'row',width:sys.dwidth}}>
+                         <Text style={{marginLeft:10,fontSize:14,lineHeight:20,marginTop: 8,color:'#333333',width:sys.dwidth/3-10,}}>{"盈利:"+follow.yinli}</Text>
+                     </View>
+                </View>
+
+
+                <View style={{marginLeft:10,marginTop:10,width:sys.dwidth-20,height:1,backgroundColor:sys.silveryColor}}></View>
+
+            </View>
+ 
+
+    }
+
+    itemClick(e){
+
+        const {navigate} = this.props.navigation;
+        navigate('OrderDetail',{item:e})
+    }
+
+
+    getDataList(isReload){
+
+
+        if (!this.state.isChaXun) {
+           
+            if (this.state.startDate.length && this.state.endDate.length) {
+
+                if (this.timeWithDataStr(this.state.startDate) > this.timeWithDataStr(this.state.endDate)) {
+    
+                    this.refs.toast.show("初始时间不能大于结束时间", DURATION.LENGTH_LONG);
+    
+                    return false
+                }
+    
+            }
+        }
+
+        this.setState({
+            isloading:true
+        })
+
+        const {params} =this.props;
+        let codeurl = host + '/AppApijiekou.downuseraccountreportlist';
+        let formData = new FormData();
+
+        formData.append('loginname',this.state.acountNum);
+        formData.append('startime',this.state.startDate);
+        formData.append('endtime',this.state.endDate);
+        formData.append('type',2);
+        formData.append('accounttype','');
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                let testData = result['data']['rows'];
+
+                let totaldata = result['data']['totaldata'];
+            
+                var newArr=[]
+                if (testData.length>this.state.xianShiNum) {
+                    
+                    for(var i=0;i<this.state.xianShiNum;i++) {
+                        newArr.push(testData[i])
+                    }
+
+                } else {
+                    for(var i=0;i<testData.length;i++) {
+                        newArr.push(testData[i])
+                    }
+                }
+
+                this.setState({
+                    yeNum:0,
+                    isloading:false,
+                    isChaXun:false,
+                    dataList: testData,
+                    xianShiArr:newArr,
+                    totaldata:totaldata,
+                    refreshState:RefreshState.NoMoreData,// (testData.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                })
+
+            })
+            .catch(error=>{
+  
+                this.setState({
+                    isChaXun:false,
+                    isloading:false,
+                    refreshState: RefreshState.Idle,
+                })
+
+            })
+    }
+
+
+}
+
+
+const styles = StyleSheet.create({
+
+    // content:{
+    //     backgroundColor:sys.backgroundColor,
+
+    //     width:sys.dwidth,
+
+    //     bottom:10,
+    // },
+
+
+    contengtext:{
+        // marginTop:5,
+        marginBottom:10,
+        left:10,
+        fontSize:14,
+    
+  
+    },
+    button:{
+        width:sys.dwidth/3,
+        marginTop:10,
+        backgroundColor:'white'
+    },
+    bimage:{
+        marginLeft:sys.dwidth/6-14.5,
+        marginTop:7.5,
+        width:29,
+        height:29,
+
+    },
+
+
+    textStyle:{
+        fontSize:18,
+      },
+      container:{
+        flex:1,
+        justifyContent:'center',
+        alignItems:'center'
+      },
+      content:{
+        width:'100%',
+        flexDirection:'row',
+        justifyContent:'space-around'
+      },
+      bankNameView:{
+        marginTop:1,
+        flexDirection:'row',
+        height:40,
+        marginLeft:10,
+        borderRadius:5,
+        width:(sys.dwidth-40)/3,
+        borderColor:sys.backgroundColor,
+        borderWidth:1
+        },
+    rightText:{
+
+        marginLeft:10,
+    
+        height:40,
+
+        borderRadius:5,
+        width:(sys.dwidth-40)/3,
+        borderColor:sys.silveryColor,
+        borderWidth:1,
+        textAlign:'center',
+         fontSize:13,
+         textAlignVertical:'center',
+         ...Platform.select({
+             ios: { lineHeight: 40},
+                 android: {}
+         })
+
+    },
+    
+    inputText:{
+
+        width:(sys.dwidth-30)/2,
+        color:sys.subTitleColor,
+        textAlign:'center',
+        marginLeft:10,
+        borderColor:sys.silveryColor,
+        borderRadius:5,
+        borderWidth:1,
+        fontSize:13,
+         height:40,
+        //backgroundColor:'red'
+
+    }
+
+
+})

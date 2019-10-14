@@ -1,0 +1,461 @@
+/**
+ * Created by jakie on 2019/1/30.
+ */
+/**
+ * Created by jakie on 2019/1/30.
+ */
+import React, {PureComponent,Component} from 'react'
+import {View,
+    Text,
+    TouchableOpacity,
+    Dimensions,
+    TextInput,
+    ScrollView,
+    Alert} from 'react-native'
+import {sys,NoDataView,sysScrollH} from "../../common/Data"
+import {LeftButton} from "../common/CommonViewButton"
+import {CustomButton} from "../common/CommonViewButton"
+import {styles} from "../common/CommonStyle"
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import {SafeAreaView} from 'react-native-safe-area-view'
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+const view_arr_data=[
+    {
+      'title': '上下盘',
+      'playid':'bjkl8sxp',
+      'message':'选择20个开奖号码中包含“上盘(01-40)”与“下盘(41-80)”号码个数多少关系。 ',
+      'list':[{'name':'上','value':'0'},
+              {'name':'中','value':'1'},
+              {'name':'下','value':'2',}         
+              ],
+    },
+    {
+        'title': '奇偶盘',
+        'playid':'bjkl8jop',
+        'message':'选择20个开奖号码中包含“奇·偶”号码个数多少关系。',
+        'list':[{'name':'奇','value':'0'},
+                {'name':'和','value':'1'},
+                {'name':'偶','value':'2',}         
+                ],
+      },
+      {
+        'title': '和值大小单双',
+        'playid':'bjkl8dxds',
+        'message':'选择20个开奖号码总和值的“大小单双”属性组合(和值<=810为小,>810为大)。',
+        'list':[{'name':'大单','value':'0'},
+                {'name':'大双','value':'1'},
+                {'name':'小单','value':'2',},
+                {'name':'小双','value':'3',}             
+               ],
+      }
+  ];
+
+var thiz = this;
+
+
+export default class QuWei extends React.Component {
+    _onPress = () => {
+        this.props.onPressItem(this.props.id);
+    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            fontLoaded: false,
+            index: 0,
+            beishu:"1",
+            zhushu : "0注",
+            count:0,
+            amount:"0元",  
+            currFullExpect:"",
+            touzhuList:[],//投注的信息
+        };
+    }
+    async componentDidMount() {
+        //页面加载时候执行 async如果有异步任务 需要执行后才会加载页面
+        this.setState({ fontLoaded: true });
+        this.setState({ currFullExpect: this.props.currFullExpect });
+    }
+    onButtonPress(index){
+        if (index == this.state.index){
+            return;
+        }    
+        var oldIndex=this.state.index;
+        this.setState({
+            index:index,
+            beishu:"1",
+            zhushu : "0注",
+            count:0,
+            amount:"0元",
+        },()=>{
+            for(var key in this.refs){
+               // if(this.refs[key].state.selected != null && key.substr(0,4) != "left"){
+                if (key.includes('number')){
+                    this.refs[key].setState({
+                       selected:false
+                   });
+                }
+              }
+            this.refs["left"+oldIndex].setState({
+                selected: false
+            });
+            this.refs["left"+index].setState({
+                selected: true
+            });
+        })
+    };
+
+    itemClick(){
+        var numberArray=[];
+        for(var key in this.refs){
+            if(key.substr(0,6)=="number"){
+                if(this.refs[key].state.selected != null&&this.refs[key].state.selected){
+                    numberArray.push( key.substring(6));
+                }
+            }
+        }
+    
+        var numberSize=numberArray.length;  
+        if(this.state.beishu==""||this.state.beishu==null){
+            var totalAmount=0;
+        }else{
+            var totalAmount=numberSize*parseInt(this.state.beishu)*2;
+        }
+        this.setState({
+            zhushu:numberSize+"注",
+            count:numberSize,
+            amount :totalAmount+"元"
+        })
+    }
+
+    buynow(){
+
+
+        var item=view_arr_data[this.state.index];
+        let isCunZai = this.props.datalist.hasOwnProperty(item.playid)
+
+
+        if (!isCunZai) {
+            this.refs.toast.show('加载赔率没成功', DURATION.LENGTH_LONG);  
+            this.props.lodaData()
+             return;
+        }
+
+
+        if(this.state.beishu==""||this.state.beishu==null){   
+      
+            this.refs.toast.show("倍数不能为空", DURATION.LENGTH_LONG);    
+            return false;
+        }
+        var numberArray=[];
+        for(var key in this.refs){
+            if(key.substr(0,6)=="number"){
+                if(this.refs[key].state.selected != null&&this.refs[key].state.selected){
+                    numberArray.push(key.substring(6));
+                }
+            }
+        }
+        var numberSize=numberArray.length;  
+        if(numberSize<=0){
+            this.refs.toast.show("下注注数不能少于1", DURATION.LENGTH_LONG);    
+            return false;
+        }       
+        var item=view_arr_data[this.state.index];
+
+        var number="";
+        var numberMessage="";
+        var itemSize=item.list.length;
+
+        for(var i=0;i<numberSize;i++){
+              if(i!=0){
+                number=number+",";
+                numberMessage=numberMessage+" ";
+              }    
+              number=number+numberArray[i];   
+              for(var j=0;j<itemSize;j++){
+                  if(item.list[j].value==numberArray[i]){
+                     numberMessage=numberMessage+item.list[j].name+" ";
+                      break;
+                  }
+              }  
+        }
+        if(this.props.datalist[item.playid]==null){
+
+            this.refs.toast.show("请重新刷新页面获取数据", DURATION.LENGTH_LONG);    
+            return false;
+        }
+    
+        var totalAmount=numberSize*parseInt(this.state.beishu)*2;
+        var rateItem=this.props.datalist[item.playid];//赔率信息
+
+        if(numberSize>rateItem['maxzs']){
+
+            this.refs.toast.show("最高投注注数"+rateItem['maxzs']+"注", DURATION.LENGTH_LONG);    
+         
+            return false;
+        }
+        if(totalAmount<rateItem['minxf']&&rateItem['minxf']>0){
+            this.refs.toast.show("最低投注金额为"+rateItem['minxf']+"元", DURATION.LENGTH_LONG);   
+    
+            return false;
+        }
+
+        if(totalAmount>rateItem['maxxf']&&rateItem['maxxf']>0){
+            this.refs.toast.show("最高投注金额为"+rateItem['maxxf']+"元", DURATION.LENGTH_LONG);  
+            return false;
+        }
+         var item={
+             "trano":"",
+             "playtitle":rateItem.title,
+             "playid":rateItem.playid,
+             "number":number,
+             "zhushu":this.state.count,
+             "price":totalAmount,
+             "minxf":rateItem.minxf,
+             "totalzs":rateItem.totalzs,
+             "maxjj":rateItem.maxjj,
+             "minjj":rateItem.minjj,
+             "maxzs":rateItem.maxzs,
+             "rate":rateItem.rate,
+             "beishu":this.state.beishu,
+             "yjf":"1",
+             "numberMessage":numberMessage
+         };     
+        var list=[];
+        list.push(item);
+
+        this.setState({
+            touzhuList : list
+        },()=>{
+            this.props.onPress();
+        });
+    }
+
+
+
+    clear(){ 
+               
+        for(key in thiz.refs){
+            if(key.includes('number')  ){
+              thiz.refs[key].setState({
+                  selected:false
+                })
+            }
+        }       
+    }
+
+
+    render(){
+
+        thiz = this;
+        var  zhushu  = thiz.state.zhushu ;
+        var  amount = thiz.state.amount;
+       
+        var rate=9.9; 
+        var item=view_arr_data[this.state.index];
+        var list=item.list;     
+        var remark='';  
+        var rate = '';
+
+
+        
+
+
+        var scrollH = sysScrollH(25);
+
+        // console.log('thiz.props.viewHeight')
+        // console.log(thiz.props.viewHeight)
+
+        if (thiz.props.viewHeight) {
+            scrollH = thiz.props.viewHeight;
+        }
+
+        if(this.props.datalist[item.playid]!=null){
+
+            remark=this.props.datalist[item.playid].remark;
+            rate = this.props.datalist[item.playid].rate;
+
+            if (remark == '' || remark == null) {
+                remark=item.message; 
+            }
+        }
+
+        let isCunZai = this.props.datalist.hasOwnProperty(item.playid)
+
+        let rarmkView = isCunZai?<Text style={styles.remarkHeader}>{remark + '赔率'}<Text style={{color:sys.mainColor}}>{rate}</Text>倍</Text>:<NoDataView
+             isloading = {this.props.visible} click={()=>this.props.lodaData()}
+             text = {"重新加载"}></NoDataView>
+
+           return (
+    
+            <KeyboardAwareScrollView
+            style={styles.container}
+            keyboardShouldPersistTaps = {"always"}
+            >
+                   <View style={{ flex: 1 ,flexDirection:'row'}}>
+                       <ScrollView
+                           style={{
+                               backgroundColor:sys.grayColor,
+                               width:LEFT_WIDTH,
+                               height:scrollH
+                           }}>
+
+                           {view_arr_data.map((info, index) => {
+
+                               var selected = false;
+                               if (this.state.index == index){
+                                   selected = true;
+                               }
+                               return (
+                                   <LeftButton title={info.title} key={index} index={index} selected={selected} ref={"left"+index}
+                                               onPress={()=>{
+                                                   this.onButtonPress(index)
+                                               }}></LeftButton>
+                               );
+                           })}
+                       </ScrollView>
+                       <ScrollView
+                           style={{
+                               backgroundColor:"white",
+                               width:RIGHT_WIDTH,
+                               height:scrollH
+                           }}>
+                           {/* <Text style={styles.remarkHeader}>{remark}</Text> */}
+                           {rarmkView}
+
+                           <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+
+                             {list.map((info, index) => {
+                                 return (
+    <CustomButton type='quwei' index={index} key={index} onPress={this.itemClick.bind(this, info)} title={info.name} id={info.value}  ref={"number" +info.value}
+               ></CustomButton>
+                                  );
+                             })}
+                       </View>
+
+                       
+
+                       </ScrollView>
+
+                       
+                   </View>
+                   <View style={styles.beishuView} >
+
+                       <TouchableOpacity  style={styles.reduceBtn }
+                                          onPress={() => {
+                                              if(thiz.state.beishu==""||thiz.state.beishu==null){
+                                                var amount = 1*2*thiz.state.count;
+                                                thiz.setState({
+                                                    beishu : 1+"",
+                                                    amount:amount+"元"
+                                                })
+                                            }else{
+                                                if(thiz.state.beishu == "1"){
+                                                    return;
+                                                }else {
+                                                    var beishu = parseInt(thiz.state.beishu) - 1;                                
+                                                    var amount = beishu*2*thiz.state.count;
+                                                    thiz.setState({
+                                                        beishu : beishu+"",
+                                                        amount:amount+"元"
+                                                    })
+  
+                                                }
+                                            }   
+                                          }}
+                       >
+                           <Text style={styles.payButtonText} >-</Text>
+                       </TouchableOpacity>
+
+                       <TextInput underlineColorAndroid='transparent' value={this.state.beishu}
+                               keyboardType='numeric'  style={styles.beishuCount}  ref="beishucount"
+                               onChangeText={(text) =>{
+                                var newText=text;
+                                　if (!(/(^[1-9]\d*$)/.test(newText))) { 
+                                    //输入的不是正整数
+                                    if(newText == '' || newText == null){
+                                        thiz.setState({
+                                            beishu:text,
+                                            amount : "0元"
+                                        })
+                                    }else{
+                                       var beishu=this.state.beishu;
+                                        thiz.setState({
+                                            beishu:beishu,
+                                            amount : thiz.state.count*2*parseInt(beishu) + "元"
+                                        })
+                                    }
+                                  }else{
+                                    thiz.setState({
+                                        beishu:text,
+                                        amount : thiz.state.count*2*parseInt(text) + "元"
+                                    })
+                                  }
+
+                               }
+
+                    }
+                    ></TextInput>
+                       <TouchableOpacity  style={styles.reduceBtn }
+                                          onPress={() => {
+                                            if(thiz.state.beishu==""||thiz.state.beishu==null){
+                                                var amount = 1*2*thiz.state.count;
+                                                thiz.setState({
+                                                    beishu : 1+"",
+                                                    amount:amount+"元"
+                                                })
+                                            }else{
+                                                var beishu = parseInt(thiz.state.beishu) + 1;    
+                                                var amount = beishu*2*thiz.state.count;
+                                                thiz.setState({
+                                                    beishu : beishu+"",
+                                                    amount:amount+"元"
+                                                })
+                                            }
+                                          }}
+                       >
+                           <Text style={styles.payButtonText}>+</Text>
+                       </TouchableOpacity>
+
+                   </View>
+
+                   <View style={styles.footer} >
+                       <View style={styles.yuerbar}>
+                           <Text style={styles.nameHeader}>总额</Text>
+                           <Text style={styles.yuer}>{amount}</Text>
+                       </View>
+                       <View style={styles.yuerbar}>
+                           <Text style={styles.nameHeader}>单注：</Text>
+                           <Text style={styles.yuer}>2元</Text>
+                           {/*<FormInput style={styles.yuer} placeholder="111" />*/}
+                       </View>
+                       <View style={styles.yuerbar}>
+                           <Text style={styles.nameHeader}>共</Text>
+                           <Text style={styles.yuer}>{zhushu}</Text>
+                       </View>
+
+                       <TouchableOpacity  style={styles.payButton }
+                                          onPress={() => {
+                           this.buynow()
+                                          }}
+                       >
+                           <Text style={styles.payButtonText}>下注</Text>
+                       </TouchableOpacity>
+                   </View>
+                   <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='top'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                />  
+
+               </KeyboardAwareScrollView>
+           );
+    }
+
+
+}

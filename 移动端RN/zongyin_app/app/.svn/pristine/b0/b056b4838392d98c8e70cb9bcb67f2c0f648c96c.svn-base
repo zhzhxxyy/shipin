@@ -1,0 +1,805 @@
+//
+//  Created by Liu Jinyong on 17/4/5.
+//  Copyright © 2016年 Liu Jinyong. All rights reserved.
+//
+//  @flow
+//  Github:
+//  https://github.com/huanxsd/react-native-refresh-list-view
+
+import React, {Component} from 'react'
+import {View, StyleSheet,Text, DeviceEventEmitter,Platform,Alert,TouchableOpacity,Image,PixelRatio
+    ,ScrollView,NativeModules,AppState} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import Cell from './Cell'
+
+import {NoDataView, sys,TitleHeadView, isIphoneX} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+
+import codePush from "react-native-code-push";
+const { StatusBarManager } = NativeModules;
+
+
+const caipiaoTypeList = [
+
+
+{tit:'全部',tp:'./images/caipiaoType_j3.png'},    
+{tit:'时时彩',tp:'./images/caipiaoType_j3.png'},
+{tit:'pc蛋蛋',tp:'./images/caipiaoType_j3.png'},
+{tit:'pk10',tp:'./images/caipiaoType_j3.png'},
+{tit:'快三',tp:'./images/caipiaoType_j3.png'},
+{tit:'六合彩',tp:'./images/caipiaoType_j3.png'},
+{tit:'快乐8',tp:'./images/caipiaoType_j3.png'},
+{tit:'11选5',tp:'./images/caipiaoType_j3.png'},
+{tit:'排列三',tp:'./images/caipiaoType_j3.png'},
+]
+var clickLastTime=0;
+
+export default class CaipiaoMore extends Component {
+
+    
+    // static  navigationOptions = ({navigation}) => {
+    //     const { params } = navigation.state;
+
+    //     return {
+    //         headerTitle: '购彩',
+    //         headerTitleStyle:{
+    //             alignSelf:'center',
+    //             flex: 1,
+    //             textAlign: 'center',   
+    //         },
+    //         headerRight: <View />
+
+    //     }
+    // };
+ 
+
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+        return {
+        title:'购彩大厅',
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            
+        },
+        
+        
+        headerRight:React.createElement(View, null, null),
+       }
+    };
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            islogin:0,
+            dataList:[],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:10,
+            noNetwork:false,
+            noData:false,
+            isloading:false,
+            // caipiaoTypeList:this.props.navigation.state.params.caipiaoTypeList,
+            headViewIndext:0,
+        }
+    }
+
+
+    timingTaskStart(){//定时任务
+       
+        //倒计时
+        this.countDownTask=setInterval(
+            () => {
+
+
+                for(var i=0;i<this.state.dataList.length;i++) {
+
+                    info = this.state.dataList[i];
+
+                    if (info.hasOwnProperty('remainTime')) {
+
+                        var remainigTime = info['remainTime']
+
+                        if(remainigTime>0){
+                            info['remainTime']=remainigTime-1; 
+                            // if(remainigTime==0){
+
+                            //     this.getCaiPiaoTime(info);
+                               
+                            // }else{
+                                
+                            // }
+                        } else {
+                            if(remainigTime==0){
+
+                                this.getCaiPiaoTime(info);
+                               
+                            } 
+                        } 
+
+                    }
+
+                }
+
+            
+                // console.log('ppppp')
+                // console.log(this.state.dataList)
+                this.setState({dataList:this.state.dataList});
+
+
+                      
+            },
+            1000
+        );
+     
+
+    }
+    timingTaskEnd(){
+        this.countDownTask && clearTimeout(this.countDownTask);
+    }
+
+    componentDidMount() {
+        //监听状态改变事件
+        AppState.addEventListener('change', this.handleAppStateChange);
+
+         this.onHeaderRefresh()
+
+        // this.appUpdate()
+
+        this.timingTaskStart();
+
+        this.getRemainigTime()
+
+        storage.load('islogin', (dic) => {
+
+         //   console.log('json is :'+JSON.stringify(dic))
+            if (dic != "" && dic != null) {
+                this.setState({
+                    islogin:1,
+                    id:dic['id'],
+                    head_pic:dic['face'],
+                    nick_name: dic['username'],//dic['name'],
+                    balance:dic['balance'],
+                    identifier:dic['identifier'],
+                    describe:dic['describe'],
+                    fubi:dic['fubi']?dic['fubi']:'0.00',
+                    token:dic['token'],
+                    host_state:dic['host_state'],
+                    proxy:dic['proxy']  //1为代理
+                });
+
+               // if(ret["islogin"] != ""  && ret["islogin"] != null)
+            } else {
+                this.setState({
+                    islogin:0,
+
+                });
+          }})
+        
+
+        //登录成功通知
+        DeviceEventEmitter.addListener('ChangeUI',(dic)=>{
+
+            //接收到详情页发送的通知，刷新首页的数据，改变按钮颜色和文字，刷新UI
+            if(dic['islogin'] != 0){
+                // this.getPersonInfo()
+                this.setState({
+                    islogin:1
+                });
+                //存储数据
+            }else{
+
+                this.setState({
+                    islogin:0
+                });
+                //存储数据
+                storage.save('islogin', "")
+            }
+
+        });
+
+
+        //注册通知
+        DeviceEventEmitter.addListener('Login',(dic)=>{
+            //接收到详情页发送的通知，刷新首页的数据，改变按钮颜色和文字，刷新UI
+            const {navigate} = this.props.navigation;
+            this.props.navigation.navigate("Login",dic);
+        });
+        storage.load(host + '/AppPublic.lotteryHall.do', (dic) => {
+            if (dic != "" && dic != null) {
+                let dataList =  dic
+                this.state.currentPage = 2;
+                let state = RefreshState.Idle;
+                let nodata = false;
+                this.setState({
+                    dataList: dataList,
+                    refreshState: state,
+                    noData:nodata,
+                    noNetwork:false,
+                    isloading:false,
+                })
+            }
+         })
+    }
+
+    componentWillUnmount() {
+        //删除状态改变事件监听
+        DeviceEventEmitter.removeListener('ChangeUI');
+        DeviceEventEmitter.removeListener('Login');
+        AppState.removeEventListener('change', this.handleAppStateChange);
+
+        this.timingTaskEnd();
+     }
+
+     //状态改变响应
+    handleAppStateChange(appState) {
+        console.log(">>>>>>>>>>>>"+appState);
+    }
+   
+
+    appUpdate(){
+        // codePush.sync({
+        //     updateDialog: {
+        //         appendReleaseDescription: true,
+        //         descriptionPrefix:'\n\n有新版本：\n',
+        //         title:'更新',
+        //         mandatoryUpdateMessage:'',
+        //         mandatoryContinueButtonLabel:'更新',
+        //     },
+        //     mandatoryInstallMode:codePush.InstallMode.IMMEDIATE,
+        // });
+    }
+
+
+
+    onHeaderRefresh = () => {
+        this.state.currentPage = 1;
+        this.setState(
+            {
+                refreshState: RefreshState.HeaderRefreshing,
+            })
+            //获取测试数据
+        // if(this.state.refreshState == RefreshState.Idle){
+            this.getDataList(true)
+        // }
+
+    }
+
+    onFooterRefresh = () => {
+
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing,
+        })
+        //
+        // if(this.state.refreshState == RefreshState.Idle){
+            this.getDataList(false)
+        // }
+
+    }
+
+
+    getDataList(isReload) {
+
+
+        this.setState({
+            isloading:true,
+        })
+
+        let codeurl = host + '/AppPublic.lotteryHallNew.do';
+        let formData = new FormData();
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){
+                    let testData = result['data']['list'];
+                    let newList = testData.map((data) => {
+                        return {
+                            id: data.id?data.id:1,
+                            typeid: data.typeid,
+                            title: data.title,
+                            ftitle: data.ftitle,
+                            pic:data.pic,
+                            name:data.name
+                        }
+                    });
+                    storage.save(codeurl, newList)
+
+                    let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+                    this.state.currentPage = parseInt(dataList.length/this.state.pageSize)+2;
+                    let state = dataList.length >= result['data']['total'] ? RefreshState.NoMoreData : RefreshState.Idle;
+                    let nodata = false;
+                    if(isReload){
+                        state = RefreshState.Idle;
+
+                        if(testData.length == 0){
+                            nodata=true;
+                        }
+                    }
+
+                    this.setState({
+                        dataList: dataList,
+                        refreshState: state,
+                        noData:nodata,
+                        noNetwork:false,
+                        isloading:false,
+                    })
+
+                    this.getRemainigTime()
+                }else{
+                     this.setState({
+                        refreshState: RefreshState.Idle,
+                         noNetwork:false,
+                         isloading:false,
+                    })
+                }
+
+            })
+            .catch(error=>{
+                storage.load(codeurl, (dic) => {
+                    if (dic != "" && dic != null) {
+                        let dataList =  dic
+                        this.state.currentPage = 2;
+                        let state = RefreshState.Idle;
+                        let nodata = false;
+                        if(isReload){
+                            state = RefreshState.Idle;
+                        }
+                        this.setState({
+                            dataList: dataList,
+                            refreshState: state,
+                            noData:nodata,
+                            noNetwork:false,
+                            isloading:false,
+                        })
+
+
+                    }
+                 })
+
+            })
+    }
+
+
+
+
+   //获取开奖的剩余时间
+   getRemainigTime(){
+
+
+    var size=this.state.dataList.length;
+        for(var i=0;i<size;i++){
+            var info = this.state.dataList[i]
+           // this.getCaiPiaoTime(info['name'],info['typeid']); 
+            this.getCaiPiaoTime(info)
+        }    
+    }
+
+
+
+   // getCaiPiaoTime(name,typeid){
+    getCaiPiaoTime(info){
+
+        // console.log('1111111')
+        // console.log(name,typeid)
+
+        let codeurl = sys.host + "/AppApijiekou.lotterytimes";
+        let formData = new FormData();
+        formData.append('lotteryname',info['name']);
+        formData.append('cptype',info['typeid']);
+        
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){
+            
+                    // var size= this.state.dataList.length;
+
+
+                //    for(var i=0;i<size;i++){
+                //      var info = this.state.dataList[i]
+                //      if(info['name']==name&&info['typeid']==typeid){
+
+                //         info['curExpect'] = result['data']['currFullExpect'];
+                //         info['lastFullExpect'] = result['data']['lastFullExpect'];
+                //         info['remainTime'] = result['data']['remainTime'];
+
+                //         break;
+                //      }
+                //    }
+
+                info['curExpect'] = result['data']['currFullExpect'];
+                info['lastFullExpect'] = result['data']['lastFullExpect'];
+                info['remainTime'] = result['data']['remainTime'];
+
+                // console.log('info')
+                // console.log(info)
+                // console.log(this.state.dataList)
+                   
+
+                }
+            }).catch(error=>{
+            })
+    }
+
+
+
+    keyExtractor = (item, index) => {
+        return index.toString()
+    }
+
+    renderCell = (info) => {
+        return <Cell info={info.item}  onPress={this.itemClick.bind(this, info)}/>
+    }
+
+    renderAllCell = (info) => {
+        return <Cell type='all' info={info.item} onPress={this.itemClick.bind(this, info)}/>
+    }
+
+
+    itemClick(e){
+        var nowTime= (new Date()).getTime();
+        if(Math.abs(nowTime-clickLastTime)<sys.clickIntervalTime){
+            //小于0.5秒
+            return false;
+        }
+        clickLastTime=nowTime;
+
+        if(this.state.islogin != 1){
+            DeviceEventEmitter.emit('Login', {}); 
+        }else{
+            const {navigate} = this.props.navigation;
+            switch(e.item.typeid){
+                
+                case 'ssc':
+                    navigate('Cqssc',{item:e.item})
+                    break;
+                case 'k3':
+                    navigate('KuaiThreeAction',{item:e.item})
+                    break;
+
+                case 'pk10':
+
+                    navigate('Pkten',{item:e.item});
+                    break;
+
+                case 'lhc':
+                    navigate('Sixhc',{item:e.item});
+                    break;
+
+                case 'keno':
+                    navigate('Keno',{item:e.item});
+                    break;
+                case 'dpc':
+                    navigate('Dpc',{item:e.item});
+                    break;
+
+                case 'x5':
+                    navigate('ElevenSelectFive',{item:e.item});
+                    break;
+
+                case 'pcdd':                  
+                navigate('PcDanDan',{item:e.item});
+
+
+                default:
+                    // navigate('Cqssc',{item:e.item})
+                    break;
+            }
+        }
+
+
+
+    }
+
+    renderHeadView(){
+        // return this.state.dataList.length?null:<NoDataView text={"暂无修行"}/>
+        return null;
+    }
+
+    renderFooterView(){
+        return null;
+    }
+
+
+
+    render() {
+
+        // <Image style={[styles.image]} source={require('../res/images/logo.png')}></Image>
+
+
+        // console.log('00000')
+        // console.log(this.state.caipiaoTypeList)
+
+        //  console.log(this.state.dataList)
+
+
+        let headChangView = <ScrollView 
+        ref={'headChangViewScrollView'}
+        showsHorizontalScrollIndicator = {false}
+        horizontal={true}
+         contentContainerStyle = {{flexDirection:'row',height:50}} 
+        style={{
+            // backgroundColor:sys.redColor,
+            width:sys.dwidth,
+           //  height:sys.dwidth/4 + 30+10,
+           // flexDirection:'row',
+        }}>
+
+            {caipiaoTypeList.map((info, index) => {
+
+            //     console.log(index)
+            //    console.log(info.tp)
+
+                return (
+                    <TouchableOpacity key={index} onPress={this.headViewClick.bind(this, info,index)}  activeOpacity={1}>
+                    <View style={{width:(sys.dwidth)/4,
+                       height:50,
+                       marginLeft:0,
+                       marginTop:0,
+                       backgroundColor:sys.whiteColor}}>
+                    
+                        <Text style={{color:this.state.headViewIndext==index?sys.mainColor:sys.titleColor,textAlign:'center',textAlignVertical:'center',
+                         width:(sys.dwidth)/4,height:48,fontSize:14,...Platform.select({ ios: { lineHeight: 48},
+                        android: {} })}} numberOfLines={1}>{info.tit}</Text>
+
+                        <View style={{marginLeft:10,width:(sys.dwidth)/4-20,height:2,
+                            backgroundColor:this.state.headViewIndext==index?sys.mainColor:sys.whiteColor}}></View>
+
+                    </View>
+                    </TouchableOpacity>
+                );
+            })}
+
+
+        </ScrollView>
+
+
+            let contentView = <ScrollView 
+            // contentContainerStyle = {{flexDirection:'row',height:sys.dwidth/4+30}} 
+            onMomentumScrollEnd={(event) => {
+                // 获取滑动的偏移量
+                let offSetX = event.nativeEvent.contentOffset.x;
+                // 通过偏移量和屏幕宽度计算第几页
+                let page = Math.floor(offSetX/sys.dwidth);
+                //  更新值已获取屏幕更新
+                this.setState({
+                    headViewIndext:page
+                },()=>{
+                    let huadongNum = page - 2;
+
+                if (huadongNum > 0) {
+
+
+                    let maxWidth = (caipiaoTypeList.length-4>0)?(caipiaoTypeList.length-4)*(sys.dwidth/4):0
+
+                    this.refs['headChangViewScrollView'].scrollTo({x:huadongNum*(sys.dwidth/4)>maxWidth?maxWidth:huadongNum*(sys.dwidth/4),y:0,animated:true},1)
+
+                } else{
+                    this.refs['headChangViewScrollView'].scrollTo({x:0,y:0,animated:true},1)
+
+                }
+                }
+                
+                );
+
+                
+
+
+            }}
+            ref={'contentViewScrollView'}
+            showsHorizontalScrollIndicator = {false}
+            pagingEnabled = {true}
+            horizontal={true}
+            style={{
+                //  backgroundColor:sys.redColor,
+                width:sys.dwidth,
+              //  marginTop:5,
+                 height:sys.dheight - 50 - 64 - (Platform.OS=='ios'?(isIphoneX()?48:0):StatusBarManager.HEIGHT+10),
+            // flexDirection:'row',
+            }}>
+
+
+
+              {/* {titel: "PC蛋蛋", typeid: "pcdd"} */}
+
+                {caipiaoTypeList.map((info, index) => {
+
+// ssc k3 pk10 lhc keno dpc x5 
+                var newList = [];
+
+
+                for(var i=0;i<this.state.dataList.length;i++) {
+                    var caipiao = this.state.dataList[i]
+
+                    if (index ==0) {
+
+                     //   caipiao.item['type'] = 'all'
+                    
+                        newList.push(caipiao)
+
+                    } else if (index==1) {
+                        if (caipiao.typeid == 'ssc') {
+                         newList.push(caipiao)
+                        }
+
+                     }else if (index ==2) {
+                        if (caipiao.typeid == 'pcdd') {
+                            newList.push(caipiao)
+                           }
+                    }else if (index ==3) {
+                         if (caipiao.typeid == 'pk10') {
+                             newList.push(caipiao)
+                            }
+                     } else if (index ==4) {
+                         if (caipiao.typeid == 'k3') {
+                             newList.push(caipiao)
+                            }
+                     } else if (index ==5) {
+                         if (caipiao.typeid == 'lhc') {
+                             newList.push(caipiao)
+                            }
+                     } else if (index ==6) {
+                         if (caipiao.typeid == 'keno') {
+                             newList.push(caipiao)
+                            }
+                     } else if (index ==7) {
+                         if (caipiao.typeid == 'x5') {
+                             newList.push(caipiao)
+                            }
+                     } else if (index ==8) {
+                         if (caipiao.typeid == 'dpc') {
+                             newList.push(caipiao)
+                            }
+                     }
+                }
+                
+
+                // console.log(index)
+
+                // console.log(newList)
+
+
+
+                    return (
+                        (this.state.noNetwork || this.state.noData)?<NoDataView key={i+caipiaoTypeList[index].tit} click={()=>this.getDataList(true)}
+                                noNet = {this.state.isloading}
+                                text = {this.state.isloading?"正在加载中":"暂无内容"}
+                            />:<RefreshListView
+                    key={i+caipiaoTypeList[index].tit}
+                    style={{width:sys.dwidth}}
+                    data={newList}
+                    keyExtractor={this.keyExtractor}
+                    renderItem={index===0?this.renderAllCell:this.renderCell}
+                    refreshState={this.state.refreshState}
+                    onHeaderRefresh={this.onHeaderRefresh}
+                    //onFooterRefresh={this.onFooterRefresh}
+                    numColumns ={index==0?3:1}
+                    ListHeaderComponent={this.renderHeadView}
+                    ListFooterComponent={this.renderFooterView}
+                    // horizontal={false}
+                    ItemSeparatorComponent={this._separator}
+                    // 可选
+                    footerRefreshingText= '玩命加载中 >.<'
+                    footerFailureText = '我擦嘞，居然失败了 =.=!'
+                    footerNoMoreDataText= '-我是有底线的-'
+                />
+
+          
+                       
+                    );
+                })}
+
+            </ScrollView>
+
+
+
+
+
+        return(
+
+
+
+
+
+             <View>
+
+              {headChangView}
+              <View style={{width:sys.dwidth,height:2,backgroundColor:sys.silveryColor}}></View>
+              {contentView}
+            </View>
+
+
+    //         <View>
+    //         <Image source={require('./images/image_xiuxing_color.png')} style={{flex:1,
+    // alignItems:'center',
+    // justifyContent:'center',
+    // width:100,
+    // height:100,
+    // //不加这句，就是按照屏幕高度自适应
+    // //加上这几，就是按照屏幕自适应
+    // //resizeMode:Image.resizeMode.contain,
+    // //祛除内部元素的白色背景
+    // backgroundColor:'rgba(0,0,0,0)',}} />
+    //          <View>
+    //           {headChangView}
+    //           <View style={{width:sys.dwidth,height:2,backgroundColor:sys.silveryColor}}></View>
+    //           {contentView}
+    //           </View>
+    //           </View>
+            // (this.state.noNetwork || this.state.noData)?<NoDataView click={()=>this.getDataList(true)}
+            //         noNet = {this.state.noNetwork}
+            //         text = {this.state.noNetwork?"暂无网络，点击可重新加载":"暂无内容"}
+            //     />:
+            // <View style={styles.container}>
+
+            //     <RefreshListView
+            //         data={this.state.dataList}
+            //         keyExtractor={this.keyExtractor}
+            //         renderItem={this.renderCell}
+            //         refreshState={this.state.refreshState}
+            //         onHeaderRefresh={this.onHeaderRefresh}
+            //         //onFooterRefresh={this.onFooterRefresh}
+            //         numColumns ={4}
+            //         ListHeaderComponent={this.renderHeadView}
+            //         ListFooterComponent={this.renderFooterView}
+            //         // horizontal={false}
+            //         ItemSeparatorComponent={this._separator}
+            //         // 可选
+            //         footerRefreshingText= '玩命加载中 >.<'
+            //         footerFailureText = '我擦嘞，居然失败了 =.=!'
+            //         footerNoMoreDataText= '-我是有底线的-'
+            //     />
+
+            // </View>
+
+            
+        )
+    }
+
+
+    headViewClick(info,index){
+
+       // console.log(index)
+        this.setState({
+            headViewIndext:index,
+        })
+        // Alert.alert('8888')
+
+        this.refs['contentViewScrollView'].scrollTo({x:index*(sys.dwidth),y:0,animated:true},1)
+
+        let huadongNum = index - 2;
+
+        if (huadongNum >0) {
+
+
+
+            let maxWidth = (caipiaoTypeList.length-4>0)?(caipiaoTypeList.length-4)*(sys.dwidth/4):0
+
+            this.refs['headChangViewScrollView'].scrollTo({x:huadongNum*(sys.dwidth/4)>maxWidth?maxWidth:huadongNum*(sys.dwidth/4),y:0,animated:true},1)
+
+           // this.refs['headChangViewScrollView'].scrollTo({x:huadongNum*(sys.dwidth/4),y:0,animated:true},1)
+
+        } else{
+            this.refs['headChangViewScrollView'].scrollTo({x:0,y:0,animated:true},1)
+
+        }
+
+        
+
+    }
+
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+         marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:sys.whiteColor
+        
+    }
+})
+
+

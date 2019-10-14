@@ -1,0 +1,651 @@
+import React, {Component} from 'react'
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    Switch,
+    Button,
+    ImageBackground,
+    Dimensions,
+    ScrollView,
+    Platform
+} from 'react-native';
+
+import ScrollableTabView, {DefaultTabBar, } from 'react-native-scrollable-tab-view';
+
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import {sys,NoDataView} from "../common/Data"
+
+
+import {styles} from "../home/common/homeStyle"
+import HttpUtils from "../common/HttpUtil"
+
+const host = sys.host;
+
+
+let zhongHeight = 40;
+let recordWidth = sys.dwidth;
+let qisuW = recordWidth/3 + 20;
+let qitaW =  recordWidth/3-10;
+
+
+
+export default class Lottery extends Component{
+
+    static  navigationOptions = ({navigation}) => ({
+
+        headerTitle:"开奖记录",
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            
+        },
+        headerRight: <View />
+
+
+    });
+
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:10,
+            visible : false,
+            // lotteryname:'cqssc',
+
+        }
+    }
+
+
+    onHeaderRefresh = () => {
+        this.state.currentPage = 1;
+        this.setState(
+            {
+                refreshState: RefreshState.HeaderRefreshing,
+            },()=>{
+                this.getDataList(true)
+            })
+    }
+
+    onFooterRefresh = () => {
+      
+        this.setState({
+            refreshState: RefreshState.FooterRefreshing
+        },()=>{
+            this.getDataList(false)
+        })
+    }
+
+
+
+    componentDidMount(){
+
+        // this.setState({
+        //     lotteryname:'cqssc'
+        //
+        // },()=>{
+            this.getDataList();
+        // });
+
+
+    }
+
+
+    getDataList(isReload){
+
+        const {params} =this.props;
+        let codeurl = host + '/AppPublic.getLatestLotteryResultsList.do';
+        let formData = new FormData();
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                this.setState({
+                    visible: false
+                });
+          
+                if(result['respCode']==1){
+
+                    let testData = result['data'];
+
+                    let newList = testData.map((data) => {
+                        return {
+                            expect: data["expect"],
+                            ftitle: data["ftitle"],
+                            id: data["id"],
+                            name: data["name"],
+                            opentime: data["opentime"],
+                            pic: data["pic"],
+                            title: data["title"],
+                            typeid:  data["typeid"],
+                            opencode:data['opencode'],
+                            opencodeMessage:data['opencodeMessage'],
+                        }});
+
+
+
+                   let dataList =  isReload ? newList : [...this.state.dataList, ...newList]
+                   this.state.currentPage = parseInt(dataList.length/this.state.pageSize)+2;
+                
+                    this.setState({
+                        dataList: dataList,
+                        refreshState: (dataList.length >= result['data']['total']) ? RefreshState.NoMoreData : RefreshState.Idle,
+                    })
+
+
+
+
+                }
+
+
+
+            })
+            .catch(error=>{
+
+                this.setState({
+                    refreshState: RefreshState.Idle,
+                    visible: false
+                })
+
+            })
+
+
+    }
+
+
+
+
+
+    render(){
+
+        // const {lotteryname} = this.props;
+        // this.state.lotteryname = lotteryname;
+
+
+
+        let showView = this.state.dataList.length?
+            <RefreshListView
+                data={this.state.dataList}
+                keyExtractor={this.keyExtractor}
+                renderItem={this.renderCell}
+                refreshState={this.state.refreshState}
+                onHeaderRefresh={this.onHeaderRefresh}
+                // onFooterRefresh={this.onFooterRefresh}
+                numColumns ={1}
+                ListHeaderComponent={this.renderHeadView}
+                // horizontal={false}
+                //ItemSeparatorComponent={this._separator}
+                // 可选
+                footerRefreshingText= '玩命加载中 >.<'
+                footerFailureText = '我擦嘞，居然失败了 =.=!'
+                footerNoMoreDataText= '-我是有底线的-'
+            />
+            :<NoDataView click={()=>this.getDataList(true)}
+                         isloading={true}
+                         text = {"加载中"}
+        />
+        return(
+
+            <View style={{marginTop:1,width:recordWidth,height:'100%',backgroundColor:'white'}}>
+
+                {showView}
+
+            </View>
+
+        )
+
+
+    }
+
+
+
+    itemView(index){
+
+        var follow = this.state.dataList[index];
+
+        const {info,type} = this.props;
+
+        this.state.type = type;
+
+        let expect = follow.expect
+        if(expect.length > 8){
+            expect = follow.expect.substr(8,follow.expect.length - 8);
+        }
+
+        let opencode = follow.opencode;
+
+        let opencodeArr = opencode.split(',');
+
+        let opentime = follow.opentime.substr(0,follow.opentime.length - 3);
+
+        var publicView = null;
+
+
+
+      if(follow.typeid == 'ssc' || follow.typeid == 'k3'){
+
+           
+
+            var hz=0;
+
+            for (var i=0;i<opencodeArr.length;i++) {
+                hz = hz + parseInt(opencodeArr[i])
+            }
+
+            var hzDescStr = [];
+
+            if (follow.typeid == 'ssc') {
+                if (opencodeArr.length>2){
+                    if(opencodeArr[0] > opencodeArr[opencodeArr.length - 1]){
+                        hzDescStr = "龙";
+                    }else if(opencodeArr[0] < opencodeArr[opencodeArr.length - 1]){
+                        hzDescStr = "虎";
+                    }else {
+                        hzDescStr = "和";
+                    }
+                }
+            }
+            
+            if (follow.typeid == 'ssc') {
+                publicView = this.publicView(50,hz,22,opencodeArr,hzDescStr)
+            } else {
+                publicView = this.publicView(50,hz,10,opencodeArr)
+            }
+
+       
+        } else if (follow.typeid == 'lhc') {
+
+
+            var lhcArr=[];
+
+            for(var i=0;i<opencodeArr.length;i++) {
+                var num = opencodeArr[i];
+                for(var j=0;j<sys.lhc_numData.length;j++) {
+                     var lhOb = sys.lhc_numData[j];
+
+                     if (lhOb['num'] == num) {
+                        lhcArr.push(lhOb)
+                     }
+
+                }
+            }
+
+
+            publicView = this.lhcPublicView(lhcArr)
+
+                
+        } else if (follow.typeid == 'pk10'){
+            let gyh = parseInt(opencodeArr[0])  + parseInt(opencodeArr[1]);
+
+            publicView =  this.publicView(50,gyh,11,opencodeArr,'','pk10')
+        }
+        
+        else{
+            publicView = this.otherPublicView(opencodeArr);
+        }
+
+        return <View style={{backgroundColor:sys.backgroundColor}}>
+            <TouchableOpacity key={index} style={styles.lotteryContent} onPress={()=>this.itemClick(follow)}>
+                <View style={{marginTop:10,flexDirection:'row',width:sys.dwidth,backgroundColor:'white'}}>
+
+
+                    <View style={{marginLeft:0,width:80,height:100,backgroundColor:'white'}}>
+                        <Image style={{marginLeft:10,marginTop:15,width:60,height:60,backgroundColor:'white'}}
+                               source={{uri:follow.pic}}></Image>
+
+                    </View>
+
+
+                    <View style={{width:recordWidth-80,backgroundColor:'white',paddingBottom:10}}>
+
+
+                        <Text style={{
+                            marginLeft:0,
+                            fontSize:16,
+                            marginTop: 8,
+                            color:'#333333',
+                            textAlign:'left',
+                            fontWeight: 'bold',
+                            width:recordWidth-80
+                        }}>{follow.title+"(第"+expect+"期)"}</Text>
+
+
+
+                        <Text style={{
+                            marginRight:10,
+                            fontSize:16,
+                            marginTop: 8,
+                            color:'#333333',
+                            textAlign:'left',
+                            width:recordWidth-80
+                        }}>{'开奖时间:'+opentime}</Text>
+
+                        {/* <View style={{ marginTop: 0,width:recordWidth - 80, backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}> */}
+                            {/* {opencodeArr.map((info, index) => {
+                                return (
+                                    <Text key={index} style={styles.openPK10Numer}>{info}</Text>
+                                );
+                            })} */}
+                            {publicView}
+                        {/* </View> */}
+
+                    </View>
+
+
+
+                </View>
+
+
+
+            </TouchableOpacity>
+
+        </View>
+
+
+
+    }
+
+    itemClick(e){
+
+
+        const {navigate} = this.props.navigation;
+        navigate('LotteryDetail',{item:e})
+    }
+
+    keyExtractor = (item, index) => {
+        return index.toString()
+    }
+
+
+
+    changeGz(gzob,flistD) {
+
+        if (gzob.isgz == 0) {
+            gzob.isgz =1;
+        } else {
+            gzob.isgz =0;
+        }
+
+
+        this.setState({
+
+            flistData:flistD
+        })
+
+    }
+
+    renderCell = (item) => {
+
+        return this.itemView(item.index)
+    }
+
+
+    _separator = () => {
+        return <View style={{height:1,backgroundColor:'#f2f2f2'}}/>;
+    }
+
+
+
+    yanSstr(num) {
+
+        //pk10 1:#F0CA31 2.#22A7FF 3.#333333 4.#FF8533 5.#3AF9F9
+          // 6.#335CFF 7.#CCCCCC  8.#FF4111 9.#801A1A 10.#17C739  0:9966ff
+        let yansStr= sys.mainColor
+        if (num==0) {
+            yansStr = '#9966ff'
+        }
+        if (num==1 || num%10==1) {
+            yansStr = '#F0CA31'
+        }
+        if (num==2 || num%10==2) {
+            yansStr = '#22A7FF'
+        }
+        if (num==3 || num%10==3) {
+            yansStr = '#525252'
+        }
+        if (num==4 || num%10==4) {
+            yansStr = '#FF8533'
+        }
+        if (num==5 || num%10==5) {
+            yansStr = '#3AF9F9'
+        }
+        if (num==6 || num%10==6) {
+            yansStr = '#335CFF'
+        }
+        if (num==7 || num%10==7) {
+            yansStr = '#CCCCCC'
+        }
+        if (num==8 || num%10==8) {
+            yansStr = '#FF4111'
+        }
+        if (num==9 || num%10==9) {
+            yansStr = '#801A1A'
+        }
+        if (num==10 || num%10==0) {
+            yansStr = '#17C739'
+        }
+
+        return yansStr;
+    }
+
+
+
+
+    publicView(kaijiViewHeight,mynum,littleNum,opencodeArr,hzDescStr,typeId){
+
+
+        let newWidth = recordWidth-80;
+
+        var isSsc = false;
+
+        if (hzDescStr == '龙' || hzDescStr == '虎' || hzDescStr == '和') {
+            isSsc = true; 
+        }
+
+        var kaijTop = (kaijiViewHeight-20)/2
+        if (opencodeArr.length *22>newWidth*2/3) {
+            kaijTop = 2;
+        } 
+
+
+
+        let changView = null;
+        if (typeId == 'pk10') {
+
+
+            let pkArrOne = [];
+            let pkArrTwo = [];
+
+            for(var i=0;i<opencodeArr.length;i++) {
+                var info = opencodeArr[i]
+
+                if(i<5) {
+                    pkArrOne.push(info) 
+                } else {
+                    pkArrTwo.push(info) 
+                }
+
+            }
+
+            changView = <View style={{marginLeft:10,marginTop:0,width:newWidth*2/3,
+                height:kaijiViewHeight,backgroundColor:'white'}}>
+
+             <View style={{marginLeft:0,marginTop:0,width:newWidth*2/3,
+                height:kaijiViewHeight/2,backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                {pkArrOne.map((info, index) => {
+                    let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+
+                    return (
+                        <Text key={index} style={[styles.newPK10Numer,{marginTop:kaijTop, backgroundColor:yansStr}]}>{info}</Text>
+                    );
+                })}
+             </View>
+
+             <View style={{marginLeft:0,marginTop:0,width:newWidth*2/3,
+                height:kaijiViewHeight/2,backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                {pkArrTwo.map((info, index) => {
+                    let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+
+                    return (
+                        <Text key={index} style={[styles.newPK10Numer,{marginTop:kaijTop, backgroundColor:yansStr}]}>{info}</Text>
+                    );
+                })}
+             </View>
+  
+            </View>
+        } else {
+            changView = <View style={{marginLeft:0,marginTop:0,width:newWidth*2/3,height:kaijiViewHeight, backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                {opencodeArr.map((info, index) => {
+                
+             
+                let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+            
+
+                return (
+                    <Text key={index} style={[styles.newPK10Numer,{marginTop:kaijTop, backgroundColor:yansStr}]}>{info}</Text>
+                );
+            })}
+            </View>
+        }
+
+
+
+        return <View style={{flexDirection:'row',width:newWidth,height:(kaijTop==2)?50:50+4,
+        backgroundColor:sys.whiteColor,marginTop:5,marginLeft:0}}>
+
+
+                {changView}
+
+                <View style={{width:newWidth/3,height:50,flexDirection:'row'}}>
+                    <Text style={{width:newWidth/9,height:50,color:sys.titleColor,textAlign:'center',fontSize:12,
+                    textAlignVertical:'center',...Platform.select({ios: { lineHeight: 50},android: {}
+                    })}}>{isSsc?hzDescStr:mynum}</Text>
+
+                    <Text style={{width:20,height:20,backgroundColor:mynum>littleNum?'#FF8533':'#22A7FF',borderRadius:3,
+                    textAlign:'center',fontSize:11,color:'white',marginLeft:(newWidth/9-20)/2,marginTop:(50-20)/2,
+                    textAlignVertical:'center',...Platform.select({ios: { lineHeight: 20},android: {}
+                    })}}>{mynum>littleNum?'大':'小'}</Text>
+
+                    <Text style={{width:20,height:20,backgroundColor:mynum%2==0?'#FF8533':'#22A7FF',borderRadius:3,
+                    textAlign:'center',fontSize:11,color:'white',marginLeft:(newWidth/9-20),marginTop:(50-20)/2,
+                    textAlignVertical:'center',...Platform.select({ios: { lineHeight: 20},android: {}
+                    })}}>{mynum%2==0?'双':'单'}</Text>
+
+
+                </View>
+
+                </View>
+
+    }
+
+
+
+
+    otherPublicView(opencodeArr){
+
+        let newWidth = recordWidth-80;
+        let kaijiViewHeight =0;
+        var kaijTop = 0
+        // if (opencodeArr.length *22>newWidth - (newWidth/6+10) - 20) {
+        //     kaijTop = 2;
+        // } 
+
+
+        let hanshu = opencodeArr.length *22/(newWidth - 20)
+
+        hanshu = Math.ceil(hanshu)
+
+        if (hanshu==1) {
+            kaijiViewHeight = 46;
+            kaijTop = (kaijiViewHeight-20)/2
+        } else {
+            kaijiViewHeight = 22 *hanshu;
+            kaijTop = 2
+        }
+
+
+        return <View style={{flexDirection:'row',width:newWidth,height:kaijiViewHeight+6+4,backgroundColor:sys.whiteColor,marginTop:5}}>
+
+
+                <View style={{marginLeft:10,marginTop:2,width:newWidth - 20,height:kaijiViewHeight, backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                    {opencodeArr.map((info, index) => {
+                        
+                     
+                        let yansStr = this.yanSstr(info)        //this.yanSstr(info); 
+                    
+
+                        return (
+                            <Text key={index} style={[styles.newPK10Numer,{marginTop:kaijTop, backgroundColor:yansStr}]}>{info}</Text>
+                        );
+                    })}
+                </View>
+
+                </View>
+
+    }
+
+
+    lhcPublicView(lhcArr){
+
+
+         let newWidth = recordWidth-80;
+        let kaijiViewHeight =0;
+        var kaijTop = 0
+        // if (opencodeArr.length *22>newWidth - (newWidth/6+10) - 20) {
+        //     kaijTop = 2;
+        // } 
+
+
+        let hanshu = lhcArr.length *22/(newWidth - 20)
+
+        hanshu = Math.ceil(hanshu)
+
+        if (hanshu==1) {
+            kaijiViewHeight = 44;
+          
+        } else {
+            kaijiViewHeight = 44 *hanshu;   
+        }
+
+
+        return <View style={{flexDirection:'row',width:newWidth,height:kaijiViewHeight+6,backgroundColor:sys.whiteColor,marginTop:5}}>
+
+
+                <View style={{marginLeft:10,marginTop:2,width:newWidth - 20,height:kaijiViewHeight, 
+                    backgroundColor:'white',flexDirection:'row',flexWrap:'wrap'}}>
+                    
+                    {lhcArr.map((info, index) => {
+                        return (
+
+                            <View key={index}>
+                            <Text style={[styles.newPK10Numer,{backgroundColor:info['bo']}]}>{info['num']}</Text>
+                             <Text style={[styles.newPK10Numer,{backgroundColor:sys.whiteColor,color:sys.titleColor}]}>{info['sx']}</Text>
+                             </View>
+
+                            // <Text key={index} style={[styles.openPK10Numer,{backgroundColor:info['bo']}]}>{info['num']}</Text>
+                        );
+                    })}
+                </View>
+
+             
+
+                </View>
+
+    }
+
+
+
+
+}

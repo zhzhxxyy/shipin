@@ -1,0 +1,60 @@
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ * @flow
+ * @lint-ignore-every XPLATJSCOPYRIGHT1
+ */
+
+import React, {Component} from 'react';
+import {Platform, StyleSheet, Alert,Text, View,  Modal} from 'react-native';
+import ImageViewer from 'react-native-image-zoom-viewer';
+
+const instructions = Platform.select({
+  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
+  android:
+    'Double tap R on your keyboard to reload,\n' +
+    'Shake or press menu button for dev menu',
+});
+
+
+export default class ShowImageViewer extends Component{
+  render() {
+    const {params} = this.props.navigation.state;
+    return (
+      // <View style={styles.container}>
+        <ImageViewer
+                  style={{backgroundColor:'yellow'}}
+                  imageUrls={params} // 照片路径
+                  enableImageZoom={true} // 是否开启手势缩放
+                  index={0} // 初始显示第几张
+                  // failImageSource={aaa} // 加载失败图片
+                  onChange={(index) => {}} // 图片切换时触发
+                  onClick={() => { // 图片单击事件
+                       this.props.navigation.goBack()
+                  }}
+              />
+      // </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 10,
+  },
+  instructions: {
+    textAlign: 'center',
+    color: '#333333',
+    marginBottom: 5,
+  },
+});

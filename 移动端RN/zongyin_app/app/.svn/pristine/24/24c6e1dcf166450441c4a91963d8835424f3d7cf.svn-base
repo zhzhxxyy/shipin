@@ -1,0 +1,239 @@
+//
+//  Created by Liu Jinyong on 17/4/5.
+//  Copyright © 2016年 Liu Jinyong. All rights reserved.
+//
+//  @flow
+//  Github:
+//  https://github.com/huanxsd/react-native-refresh-list-view
+
+import React, {Component} from 'react'
+import {View, StyleSheet, Text, Platform,Alert,TouchableOpacity,Image,PixelRatio,DeviceEventEmitter,
+TextInput} from 'react-native'
+import RefreshListView, {RefreshState} from 'react-native-refresh-list-view'
+import Cell from './Cell'
+import {sys,NoDataView} from "../common/Data"
+const host = sys.host;
+import HttpUtils from "../common/HttpUtil"
+import FcusImage from './HeadView';
+import RNLogin from "../common/RNLoginModule"
+import DialogSelected from '../common/AlertSelect';
+
+
+var clickLastTime=0;
+
+export default class MyHongbao extends Component {
+
+    static  navigationOptions = ({navigation}) => ({
+        headerTitle:"发红包",
+        headerTitleStyle:{
+            alignSelf:'center',
+            flex: 1,
+            textAlign: 'center',
+            
+        },
+        headerRight: <View />
+    });
+
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            dataList: [],
+            refreshState: RefreshState.HeaderRefreshing,
+            currentPage:1,
+            pageSize:20,
+            noNetwork:false,
+            noData:true,
+            hongbaoPrice:'',
+            hongbaoNum:'',
+            beizhuStr:'恭喜发财，大吉大利',
+            balance:'0',
+        }
+    }
+
+ 
+
+
+    componentDidMount(){
+
+
+        storage.load('islogin', (dic) => {
+            if (dic != "" && dic != null) {
+          
+                this.setState({
+                    balance:dic['balance'],
+                })
+
+            }
+        })
+
+    }
+
+
+
+    getPersonInfo(num){
+        let codeurl = host + '/AppMember.index.do';
+        let formData = new FormData();
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+                if(result['respCode']==1){  
+                    let dic = result['data'];
+                  
+                    this.setState({
+                        balance:dic['balance'],
+                    })
+
+                    storage.save('islogin',dic)
+                      
+                }else{
+                    
+                }
+            })
+            .catch(error=>{
+              
+                if(num<=0){
+                    this.getPersonInfo(++num);
+                }
+            })
+    }
+
+
+    render() {
+
+
+        return(
+           <View style={{backgroundColor:sys.whiteColor,height:sys.dheight,width:sys.dwidth}}>
+
+                <View style={{marginTop:1,flexDirection:'row',backgroundColor:sys.whiteColor,height:50,
+                    width:sys.dwidth}}>
+                    <Text style={{marginLeft:20,marginTop:17,width:200,backgroundColor:sys.whiteColor,
+                    fontSize:16,}}>{'账户余额:'+this.state.balance+'元'}</Text>
+                </View>
+
+                <View style={{marginLeft:0,marginTop:5,backgroundColor:sys.grayColor,height:1,width:sys.dwidth}}></View>
+
+         <View style={{marginTop:0,flexDirection:'row',backgroundColor:sys.whiteColor,height:50,
+             width:sys.dwidth}}>
+             <Text style={{marginLeft:10,marginTop:14,width:90,backgroundColor:sys.whiteColor,
+              fontSize:16,textAlign:'center'}}>发送金额:</Text>
+
+             <TextInput style={{width:sys.dwidth/2,color:sys.subTitleColor,
+   textAlign:'left',backgroundColor:sys.whiteColor,fontSize:16}}
+                       keyboardType='numeric'
+                       //  ref='hongbao'
+                        underlineColorAndroid='transparent'
+                        placeholder={"输入金额"}
+                        value={this.state.hongbaoPrice}
+                        onChangeText={(text) =>{
+
+                            text = text.replace(/[^\d]+/, '');
+
+                            this.setState({hongbaoPrice:text})
+                          }}
+             >
+             </TextInput>
+         </View>
+
+         <View style={{marginLeft:0,marginTop:5,backgroundColor:sys.grayColor,height:1,width:sys.dwidth}}></View>
+
+         <View style={{marginTop:0,flexDirection:'row',backgroundColor:sys.whiteColor,height:50,
+             width:sys.dwidth}}>
+             <Text style={{marginLeft:10,marginTop:14,width:90,backgroundColor:sys.whiteColor,
+              fontSize:16,textAlign:'center'}}>红包个数:</Text>
+
+             <TextInput style={{width:sys.dwidth/2,color:sys.subTitleColor,
+   textAlign:'left',backgroundColor:sys.whiteColor,fontSize:16}}
+                       keyboardType='numeric'
+                       //  ref='hongbao' 
+                         underlineColorAndroid='transparent'
+                        placeholder={"输入个数"}
+                        value={this.state.hongbaoNum}
+                        onChangeText={(text) =>{
+                            text = text.replace(/[^\d]+/, '');
+                            this.setState({hongbaoNum:text})
+                         }
+                    }
+             >
+             </TextInput>
+         </View>
+
+         <View style={{marginLeft:0,marginTop:5,backgroundColor:sys.grayColor,height:1,width:sys.dwidth}}></View>
+
+
+           <View style={{marginTop:0,flexDirection:'row',backgroundColor:sys.whiteColor,height:50,
+               width:sys.dwidth}}>
+               <Text style={{marginLeft:10,marginTop:14,width:90,backgroundColor:sys.whiteColor,
+               fontSize:16,textAlign:'center'}}>备注:</Text>
+
+               <TextInput style={{width:sys.dwidth/2,color:sys.subTitleColor,
+           textAlign:'left',backgroundColor:sys.whiteColor,fontSize:16}}
+                       //  ref='hongbao'
+                       underlineColorAndroid='transparent'
+                       placeholder={"输入备注"}
+                        value={this.state.beizhuStr}
+                       onChangeText={(text) => this.setState({beizhuStr:text})}
+               >
+               </TextInput>
+           </View>
+
+           <View style={{marginLeft:0,marginTop:5,backgroundColor:sys.grayColor,height:1,width:sys.dwidth}}></View>
+
+
+           <View style={{marginTop:10,marginLeft:0,width:sys.dwidth,height:42,
+            textAlign:'left',flexDirection:'row'}}>
+
+                <TouchableOpacity disabled={this.state.isChaXun} style={{width:(sys.dwidth-30)/2,
+                    marginLeft:10, marginTop:0,height:40,backgroundColor:sys.mainColor,
+                    borderRadius:5,flexDirection:'row',}} onPress={()=>this.myHongbao()}>
+                    <Text style={[{color:'#ffffff',textAlign:'center',fontSize:18,
+                    height:40, textAlignVertical:'center',...Platform.select({
+                    ios: { lineHeight: 40}, android: {}})
+                    },{width:100,marginLeft:this.state.isChaXun?10:((sys.dwidth-30)/2-100)/2}]}>我的红包</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity disabled={this.state.isChaXun} style={{width:(sys.dwidth-30)/2,
+                    marginLeft:10, marginTop:0,height:40,backgroundColor:sys.mainColor,
+                    borderRadius:5,flexDirection:'row',}} onPress={()=>this.fasong()}>
+                    {this.state.isChaXun?<ActivityIndicator style={{marginLeft:((sys.dwidth-30)/2-100)/2 - 10 - 20,width:20
+                        ,height:20,marginTop:10}} />:null}
+                    <Text style={[{color:'#ffffff',textAlign:'center',fontSize:18,
+                    height:40, textAlignVertical:'center',...Platform.select({
+                    ios: { lineHeight: 40}, android: {}})
+                    },{width:100,marginLeft:this.state.isChaXun?10:((sys.dwidth-30)/2-100)/2}]}>{this.state.isChaXun?'发送中..':'发送'}</Text>
+                </TouchableOpacity>
+
+            </View>
+
+
+           </View>
+        )
+
+    }
+
+    myHongbao(){
+
+    }
+
+    fasong(){
+        
+    }
+
+
+
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: Platform.OS == 'ios' ? 0 : 0,
+        backgroundColor:sys.grayColor,
+
+    },
+    headView:{
+       width:sys.dwidth,
+       height:sys.dwidth/3
+    }
+})
+
+

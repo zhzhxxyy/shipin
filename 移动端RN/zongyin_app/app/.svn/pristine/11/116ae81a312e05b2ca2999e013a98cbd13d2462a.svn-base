@@ -1,0 +1,1324 @@
+
+
+import React, {PureComponent,Component} from 'react'
+
+import {View,
+    Text,
+    TextInput,
+    StyleSheet,
+    Platform,
+    TouchableOpacity,
+    Image,
+    PixelRatio,
+    ImageBackground,
+    Dimensions,
+    Button,
+    Alert,
+    ScrollView} from 'react-native'
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import {sys,NoDataView,isIphoneX} from "../../common/Data"
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+import HttpUtils from "../../common/HttpUtil"
+import {styles} from "../common/homeStyle"
+import {LeftButton} from "./CqsscPublic"
+var selectedIndex = 0;
+
+
+var Buffer = require('buffer').Buffer;
+
+
+var thiz = this;
+var headthis;
+var thishead_arr = [];
+
+const host = sys.host;
+const RIGHT_WIDTH = Dimensions.get('window').width*0.75;
+const LEFT_WIDTH = Dimensions.get('window').width*0.25;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const  text_arr = ["直选复式","组选120","组选60","组选30","组选20","组选10","组选5"];
+const  fsTitle_arr = ["万位","千位","百位","十位","个位"];
+const  zx120Title_arr = ["组选120"];
+const  zxedTitle_arr = ["二重号位","单号位"];
+const  zx4dTitle_arr = ["四重号位","单号位"];
+const  zx3dTitle_arr = ["三重号位","单号位"];
+const  zx3eTitle_arr = ["三重号位","二重号位"];
+
+
+
+export default class fiveStart extends React.Component  {
+
+
+    _onPress = () => {
+        this.props.onPressItem(this.props.id);
+    };
+
+    constructor(props) {
+
+        super(props);
+
+        this.state = {
+
+            fontLoaded: false,
+
+            number_arr:{},
+
+            zhushu : "0注",
+            amount:"0元",
+            count:0,
+            index: 0,
+            beishu:'1',
+
+
+
+            ///五星一码不定位
+            bdw5x1m:{},
+            //五星二码不定位
+            bdw5x2m:{},
+            //五星三码不定位
+            bdw5x3m:{},
+
+            //好事成双
+            qwhscs:{},
+            //四季发财
+            qwsjfc:{},
+            //三星报喜
+            qwsxbx:{},
+            //一帆风顺
+            qwyffs:{},
+
+            //五星单式
+            wxzhixds:{},
+
+
+
+            wxzhixfs:{},
+
+
+            //组选120
+            wxzxyel:{},
+            //组选60
+            wxzxls:{},
+            //组选30
+            wxzxsl:{},
+            //组选20
+            wxzxel:{},
+            //组选10
+            wxzxyl:{},
+            //组选5
+            wxzxw:{},
+
+
+            currFullExpect:""
+        };
+    }
+
+    async componentDidMount() {
+            this.setState({ fontLoaded: true });
+
+            selectedIndex = 0;
+            this.setState({ currFullExpect: this.props.currFullExpect });
+
+            if(this.props.datalist["wxzhixfs"] != null){
+                this.setState({ wxzhixfs: this.props.datalist["wxzhixfs"]});
+            }
+
+            if(this.props.datalist["wxzxyel"] != null){
+                this.setState({ wxzxyel: this.props.datalist["wxzxyel"]});
+            }
+
+            if(this.props.datalist["wxzxls"] != null){
+                this.setState({ wxzxls: this.props.datalist["wxzxls"]});
+            }
+
+            if(this.props.datalist["wxzxsl"] != null){
+                this.setState({ wxzxsl: this.props.datalist["wxzxsl"]});
+            }
+
+            if(this.props.datalist["wxzxel"] != null){
+                this.setState({ wxzxel: this.props.datalist["wxzxel"]});
+            }
+
+            if(this.props.datalist["wxzxyl"] != null){
+                this.setState({ wxzxyl: this.props.datalist["wxzxyl"]});
+            }
+
+            if(this.props.datalist["wxzxw"] != null){
+                this.setState({ wxzxw: this.props.datalist["wxzxw"]});
+            }
+
+    }
+
+
+    //生成随机订单号
+    generateMixed(n) {
+
+        var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
+        var res = "";
+        for(var i = 0; i < n ; i ++) {
+            var id = Math.ceil(Math.random()*35);
+            res += chars[id];
+        }
+        return res;
+    }
+
+
+
+
+    buynow(){
+
+
+        let isCunZai = this.props.datalist.hasOwnProperty('sixzhixfsh')
+
+        if (!isCunZai) {
+            this.props.lodaData()
+            //return;
+        }
+
+        if(thiz.state.count == 0){
+            this.refs.toast.show("您的选注不符合规则", DURATION.LENGTH_LONG);       
+            return;
+
+        }
+
+        if(thiz.state.beishu == '0' || thiz.state.beishu == ''){
+            this.refs.toast.show("请填写下注倍数", DURATION.LENGTH_LONG);
+            return;
+        }
+
+        var number = "";
+
+        var data = {};
+
+        if(this.state.index == 0){
+            data = this.state.wxzhixfs;
+            number = thiz.state.number_arr['w'] + "|" + thiz.state.number_arr['q'] + "|" + thiz.state.number_arr['b'] + "|" + thiz.state.number_arr['s'] + "|" + thiz.state.number_arr['g'];
+        }else  if (this.state.index == 1){
+            data = this.state.wxzxyel;
+            number = thiz.state.number_arr['zx120'] + "";
+        }else  if (this.state.index == 2) {
+            data = this.state.wxzxls;
+            number = thiz.state.number_arr['echw'] + "|" + thiz.state.number_arr['dhw'];
+        } else if(this.state.index == 3){
+            data = this.state.wxzxsl;
+            number = thiz.state.number_arr['echw'] + "|" + thiz.state.number_arr['dhw'];
+        }else  if (this.state.index == 4){
+            data = this.state.wxzxel;
+            number = thiz.state.number_arr['schw'] + "|" + thiz.state.number_arr['dhw'];
+        }else  if (this.state.index == 5){
+            data = this.state.wxzxyl;
+            number = thiz.state.number_arr['schw'] + "|" + thiz.state.number_arr['echw'];
+        }else  if (this.state.index == 6){
+            data = this.state.wxzxw;
+            number = thiz.state.number_arr['s4chw'] + "|" + thiz.state.number_arr['dhw'];
+        }
+
+
+
+        this.setState({
+
+            data : data,
+            number : number
+
+        },()=>{
+            this.props.onPress();
+        });
+
+
+
+    }
+
+
+
+
+    show(tag){
+
+    }
+
+
+    onButtonPress(index){
+
+
+        if (index == this.state.index){
+            return;
+        }
+
+
+        this.setState({
+            index:index,
+            zhushu:"0注",
+            amount:"0元",
+            count : 0,
+            beishu:'1',
+            number_arr : [],
+        },()=>{
+
+            for(var key in thiz.refs){
+              //  if(thiz.refs[key].state.selected != null){
+                if (key.includes('位') || key.includes('组选')){
+                    thiz.refs[key].setState({
+                        selected:false
+                    });
+                }
+
+                if(key.includes('header')){//customheader
+                    for(var subkey in thiz.refs[key].refs){
+                        if (subkey.includes('CustomButton')){
+                            thiz.refs[key].refs[subkey].setState({
+                                selected:false
+                            });
+                        }
+                        
+                    }
+                }
+            }
+
+            if(selectedIndex != this.state.index){
+                thiz.refs["left"+selectedIndex].setState({
+                    selected: false
+                });
+
+                selectedIndex = this.state.index;
+                thiz.refs["left"+selectedIndex].setState({
+                    selected: true
+                });
+            }
+
+
+
+        })
+    };
+
+
+    itemClick(){
+        this.setState({
+            index:thiz.state.index,
+            zhushu:thiz.state.zhushu,
+            amount : thiz.state.amount,
+            count:thiz.state.count,
+            beishu:thiz.state.beishu
+        })
+    }
+
+
+    clear(){ 
+               
+        for(key in thiz.refs){
+            if(key.includes('组选120') || key.includes('二重号位') || key.includes('单号位') || key.includes('三重号位') || key.includes('四重号位') ||  key.includes('万位')|| key.includes('千位')||  key.includes('百位')|| key.includes('十位')|| key.includes('个位')){
+              thiz.refs[key].setState({
+                  selected:false
+                })
+            }
+  
+            if(key.includes('header') ){
+  
+                
+              for(keys in thiz.refs[key].refs){
+                // console.log(keys)
+                  thiz.refs[key].refs[keys].setState({
+                      selected:false
+                    })
+              }
+  
+            }
+        }
+          
+      }
+
+    render(){
+        thiz = this;
+
+        var  zhushu  = thiz.state.zhushu ;
+        var  amount = thiz.state.amount;
+
+        var remark = "";
+        var rate = 0;
+
+        let isCunZai = this.props.datalist.hasOwnProperty('sixzhixfsh')
+
+        var titleArr = [];
+
+        if(this.state.index == 0){     //五星直选复式
+            if(this.props.datalist["wxzhixfs"] != null){
+                remark = this.state.wxzhixfs.remark;
+                rate = this.state.wxzhixfs.rate;
+            }
+            titleArr = fsTitle_arr;
+        }else if(this.state.index == 1){        //组选120
+            if(this.props.datalist["wxzxyel"] != null){
+                remark = this.state.wxzxyel.remark;
+                rate = this.state.wxzxyel.rate;
+            }
+            titleArr =  zx120Title_arr;
+        }else if(this.state.index == 2){      //组选60
+            if(this.props.datalist["wxzxls"] != null){
+                remark = this.state.wxzxls.remark;
+                rate = this.state.wxzxls.rate;
+            }
+            titleArr = zxedTitle_arr;
+        }else if(this.state.index == 3){      //组选30
+            if(this.props.datalist["wxzxsl"] != null){
+                remark = this.state.wxzxsl.remark;
+                rate = this.state.wxzxsl.rate;
+            }
+            titleArr = zxedTitle_arr;
+        }else if(this.state.index == 4){       //  组选20
+            if(this.props.datalist["wxzxel"] != null){
+                remark = this.state.wxzxel.remark;
+                rate = this.state.wxzxel.rate;
+            }
+            titleArr =  zx3dTitle_arr;
+        }else if(this.state.index == 5){       //  组选10
+            if(this.props.datalist["wxzxyl"] != null){
+                remark = this.state.wxzxyl.remark;
+                rate = this.state.wxzxyl.rate;
+            }
+            titleArr =  zx3eTitle_arr;
+        }else if(this.state.index == 6){       //  组选5
+            if(this.props.datalist["wxzxw"] != null){
+                remark = this.state.wxzxw.remark;
+                rate = this.state.wxzxw.rate;
+            }
+            titleArr =  zx4dTitle_arr;
+        }
+
+        var changeView = null;
+
+
+        changeView = titleArr.map((info, index)=> {
+            return (
+                <View key={index} >
+                    <CustomHeader key={index} ref={'header'+index}  index={this.state.index} title={info}
+                                  style={{marginTop: 20, backgroundColor: 'red'}}></CustomHeader>
+                    <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="0" id={info} ref={this.state.index + info + 0}/>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="1" id={info} ref={this.state.index + info + 1}/>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="2" id={info} ref={this.state.index + info + 2}/>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="3" id={info} ref={this.state.index + info + 3}/>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="4" id={info} ref={this.state.index + info + 4}/>
+                    </View>
+                    <View style={{flexDirection: 'row', marginTop: 10, marginLeft: 0}}>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="5" id={info} ref={this.state.index + info + 5}/>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="6" id={info} ref={this.state.index + info + 6}/>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="7" id={info} ref={this.state.index + info + 7}/>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="8" id={info} ref={this.state.index + info + 8}/>
+                        <CustomButton index={this.state.index} onPress={this.itemClick.bind(this, info)} title="9" id={info} ref={this.state.index + info + 9}/>
+                    </View>
+                </View>
+            );
+        })
+
+
+        // var scrollH = sys.dheight-310;
+        // if(isIphoneX()){
+        //     scrollH = sys.dheight-320;
+        // }
+
+        var scrollH = sys.zhongjianIsHaveChange;
+
+
+        let rarmkView = isCunZai?<Text style={styles.remarkHeader}>{remark}赔率
+       <Text style={{color:'red'}}>{rate}</Text>倍</Text>:<NoDataView
+       click={()=>this.props.lodaData()}
+             isloading = {this.props.visible}
+             text = {"重新加载"}></NoDataView>
+
+        return (
+
+            <KeyboardAwareScrollView
+                style={styles.container}
+                keyboardShouldPersistTaps = {"always"}
+
+            >
+
+
+            <View style={{flex:1}}>
+
+                <View style={{ flex: 1 ,flexDirection:'row'}}>
+
+                    <ScrollView
+
+                        style={{
+
+                            backgroundColor:sys.grayColor,
+                            width:LEFT_WIDTH,
+                            height:scrollH
+                        }}>
+
+                        {text_arr.map((info, index) => {
+                            var selected = false;
+                            if (this.state.index == index){
+                                selected = true;
+                            }
+
+                            return (
+
+                                <LeftButton key={index} xuanzo={index==0?1:0} title={info}    index={index} selected={selected} ref={"left"+index}
+                                            onPress={()=>{
+                                                this.onButtonPress(index)
+                                            }}></LeftButton>
+                            );
+                        })}
+                    </ScrollView>
+                    <ScrollView
+                        style={{
+                            backgroundColor:"white",
+                            width:RIGHT_WIDTH,
+                            height:scrollH
+                        }}
+                    >
+
+                        {/* <Text style={styles.remarkHeader}>{remark}赔率<Text style={{color:'red'}}>{rate}</Text>倍</Text> */}
+
+                        {rarmkView}
+
+                        {
+                            changeView
+                        }
+                        <View style={{height:50}}></View>
+                    </ScrollView>
+                </View>
+
+     
+                <View style={styles.footer} >
+                    <View style={styles.yuerbar}>
+                        <Text style={styles.nameHeader}>总额</Text>
+                        <Text style={styles.yuer}>{amount}</Text>
+                    </View>
+                    <View style={styles.yuerbar}>
+                        <Text style={styles.nameHeader}>单注：</Text>
+                        <Text style={styles.yuer}>{sys.priceNum+'元'}</Text>
+                        {/*<FormInput style={styles.yuer} placeholder="111" />*/}
+                    </View>
+                    <View style={styles.yuerbar}>
+                        <Text style={styles.nameHeader}>共</Text>
+                        <Text style={styles.yuer}>{zhushu}</Text>
+                    </View>
+
+                    
+
+                </View>
+
+                <View style={styles.beishuView} >
+
+                    <TouchableOpacity  style={[styles.reduceBtn,{marginLeft:30}] }
+                                       onPress={() => {
+
+                                            if (thiz.state.beishu == '' || this.state.beishu == null) {
+                                                thiz.setState({
+                                                    beishu : '',
+                                                
+                                                })
+                                                return;
+                                            }
+
+                                           if(thiz.state.beishu == '1'){
+                                               return;
+                                           }else {
+                                               var mewBeishu = parseInt(thiz.state.beishu) - 1;
+                                               thiz.setState({
+                                                   beishu : mewBeishu+'',
+                                                   amount :  thiz.state.count*sys.priceNum*mewBeishu + "元"
+                                               })
+                                           }
+
+                                       }}
+                    >
+                        <Text style={styles.payButtonText} >-</Text>
+                    </TouchableOpacity>
+
+                    <TextInput underlineColorAndroid='transparent' value={thiz.state.beishu}
+                               keyboardType='numeric'  style={styles.beishuCount}  ref="beishucount"
+                               onChangeText={(text) =>{
+                                text = text.replace(/[^\d]+/, '');
+                                   thiz.setState({
+                                       beishu:text,
+                                       amount : thiz.state.count*sys.priceNum*parseInt(text) + "元"
+                                   })
+
+                                   if(text == '' || text == null){
+
+                                       thiz.setState({
+                                           amount : "0元"
+                                       })
+                                   }
+                               }
+                               }
+                    ></TextInput>
+
+
+                    <TouchableOpacity  style={styles.reduceBtn }
+                                       onPress={() => {
+
+                                           var mewBeishu = parseInt(thiz.state.beishu) + 1;
+                                           if(thiz.state.beishu == '' ){
+                                               mewBeishu = 1;
+                                           }
+
+
+                                           thiz.setState({
+                                               beishu : mewBeishu+'',
+                                               amount :  thiz.state.count*sys.priceNum*mewBeishu + "元"
+                                           })
+
+
+                                       }}
+                    >
+                        <Text style={styles.payButtonText}>+</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{height:45,width:sys.dwidth/2,marginLeft:sys.dwidth/2 - 160}}
+                    onPress={() => {
+                        this.buynow()
+                    }}
+                    >
+                    <TouchableOpacity  style={[styles.payButton,{marginLeft:(sys.dwidth/2 - 60)/2}]}
+                                       onPress={() => {
+                                          this.buynow()
+                                       }}
+                    >
+                        <Text style={styles.payButtonText}>下注</Text>
+                    </TouchableOpacity>
+
+                    </TouchableOpacity>
+
+                </View>
+
+            </View>
+            <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='top'
+                    positionValue={200}
+                    opacity={0.7}
+                    textStyle={{color:'white'}}
+                />  
+                </KeyboardAwareScrollView>
+        );
+    }
+
+
+}
+
+
+
+
+
+
+class CustomButton extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+            selected: false,
+        };
+    }
+
+
+    //组合排列 组选60
+    combine60(currNumber) {
+         var d_balls = [];
+         var t_balls = [];
+         var d_count = 0;
+         var t_count = 0;
+
+         for (var i = 0; i < currNumber.length; i++) {
+             for (var j = 0; j < currNumber[i].length; j++) {
+                 if (i == 0) {
+                     d_balls[currNumber[i][j]] = currNumber[i][j]
+                 } else {
+                     t_balls[currNumber[i][j]] = currNumber[i][j]
+                 }
+             }
+             if (i == 0) {
+                 d_count = currNumber[i].length;
+             } else {
+                 t_count = currNumber[i].length;
+             }
+         }
+
+
+    var recount = 0; //重复数
+    if (d_balls && d_balls.length > 0 && t_balls && t_balls.length > 0) {
+        for (i = 0; i < d_balls.length; i++) {
+            for (j = 0; j < t_balls.length; j++) {
+                if (t_balls[j] && t_balls[j] == d_balls[i]) {
+                    recount++;
+                }
+            }
+        }
+    }
+
+    var itemcount = 0;
+    if (t_count >= 3 && d_count >= 1) {
+        for (d_count; d_count > 0; d_count--) {
+            if (recount > 0) {
+                var diffcount = t_count - 4;
+                var topcount = t_count - 1;
+                var subcount = t_count - 4;
+                if (diffcount > 0) {
+                    var temp = t_count - 1;
+                    while (diffcount > 1) {
+                        diffcount--;
+                        temp--;
+                        topcount = topcount * temp;
+                        subcount = subcount * diffcount;
+                    }
+                    itemcount += (topcount / subcount);
+                } else if (diffcount < 0) {
+
+                } else {
+                    itemcount += 1;
+                }
+                recount--;
+            } else {
+                var diffcount = t_count - 3;
+                var topcount = t_count;
+                var subcount = t_count - 3;
+                if (diffcount > 0) {
+                    var temp = t_count;
+                    while (diffcount > 1) {
+                        diffcount--;
+                        temp--;
+                        topcount = topcount * temp;
+                        subcount = subcount * diffcount;
+                    }
+                    itemcount += (topcount / subcount);
+                } else {
+                    itemcount += 1;
+                }
+            }
+        }
+    }
+    return itemcount;
+}
+
+
+    combine30(currNumber) {
+        var d_balls = [];
+        var t_balls = [];
+        var d_count = 0;
+        var t_count = 0;
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var j = 0; j < currNumber[i].length; j++) {
+                if (i == 0) {
+                    d_balls[currNumber[i][j]] = currNumber[i][j]
+                } else {
+                    t_balls[currNumber[i][j]] = currNumber[i][j]
+                }
+            }
+            if (i == 0) {
+                d_count = currNumber[i].length;
+            } else {
+                t_count = currNumber[i].length;
+            }
+        }
+        var itemcount = 0;
+        if (d_count > 1 && t_count > 0) {
+            for (var i = 0; i < t_balls.length; i++) {
+                if (t_balls[i] != undefined && t_balls[i] != "") {
+                    if (d_balls[i] != undefined && d_balls[i] != "") {
+                        if (d_count > 2) {
+                            itemcount += (d_count - 1) * (d_count - 2) / 2;
+                        }
+                    } else {
+                        itemcount += d_count * (d_count - 1) / 2;
+                    }
+                }
+            }
+        }
+        return itemcount;
+    }
+
+
+
+    combine10(currNumber) {
+        var d_balls = [];
+        var t_balls = [];
+        var d_count = 0;
+        var t_count = 0;
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var j = 0; j < currNumber[i].length; j++) {
+                if (i == 0) {
+                    d_balls[currNumber[i][j]] = currNumber[i][j]
+                } else {
+                    t_balls[currNumber[i][j]] = currNumber[i][j]
+                }
+            }
+            if (i == 0) {
+                d_count = currNumber[i].length;
+            } else {
+                t_count = currNumber[i].length;
+            }
+        }
+
+        var itemcount = 0;
+        if (d_count > 0 && t_count > 0) {
+            for (var i = 0; i < d_balls.length; i++) {
+                if (d_balls[i] != undefined && d_balls[i] != "") {
+                    if (t_balls[i] != undefined && t_balls[i] != "") {
+                        if (t_count > 1) {
+                            itemcount += t_count - 1;
+                        }
+                    } else {
+                        itemcount += t_count;
+                    }
+                }
+            }
+        }
+        return itemcount;
+    }
+
+
+    combine20(currNumber) {//组选20
+        var d_balls = [];
+        var t_balls = [];
+        var d_count = 0;
+        var t_count = 0;
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var j = 0; j < currNumber[i].length; j++) {
+                if (i == 0) {
+                    d_balls[currNumber[i][j]] = currNumber[i][j]
+                } else {
+                    t_balls[currNumber[i][j]] = currNumber[i][j]
+                }
+            }
+            if (i == 0) {
+                d_count = currNumber[i].length;
+            } else {
+                t_count = currNumber[i].length;
+            }
+        }
+
+            var itemcount = 0;
+        if (d_count > 0 && t_count > 1) {
+            for (var i = 0; i < d_balls.length; i++) {
+                if (d_balls[i] != undefined && d_balls[i] != "") {
+                    if (t_balls[i] != undefined && t_balls[i] != "") {
+                        if (t_count > 2) {
+                            itemcount += (t_count - 1) * (t_count - 2) / 2;
+                        }
+                    } else {
+                        itemcount += t_count * (t_count - 1) / 2;
+                    }
+                }
+            }
+        }
+        return itemcount;
+    }
+
+
+    combine5(currNumber) {
+
+        var d_balls = [];
+        var t_balls = [];
+        var d_count = 0;
+        var t_count = 0;
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var j = 0; j < currNumber[i].length; j++) {
+                if (i == 0) {
+                    d_balls[currNumber[i][j]] = currNumber[i][j]
+                } else {
+                    t_balls[currNumber[i][j]] = currNumber[i][j]
+                }
+            }
+            if (i == 0) {
+                d_count = currNumber[i].length;
+            } else {
+                t_count = currNumber[i].length;
+            }
+        }
+
+
+        var itemcount = 0;
+        if (d_count > 0 && t_count > 0) {
+            for (var i = 0; i < d_balls.length; i++) {
+                if (d_balls[i] != undefined && d_balls[i] != "") {
+                    if (t_balls[i] != undefined && t_balls[i] != "") {
+                        if (t_count > 1) {
+                            itemcount += t_count - 1;
+                        }
+                    } else {
+                        itemcount += t_count;
+                    }
+                }
+            }
+        }
+        return itemcount;
+    }
+
+
+    //组合算法 组选24
+    combine(arr, num) {
+        var r = [];
+        (function f(t, a, n) {
+            if (n == 0) return r.push(t);
+
+            for (var i = 0, l = a.length; i <= l - n; i++) {
+                f(t.concat(a[i]), a.slice(i + 1), n - 1);
+            }
+
+        })([], arr, num);
+
+        return r.length;
+    }
+
+
+    combineArrUpdata(currNumber) {
+
+        var d_balls = [];
+        var t_balls = [];
+        var d_count = 0;
+        var t_count = 0;
+
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var j = 0; j < currNumber[i].length; j++) {
+                if (i == 0) {
+                    d_balls[currNumber[i][j]] = currNumber[i][j]
+                } else {
+                    t_balls[currNumber[i][j]] = currNumber[i][j]
+                }
+            }
+            if (i == 0) {
+                d_count = currNumber[i].length;
+            } else {
+                t_count = currNumber[i].length;
+            }
+        }
+    }
+
+
+    exzuxhz(){
+
+        var arrexzuxhz = [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 4, 4, 3, 3, 2, 2, 1, 1];
+        var itemcount = 0;
+        var vballs = [];
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var k = 0; k < currNumber[i].length; k++) {
+                vballs[currNumber[i][k]] = currNumber[i][k]
+            }
+        }
+        for (j = 0; j < vballs.length; j++) {
+            if (vballs[j] != "" && !isNaN(vballs[j])) {
+                itemcount += arrexzuxhz[parseInt(vballs[j])];
+            }
+        }
+        return itemcount;
+    }
+
+
+    sxCombine4(currNumber) {
+        var d_balls = [];
+        var t_balls = [];
+        var d_count = 0;
+        var t_count = 0;
+
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var j = 0; j < currNumber[i].length; j++) {
+                if (i == 0) {
+                    d_balls[currNumber[i][j]] = currNumber[i][j]
+                } else {
+                    t_balls[currNumber[i][j]] = currNumber[i][j]
+                }
+            }
+            if (i == 0) {
+                d_count = currNumber[i].length;
+            } else {
+                t_count = currNumber[i].length;
+            }
+        }
+
+        var itemcount = 0;
+        if (d_count > 0 && t_count > 0) {
+            for (var i = 0; i < d_balls.length; i++) {
+                if (d_balls[i] != undefined && d_balls[i] != "") {
+                    if (t_balls[i] != undefined && t_balls[i] != "") {
+                        if (t_count > 1) {
+                            itemcount += t_count - 1;
+                        }
+                    }else {
+                        itemcount += t_count;
+                    }
+                }
+            }
+        }
+        return itemcount;
+    }
+
+
+    sxCombine12(currNumber) {
+        var d_balls = [];
+        var t_balls = [];
+        var d_count = 0;
+        var t_count = 0;
+
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var j = 0; j < currNumber[i].length; j++) {
+                if (i == 0) {
+                    d_balls[currNumber[i][j]] = currNumber[i][j]
+                } else {
+                    t_balls[currNumber[i][j]] = currNumber[i][j]
+                }
+            }
+            if (i == 0) {
+                d_count = currNumber[i].length;
+            } else {
+                t_count = currNumber[i].length;
+            }
+        }
+        var itemcount = 0;
+        if (d_count > 0 && t_count > 1) {
+            for (var i = 0; i < d_balls.length; i++) {
+                if (d_balls[i] != undefined && d_balls[i] != "") {
+                    if (t_balls[i] != undefined && t_balls[i] != "") {
+                        if (t_count > 2) {
+                            itemcount += (t_count - 1) * (t_count - 2) / 2;
+                        }
+                    } else {
+                        itemcount += t_count * (t_count - 1) / 2;
+                    }
+                }
+            }
+        }
+        return itemcount.length;
+    }
+
+
+    qskdCombine(currNumber) {
+        var arrkuadusx = [10, 54, 96, 126, 144, 150, 144, 126, 96, 54];
+        var itemcount = 0;
+        var vballs = [];
+
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var k = 0; k < currNumber[i].length; k++) {
+                vballs[currNumber[i][k]] = currNumber[i][k]
+            }
+        }
+
+        for (j = 0; j < vballs.length; j++) {
+            if (vballs[j] != "" && !isNaN(vballs[j])) {
+                itemcount += arrkuadusx[parseInt(vballs[j])];
+            }
+        }
+
+        return itemcount;
+    }
+
+
+
+
+    qszxhzCombine(currNumber) {
+        var arrzxhz = [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 63, 69, 73, 75, 75, 73, 69, 63, 55, 45, 36, 28, 21, 15, 10, 6, 3, 1];
+        var itemcount = 0;
+        var vballs = [];
+
+        for (var i = 0; i < currNumber.length; i++) {
+            for (var k = 0; k < currNumber[i].length; k++) {
+                vballs[currNumber[i][k]] = currNumber[i][k]
+            }
+        }
+
+        for (var j = 0; j < vballs.length; j++) {
+            if (vballs[j] != "" && !isNaN(vballs[j])) {
+                itemcount += arrzxhz[parseInt(vballs[j])];
+            }
+        }
+
+        return itemcount;
+    }
+
+
+
+  
+
+
+
+    render() {
+        var { title,style,xuanzo,type,index } = this.props;
+
+
+        if(style==undefined){
+            style = {backgroundColor:sys.redColor,borderRadius:RIGHT_WIDTH/14,
+                width:RIGHT_WIDTH/7,height:RIGHT_WIDTH/7,marginLeft: (RIGHT_WIDTH-RIGHT_WIDTH/7*5)/6}
+        }
+        if(xuanzo==1)this.state.selected=true;
+
+        const { selected } = this.state;
+
+        let myStyle={};
+        if (type==2) {
+            myStyle = {margin:0, marginLeft:(RIGHT_WIDTH*5/6-150)/6,marginTop:2};
+        } else {
+            myStyle = {margin:0, marginLeft:(RIGHT_WIDTH-150)/6,marginTop:(RIGHT_WIDTH-150)/12};
+        }
+
+        return (
+
+            <TouchableOpacity index={index} style={[selected?styles.stouchButton : styles.touchButton,myStyle]}
+                              onPress={() => {
+
+
+                                  {/*this.customclick(index);*/}
+
+
+
+                                  var arr = [];
+
+
+
+                                  if(this.props.title=='大'){
+                                      arr = [5,6,7,8,9]
+                                  }else if(this.props.title=='小'){
+                                      arr = [0,1,2,3,4]
+                                  }else if(this.props.title=='单'){
+                                      arr = [1,3,5,7,9]
+                                  }else if(this.props.title=='双'){
+                                      arr = [0,2,4,6,8]
+                                  }else if(this.props.title=='全'){
+                                      arr = [0,1,2,3,4,5,6,7,8,9]
+                                  }
+
+
+
+                                  if(arr.length>0){
+
+                                      for(var key in thishead_arr[this.props.id].refs){
+
+                                        if (key.includes('CustomButton')) {
+                                            thishead_arr[this.props.id].refs[key].setState({
+                                              selected:false
+                                          });
+                                        }
+
+                                          
+                                      }
+
+
+                                      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((text, index)=> {
+                                          let reid = this.props.id;
+                                          let res = reid + text;
+
+
+                                          let headres = reid + this.props.title;
+                                          thiz.refs[res].setState({selected: false})
+                                      })
+
+
+                                      arr.map((text,index)=>{
+                                          let reid = this.props.id;
+                                          let res = reid+text;
+                                          let headres = reid+this.props.title;
+
+                                          thiz.refs[res].setState({selected:!selected})
+                                      })
+                                  }
+
+
+                                  this.setState({
+                                      selected:!selected
+                                  });
+
+
+                                  this.setState({ selected: !selected } ,() => {
+                                      //这里打印的是最新的state值
+                                      let wArr = [];
+                                      let qArr = [];
+                                      let bArr = [];
+                                      let sArr = [];
+                                      let gArr = [];
+
+                                      let zx120Arr = [];
+
+
+                                      ///四重号位
+                                      let s4chwArr = [];
+
+                                      ///三重号位
+                                      let schwArr = [];
+                                      ///二重号位
+                                      let echwArr = [];
+                                      ///单号位
+                                      let dhwArr = [];
+
+                                      for(var key in thiz.refs){
+
+                                          if (key.includes('位') || key.includes('组选')) {
+                                                if(thiz.refs[key].state.selected){
+
+                                                if(!isNaN(key.substr(3,1))){
+
+                                                    if(key.substr(1,2)=='万位'){
+                                                        wArr.push(key.substr(3,1));
+                                                    }else if(key.substr(1,2)=='千位'){
+                                                        qArr.push(key.substr(3,1));
+                                                    }else if(key.substr(1,2)=='百位'){
+                                                        bArr.push(key.substr(3,1))
+                                                    }else if(key.substr(1,2)=='十位'){
+                                                        sArr.push(key.substr(3,1));
+                                                    }else if(key.substr(1,2)=='个位'){
+                                                        gArr.push(key.substr(3,1))
+                                                    }
+                                                }
+
+                                                if(!isNaN(key.substr(5,1))){
+
+                                                    if(key.substr(1,4)=='四重号位'){
+                                                        s4chwArr.push(key.substr(5,1))
+                                                    }else if(key.substr(1,4)=='三重号位'){
+                                                        schwArr.push(key.substr(5,1))
+                                                    }else if(key.substr(1,4)=='二重号位'){
+                                                        echwArr.push(key.substr(5,1))
+                                                    }
+
+                                                }
+
+                                                if(!isNaN(key.substr(4,1))) {
+
+                                                    if (key.substr(1, 3) == '单号位') {
+                                                        dhwArr.push(key.substr(4, 1))
+                                                    }
+
+                                                }
+
+
+
+                                                if(!isNaN(key.substr(6,1))) {
+
+                                                    if(key.substr(1,5)=='组选120'){
+                                                        zx120Arr.push(key.substr(6,1))
+                                                    }
+
+                                                }
+
+
+                                            }
+                                          }
+                                          
+                                      }
+
+
+                                      var count = 0;
+                                      if(index == 0) {
+                                          thiz.state.number_arr['w'] = wArr;
+                                          thiz.state.number_arr['s'] = sArr;
+                                          thiz.state.number_arr['q'] = qArr;
+                                          thiz.state.number_arr['b'] = bArr;
+                                          thiz.state.number_arr['g'] = gArr;
+                                          count = wArr.length * sArr.length * qArr.length * bArr.length * gArr.length ;
+
+                                      } else if (index == 1 ){
+                                          thiz.state.number_arr['zx120'] = zx120Arr;
+
+                                          count = this.combine(zx120Arr,5);
+                                      } else if (index == 2 ){
+                                          thiz.state.number_arr['echw'] = echwArr;
+                                          thiz.state.number_arr['dhw'] = dhwArr;
+
+                                          var arr = [];
+                                          arr.push(echwArr);
+                                          arr.push(dhwArr);
+                                          count = this.combine60(arr);
+                                      } else if (index == 3){
+                                          thiz.state.number_arr['echw'] = echwArr;
+                                          thiz.state.number_arr['dhw'] = dhwArr;
+
+                                          var arr = [];
+                                          arr.push(echwArr);
+                                          arr.push(dhwArr);
+                                          count = this.combine30(arr);
+                                      }else if (index == 4){
+                                          thiz.state.number_arr['schw'] = schwArr;
+                                          thiz.state.number_arr['dhw'] = dhwArr;
+
+                                          var arr = [];
+                                          arr.push(schwArr);
+                                          arr.push(dhwArr);
+                                          count = this.combine20(arr);
+                                      }else if (index == 5){
+                                          thiz.state.number_arr['schw'] = schwArr;
+                                          thiz.state.number_arr['echw'] = echwArr;
+
+                                          var arr = [];
+                                          arr.push(schwArr);
+                                          arr.push(echwArr);
+                                          count = this.combine10(arr);
+                                      }else if (index == 6){
+                                          thiz.state.number_arr['s4chw'] = s4chwArr;
+                                          thiz.state.number_arr['dhw'] = dhwArr;
+
+                                          var arr = [];
+                                          arr.push(s4chwArr);
+                                          arr.push(dhwArr);
+                                          count = this.combine5(arr);
+                                      }
+
+                                      thiz.state.zhushu = count + "注";
+                                      thiz.state.amount = count*sys.priceNum*thiz.state.beishu + "元";
+                                      thiz.state.count = count;
+                                      this.props.onPress();
+                                  })
+                              }}>
+                <Text style={selected?styles.stouchButtonText: styles.touchButtonText}>{title}</Text>
+            </TouchableOpacity>
+        );
+
+    }
+}
+
+
+class CustomHeader extends Component {
+    constructor() {
+        super();
+        this.state = {
+            selected: false,
+        };
+    }
+
+
+    itemClick(){
+        thiz.setState({
+
+        })
+    }
+
+
+    render() {
+
+        const { title,style,ishz,index} = this.props;
+        thishead_arr[index+title] = this;
+
+        var  lineH = 40;
+        if (title.length > 2){
+            lineH = 20;
+        }
+
+        return (
+            <View  style={{flexDirection: 'row', marginTop: style.marginTop,flexWarp:'warp'}}>
+                <Text style={{
+                    color: sys.greenColor,
+                    lineHeight: lineH,
+                    width: 50,
+                    height: 40,
+                    fontSize: 18,
+                    paddingLeft: 4,
+                    marginBottom: 0,
+                    textAlign: 'center'
+                }}>{title}</Text>
+                <CustomButton index={index} onPress={this.itemClick} type="2" ref={index+title + '大'+'CustomButton'} id={index+title} title="大"
+                              style={styles.customHeadBtn}/>
+                <CustomButton index={index} onPress={this.itemClick} type="2" ref={index+title + '小'+'CustomButton'} id={index+title} title="小"
+                              style={styles.customHeadBtn}/>
+                <CustomButton index={index} onPress={this.itemClick} type="2" ref={index+title + '单'+'CustomButton'} id={index+title} title="单"
+                              style={styles.customHeadBtn}/>
+                <CustomButton index={index} onPress={this.itemClick} type="2" ref={index+title + '双'+'CustomButton'} id={index+title} title="双"
+                              style={styles.customHeadBtn}/>
+                <CustomButton index={index} onPress={this.itemClick} type="2" ref={index+title + '全'+'CustomButton'} id={index+title} title="全"
+                              style={styles.customHeadBtn}/>
+
+            </View>
+        );
+    }
+}

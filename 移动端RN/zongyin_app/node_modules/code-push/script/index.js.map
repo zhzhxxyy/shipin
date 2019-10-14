@@ -1,0 +1,1 @@
+{"version":3,"sources":["script/index.ts"],"names":[],"mappings":"AAAA,IAAO,cAAc,WAAW,kBAAkB,CAAC,CAAC;AACpD,AAAwB,iBAAf,cAAc,CAAC","file":"index.js","sourcesContent":["import AccountManager = require(\"./management-sdk\");\nexport = AccountManager;\n"],"sourceRoot":"../.."}

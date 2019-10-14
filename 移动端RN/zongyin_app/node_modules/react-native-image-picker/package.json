@@ -1,0 +1,55 @@
+{
+  "name": "react-native-image-picker",
+  "description": "A React Native module that allows you to use native UI to select media from the device library or directly from the camera",
+  "version": "0.28.0",
+  "main": "index.js",
+  "homepage": "https://github.com/react-community/react-native-image-picker",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/react-community/react-native-image-picker.git"
+  },
+  "nativePackage": true,
+  "author": "Marc Shilling (marcshilling)",
+  "contributors": [
+    {
+      "name": "Matheus Santos",
+      "email": "vorj.dux@gmail.com"
+    },
+    {
+      "name": "Yoann Fuks",
+      "email": "yfuks@student.42.fr"
+    },
+    {
+      "name": "Alexander Ustinov",
+      "email": "rusfearuth@gmail.com"
+    }
+  ],
+  "keywords": [
+    "react-native",
+    "react-native-image-picker",
+    "react",
+    "native",
+    "image",
+    "picker"
+  ],
+  "scripts": {},
+  "types": "./index.d.ts",
+  "license": "MIT",
+  "devDependencies": {
+    "flow-bin": "0.82.0",
+    "husky": "^1.1.0",
+    "lint-staged": "^7.3.0",
+    "prettier": "1.14.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  }
+}

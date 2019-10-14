@@ -1,0 +1,589 @@
+
+/**
+ * Created by 卓原 on 2017/10/31.
+ * zhuoyuan93@gmail.com
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
+    AsyncStorage,
+    Alert,
+    ScrollView,
+    Platform, DeviceEventEmitter,
+    ActivityIndicator,
+    Keyboard
+} from 'react-native';
+
+import {sys} from "../common/Data"
+const host =  sys.host;
+
+import HttpUtils from "../common/HttpUtil"
+import {RefreshState} from 'react-native-refresh-list-view'
+import {NativeModules} from 'react-native';
+
+
+import Toast,{DURATION} from 'react-native-easy-toast';//导入弹出框组件
+
+import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button'
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+
+export default class CreateChat extends React.Component {
+
+
+
+    static  navigationOptions = ({navigation}) => {
+        const { params } = navigation.state;
+
+
+        if (Platform.OS=='ios') {
+            var leftView = <TouchableOpacity
+            onPress={() => {
+                 navigation.goBack()
+            }}
+
+            style={{width:50}}
+
+            >
+
+           <Image
+            source={require('../res/images/iosfanhui.png')}
+            style={{marginLeft:10,marginTop:0}}
+            />
+
+            </TouchableOpacity>
+
+            return {
+                title: '创建聊天室',
+                headerRight:React.createElement(View, null, null),
+                headerTitleStyle:{
+                    alignSelf:'center',
+                    flex: 1,
+                    textAlign: 'center',
+                },
+                 headerLeft:leftView,
+            }
+
+        }
+
+
+        return {
+            title:'创建聊天室',
+            headerRight:React.createElement(View, null, null),
+            headerTitleStyle:{
+                alignSelf:'center',
+                flex: 1,
+                textAlign: 'center',
+            },
+            // headerLeft:leftView
+           
+        }
+    };
+    
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+
+            huiyuanNum:"",
+            touzhuNum:"",
+            huiyuanName:'',
+            list:[
+                {
+                    index:1,
+                    radioList: [
+                        {
+                         "id":"1",
+                         "name":"是",
+                        },
+                        {
+                         "id":"2",
+                         "name":"否",
+                        }
+                    ]
+                }
+            
+            ],
+            textWay:"0",
+            isTiJiao:false,
+
+            erweimaStr:''
+        }
+    }
+
+    rightViewClick(){
+        // const {navigate} = this.props.navigation;
+        // navigate('WebViewScene', {uri: {content:'https://vs28.verifiedsafesite.com/chat/Hotline/chatbox.jsp?companyID=5004615&jid=3419858553&configID=3135&s=1'}});
+        //打开客服聊天
+
+        Keyboard.dismiss()
+
+        var item={
+            id: 1,
+            typeid: null,
+            title: "客服",
+            ftitle: "客服",
+            pic:'',
+            name:'客服'
+        };
+        item['userInfo']=null;
+        item['token']="";
+        this.props.navigation.navigate("Chat",{item:item});
+    }
+
+
+
+ 
+    componentDidMount(){
+
+
+        // //注册通知
+        // DeviceEventEmitter.addListener('Login',(dic)=>{
+        //     //接收到详情页发送的通知，刷新首页的数据，改变按钮颜色和文字，刷新UI
+        //     const {navigate} = this.props.navigation;
+        //     this.props.navigation.navigate("Login",{name:"zhengsan"});
+        // });
+
+        // this.onHeaderRefresh()
+
+    }
+
+    onSelect(index, value){
+
+        this.state.textWay = index;
+    }
+
+    render() {
+        self = this;
+        return(this.renderNotSubmitView())
+    }
+
+
+    renderNotSubmitView() {
+
+        let attributes=[];
+        let list = this.state.list;
+        // console.log("0000000");
+        list.map((item,i)=>{
+            attributes.push(
+            <View key={i}>
+                <View >
+                <RadioGroup style={styles.radioView}
+                        onSelect = {(index, value) => this.onSelect(index, value)}
+                        size={20}
+                        selectedIndex={0}
+                        thickness ={2}>
+                        {
+                          item.radioList.map((elem,radioIndex) => {
+                              return (
+
+                                  <RadioButton style={{marginTop:8,width:50}} key={radioIndex} value={elem.id} >
+                                        <Text style={{fontSize:13,marginTop:-2}}>{elem.name}</Text>
+                                 </RadioButton>
+                                
+                              )
+                          })
+                        }
+                </RadioGroup>
+
+                {/* <Text>{this.state.text}</Text> */}
+            </View>
+            </View>
+            )
+        })
+
+
+      return <KeyboardAwareScrollView style={styles.container}>
+          
+          <View style={styles.textInputView}>
+                  <Text style={styles.leftText}>会员名</Text>
+
+                  <TextInput style={styles.inputText}
+                             ref={(c) => this.textInput = c}
+                             underlineColorAndroid='transparent'
+                             placeholder={"请输入"}
+                            // value={this.state.phone?this.state.phone:''}
+                             onChangeText={(text) => this.setState({huiyuanName:text})}
+                  >
+                  </TextInput>
+              </View>
+
+              <View style={styles.textInputView}>
+                  <Text style={styles.leftText}>会员人数</Text>
+
+                  <TextInput style={styles.inputText}
+                             ref={(c) => this.textInput = c}
+                             underlineColorAndroid='transparent'
+                             placeholder={"请输入"}
+                            // value={this.state.phone?this.state.phone:''}
+                             onChangeText={(text) => this.setState({huiyuanNum:text})}
+                  >
+                  </TextInput>
+              </View>
+
+              <View style={styles.textInputView}>
+                  <Text style={styles.leftText}>每天投注量</Text>
+
+                  <TextInput style={styles.inputText}
+                             ref={(c) => this.textInput = c}
+                             underlineColorAndroid='transparent'
+                             placeholder={"请输入"}
+                           //  value={this.state.phone?this.state.phone:''}
+                             onChangeText={(text) => this.setState({touzhuNum:text})}
+                  >
+                  </TextInput>
+              </View>
+
+              <View style={styles.textInputView}>
+
+                  <Text style={styles.leftText}>是否是一级代理</Text>
+              
+                  <View>
+                  {attributes}
+                  </View>
+              </View>
+              
+              <TouchableOpacity disabled={this.state.isTiJiao} style={styles.button} onPress={()=>this.tijiao()}>
+             {this.state.isTiJiao?<ActivityIndicator />:null}
+             <Text style={styles.buttontext}>{this.state.isTiJiao?'提交中..':'提交'}</Text>
+             </TouchableOpacity>
+              {/* <TouchableOpacity style={styles.button} onPress={()=>this.tijiao()}>
+                  <Text style={styles.buttontext}>提交</Text>
+              </TouchableOpacity> */}
+
+
+              {/* <View style={{height:10,backgroundColor:'#FFF8DC',marginTop:0, marginLeft:10, marginRight:10}}/> */}
+
+              <Toast  //提示
+                    ref="toast"
+                    style={{backgroundColor:'gray'}}
+                    position='top'
+                    positionValue={200}
+                    opacity={0.6}
+                    textStyle={{color:'white'}}
+                />  
+          </KeyboardAwareScrollView>
+    }
+
+
+
+    // checkRate(nubmer) {
+    //     //判断正整数/[1−9]+[0−9]∗]∗/
+    //     var re = /^[0-9]+.?[0-9]*/;//
+    //     if (!re.test(nubmer)) {
+    //         return false;
+    //     }
+    //     return true;
+    // }
+    
+
+    tijiao() {
+
+        // Keyboard.dismiss()
+        // Alert.alert(this.state.textWay+'')  
+
+
+        if (!this.state.huiyuanName.length) {
+            this.refs.toast.show("请输入会员名称", DURATION.LENGTH_LONG)
+            return;
+        }
+
+        if (!this.state.huiyuanNum.length) {
+            this.refs.toast.show("请输入会员人数", DURATION.LENGTH_LONG)
+            return;
+        }
+
+        if (!this.state.touzhuNum.length) {
+            this.refs.toast.show("请输入投注量", DURATION.LENGTH_LONG)
+            return;
+        }
+
+        // if (!this.checkRate(this.state.huiyuanNum)) {
+        //     this.refs.toast.show("输入会员人数格式不对", DURATION.LENGTH_LONG)
+        //     return;
+        // }
+
+        // if (!this.checkRate(this.state.touzhuNum)) {
+        //     this.refs.toast.show("输入投注量格式不对", DURATION.LENGTH_LONG)
+        //     return;
+        // }
+
+        let codeurl = host + '/AppChat.createChat.do';
+        let formData = new FormData();
+         formData.append('name',this.state.huiyuanName)
+         formData.append('count',this.state.huiyuanNum)
+         formData.append('amount',this.state.touzhuNum)
+         formData.append('isDaili',this.state.textWay)
+        // 请求参数 ('key',value)
+       
+        this.setState({
+            isloading:true,
+            isTiJiao:true,
+        })
+
+
+        HttpUtils.post(codeurl,formData)
+            .then(result=>{
+
+                // console.log('~~~~~lalalalaal~~')
+                // console.log(result)
+
+
+                this.setState({
+                    isloading:false,
+                    isTiJiao:false,
+                })
+
+                if(result['respCode']==1){
+            
+                    var item={
+                        id: 1,
+                        typeid: null,
+                        title: "客服",
+                        ftitle: "客服",
+                        pic:'',
+                        name:'客服'
+                    };
+                    item['userInfo']=null;
+                    item['token']="";
+                    this.props.navigation.navigate("Chat",{item:item});
+    
+                    
+
+                }else{
+                    myThis.refs.toast.show(result['respMsg'], DURATION.LENGTH_LONG)
+                }
+            }).catch(error=>{
+                
+                this.setState({
+                    isloading:false,
+                    isTiJiao:false,
+                })
+
+                myThis.refs.toast.show("创建失败", DURATION.LENGTH_LONG)
+            })    
+
+
+
+
+
+    }
+
+
+  
+
+}
+
+const styles = StyleSheet.create({
+
+    container: {
+        flex:1,
+        backgroundColor:sys.backgroundColor
+    },
+
+    radioContainer: {
+        marginTop:1,
+       // flexDirection:'row',
+        backgroundColor:'white'
+        //,
+        //height:50
+    },
+    radioView:{
+        flexDirection:'row',
+      //  marginLeft:1,
+       // textAlign:'left',
+        backgroundColor:sys.whiteColor,
+        width:sys.dwidth-100,
+        height:50
+    },
+
+    textInputView:{
+        marginTop:1,
+        flexDirection:'row',
+        backgroundColor:sys.whiteColor,
+        height:50,
+        width:sys.dwidth
+    },
+
+    leftText:{
+        marginLeft:10,
+        marginTop:17,
+        // width:90,
+        backgroundColor:sys.whiteColor,
+        fontSize:16,
+    },
+    rightText:{
+        marginLeft:10,
+        marginTop:17,
+
+        width:sys.dwidth - 40,
+        fontSize:15,
+        color:sys.subTitleColor
+
+    },
+    
+    inputText:{
+        width:sys.dwidth-75,
+        color:sys.subTitleColor,
+        textAlign:'left',
+        backgroundColor:sys.whiteColor,
+        marginLeft:10
+     },
+    hedViewSty:{
+        height:140,
+        backgroundColor:'#f2f2f2',
+        width:sys.dwidth
+    },
+
+
+    changeViewStyle:{
+        marginTop:0,
+        marginLeft:0,
+        height:30,
+        justifyContent:'center'
+    },
+    yuerStyle:{
+        fontSize:17,
+        color:"#333333",
+        textAlign: 'left',
+        marginTop:15,
+        marginLeft:15,
+        width:sys.dwidth - 30
+    },
+
+    yuerViewStyle:{
+        marginTop:0,
+        marginLeft:0,
+        height:110,
+    },
+
+    yuerNumStyle:{
+        fontSize:35,
+        color:"#eb7136",
+        textAlign: 'center',
+        marginTop:(110 - 36 - 36)/2,
+        width:sys.dwidth - 30,
+    },
+
+    changeYuerStyle:{
+
+        fontSize:14,
+        color:"#666666",
+        textAlign: 'left',
+        marginLeft:15,
+
+    },
+
+    content:{
+        backgroundColor:'white',
+        flexDirection:'row',
+        height:50,
+        width:sys.dwidth,
+        alignItems:'center'
+    },
+    contentImage:{
+        //alignItems:'center',
+        marginLeft:15,
+        width:30,
+        height:30
+    },
+    numFubi:{
+
+        marginLeft:15,
+        fontSize:14
+    },
+    rtBtnView: {
+        backgroundColor:sys.mainColor,
+        width:80,
+        height:25,
+        position: 'absolute',
+        justifyContent:'center',
+        alignItems:'center',
+        bottom:12.5,
+        right: 15,
+        borderRadius:5,
+
+    },
+    rtBtnText:{
+        fontSize:14,
+        color:'white'
+    },
+
+    fodViewStyle:{
+        justifyContent:'center',
+        width:sys.dwidth,
+        height:30,
+    },
+
+    txt:{
+        position: 'absolute',
+        right: 10,
+        fontSize:14
+    },
+
+    button:{
+        flexDirection:'row',
+        width:sys.dwidth-40,
+        marginLeft:20,
+        marginTop:40,
+        height:40,
+        backgroundColor:sys.mainColor,
+        justifyContent:'center',
+        borderRadius:5,
+
+    },
+
+
+    buttonDone:{
+        width:sys.dwidth/4,
+        marginLeft:(sys.dwidth -sys.dwidth/4)/2,
+        marginTop:20,
+        height:40,
+        backgroundColor:sys.mainColor,
+        borderRadius:5,
+
+    },
+
+
+    buttontext:{
+        width:80 ,
+        height:40,
+       // marginLeft:20,
+        color:'#ffffff',
+        textAlign:'center',
+      //  backgroundColor:'blue',
+        fontSize:18,
+        textAlignVertical:'center',
+        ...Platform.select({
+            ios: { lineHeight: 40},
+             android: {}
+        })
+
+    },
+    cotentView:{
+        marginTop:11,
+        marginLeft:10,
+        marginRight:10,
+        backgroundColor:'#FFF8DC',
+        //width:sys.width - 50
+    },
+    contentText:{
+        marginLeft:10,
+        marginTop:10,
+       // marginRight:10,
+      //  width:sys.width - 40,
+        fontSize:16,
+        color:'#696969'
+    },
+  
+})
+
+
