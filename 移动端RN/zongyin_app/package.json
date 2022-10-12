@@ -15,7 +15,7 @@
     "react-native": "^0.59.1",
     "react-native-action-button": "^2.8.5",
     "react-native-af-video-player": "^0.2.1",
-    "react-native-code-push": "^5.5.2",
+    "react-native-code-push": "^7.0.5",
     "react-native-code-push-dialog": "^1.0.2",
     "react-native-device-info": "^2.3.2",
     "react-native-easy-chat-ui": "^0.2.3",
